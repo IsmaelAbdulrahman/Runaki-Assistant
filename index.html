@@ -9,191 +9,212 @@
     <!-- Chart.js CDN for plotting -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
     <style>
+        /* Define a custom color palette using CSS variables for consistency */
+        :root {
+            --primary-blue: #3b82f6; /* A clean, vibrant blue */
+            --secondary-green: #22c55e; /* A fresh green */
+            --accent-orange: #f97316; /* A warm orange */
+            --accent-purple: #8b5cf6; /* A soft purple */
+            --neutral-gray-dark: #374151; /* Dark gray for text */
+            --neutral-gray-medium: #6b7280; /* Medium gray for labels */
+            --neutral-gray-light: #e5e7eb; /* Light gray for borders/backgrounds */
+            --background-light: #f9fafb; /* Very light background */
+            --card-background: #ffffff; /* White for cards */
+            --highlight-yellow: #facc15; /* Yellow for highlights */
+            --error-red: #ef4444; /* Standard error red */
+        }
+
         /* Custom styles for better aesthetics and responsiveness */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4f7; /* Very light blue-gray background */
+            background-color: var(--background-light);
             margin: 0;
-            padding: 1.5rem;
-            color: #333f48; /* Darker text for readability */
+            padding: 2rem; /* Increased padding */
+            color: var(--neutral-gray-dark);
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden; /* Prevent horizontal scrolling */
-            touch-action: pan-x pan-y; /* Allow two-finger pan/zoom */
+            overflow-x: hidden;
+            touch-action: pan-x pan-y;
         }
 
         h1 {
-            color: #4a90e2; /* Softer, professional blue for main heading */
-            font-weight: 800; /* Extra bold */
-            margin-bottom: 2rem;
+            color: var(--primary-blue);
+            font-weight: 800;
+            margin-bottom: 2.5rem; /* Increased margin */
             text-align: center;
-            font-size: 2.5rem; /* Larger font size */
+            font-size: 2.75rem; /* Slightly larger font size */
+            letter-spacing: -0.025em; /* Tighten letter spacing slightly */
         }
 
         h2 {
-            color: #333f48; /* Darker gray for subheadings */
+            color: var(--neutral-gray-dark);
             font-weight: 700;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem; /* Increased margin */
             text-align: left;
-            font-size: 1.5rem; /* Slightly larger for section titles */
+            font-size: 1.6rem; /* Slightly larger for section titles */
         }
 
         .main-container {
             display: flex;
-            flex-direction: column; /* Default to column for mobile */
-            gap: 2rem; /* Increased gap */
+            flex-direction: column;
+            gap: 2.5rem; /* Increased gap */
             width: 100%;
-            max-width: 85rem; /* Slightly wider max width */
-            background-color: #ffffff;
-            padding: 2rem; /* Increased padding */
-            border-radius: 1rem; /* More rounded corners */
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1); /* Stronger, diffused shadow */
+            max-width: 90rem; /* Wider max width */
+            background-color: var(--card-background);
+            padding: 2.5rem; /* Increased padding */
+            border-radius: 1.25rem; /* More rounded corners */
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12); /* Stronger, diffused shadow */
         }
 
-        @media (min-width: 1024px) { /* Large screens (lg) */
+        @media (min-width: 1024px) {
             .main-container {
-                flex-direction: row; /* Row layout for larger screens */
+                flex-direction: row;
             }
         }
 
         .section-card {
-            background-color: #ffffff; /* Pure white background for cards */
-            border: 1px solid #e0e4e7; /* Very light, subtle border */
-            border-radius: 0.75rem; /* More rounded corners */
-            padding: 1.5rem; /* Increased padding */
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08); /* Softer shadow */
+            background-color: var(--card-background);
+            border: 1px solid var(--neutral-gray-light);
+            border-radius: 1rem; /* More rounded corners */
+            padding: 2rem; /* Increased padding */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* Softer shadow */
         }
 
         .input-group {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 1rem; /* Increased gap */
-            margin-bottom: 1.5rem;
+            gap: 1.25rem; /* Increased gap */
+            margin-bottom: 1.75rem; /* Increased margin */
         }
 
         label {
             font-weight: 600;
-            color: #5b6f84; /* Medium gray for labels */
+            color: var(--neutral-gray-medium);
+            flex-shrink: 0; /* Prevent label from shrinking */
         }
 
         input[type="text"],
         input[type="number"],
         select {
-            padding: 0.6rem 0.9rem; /* Slightly more padding */
-            border: 1px solid #cdd2d7; /* More defined border */
-            border-radius: 0.5rem; /* More rounded corners */
-            font-size: 0.9rem;
+            padding: 0.75rem 1rem; /* More padding */
+            border: 1px solid var(--neutral-gray-light);
+            border-radius: 0.6rem; /* More rounded corners */
+            font-size: 1rem; /* Slightly larger font */
             text-align: center;
-            background-color: #f8fbfd; /* Very light input background */
-            color: #333f48;
+            background-color: #fcfdff; /* Very light input background */
+            color: var(--neutral-gray-dark);
             flex-grow: 1;
-            min-width: 7rem; /* Slightly larger min-width */
+            min-width: 8rem; /* Slightly larger min-width */
             transition: all 0.2s ease-in-out;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* Subtle inner shadow */
         }
 
         input[type="text"]:focus,
         input[type="number"]:focus,
         select:focus {
-            border-color: #4a90e2; /* Blue focus border */
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25); /* Soft blue glow on focus */
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25); /* Soft blue glow on focus */
             outline: none;
         }
 
         button {
-            padding: 0.6rem 1.2rem; /* More padding */
-            border-radius: 0.5rem; /* More rounded corners */
+            padding: 0.75rem 1.5rem; /* More padding */
+            border-radius: 0.6rem; /* More rounded corners */
             border: none;
-            font-size: 0.9rem;
+            font-size: 1rem; /* Slightly larger font */
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1); /* Stronger button shadow */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Stronger button shadow */
             white-space: nowrap;
             color: white; /* Default text color for buttons */
+            margin: 0.25rem; /* Added margin for spacing between buttons */
         }
 
         button:hover {
-            transform: translateY(-2px); /* More pronounced lift */
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15); /* Stronger hover shadow */
-            opacity: 0.9;
+            transform: translateY(-3px); /* More pronounced lift */
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2); /* Stronger hover shadow */
+            opacity: 0.95;
         }
 
         button:active {
             transform: translateY(0);
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
-        /* Specific button colors (softer palette) */
-        .btn-purple { background-color: #c4b5fd; color: #333f48; } /* Lighter purple, dark text */
-        .btn-blue { background-color: #93c5fd; color: #333f48; } /* Lighter blue, dark text */
-        .btn-orange { background-color: #fcd34d; color: #333f48; } /* Lighter orange, dark text */
-        .btn-green { background-color: #86efac; color: #333f48; } /* Lighter green, dark text */
-        .btn-red { background-color: #fca5a5; color: #333f48; } /* Lighter red, dark text */
-        .btn-gray { background-color: #d1d5db; color: #333f48;} /* Lighter gray, dark text */
-        .btn-indigo { background-color: #a5b4fc; color: #333f48; } /* Lighter indigo, dark text */
+        /* Specific button colors (softer, professional palette) */
+        .btn-purple { background-color: var(--accent-purple); color: white; }
+        .btn-blue { background-color: var(--primary-blue); color: white; }
+        .btn-orange { background-color: var(--accent-orange); color: white; }
+        .btn-green { background-color: var(--secondary-green); color: white; }
+        .btn-red { background-color: var(--error-red); color: white; }
+        .btn-gray { background-color: var(--neutral-gray-medium); color: white;}
+        .btn-indigo { background-color: #4f46e5; color: white; } /* A slightly darker indigo for toggle buttons */
 
 
         .result-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); /* Slightly larger min-width for results */
-            gap: 0.75rem; /* Increased gap */
-            font-size: 0.9rem;
+            grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); /* Slightly larger min-width for results */
+            gap: 1rem; /* Increased gap */
+            font-size: 1rem;
+            margin-top: 1rem; /* Added margin-top */
         }
 
         .result-item {
-            background-color: #eaf3fa; /* Lighter blue for result items */
-            border: 1px solid #cce7f5;
-            border-radius: 0.5rem;
-            padding: 0.9rem; /* More padding */
+            background-color: #e0f2fe; /* Lighter blue for result items */
+            border: 1px solid #bfdbfe;
+            border-radius: 0.75rem;
+            padding: 1.2rem; /* More padding */
             text-align: center;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* Inner shadow for depth */
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.07); /* Inner shadow for depth */
         }
 
         .result-label {
-            color: #6c757d; /* Slightly darker gray for result labels */
-            margin-bottom: 0.3rem;
+            color: #4b5563; /* Slightly darker gray for result labels */
+            margin-bottom: 0.4rem;
+            font-weight: 500;
         }
 
         .result-value {
-            font-weight: 800; /* Extra bold */
-            color: #d0021b; /* Consistent strong red for emphasis */
-            font-size: 1.1rem; /* Slightly larger font for values */
+            font-weight: 800;
+            color: var(--error-red); /* Consistent strong red for emphasis */
+            font-size: 1.25rem; /* Larger font for values */
         }
 
         /* Chart container styling */
         .chart-container {
             width: 100%;
-            height: 450px; /* Increased height for charts */
-            margin-top: 1.5rem;
-            background-color: #ffffff;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08);
+            height: 500px; /* Increased height for charts */
+            margin-top: 2rem; /* Increased margin */
+            background-color: var(--card-background);
+            border-radius: 1rem;
+            padding: 1.5rem; /* Increased padding */
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
         }
 
         /* Slider styling */
         .range-slider {
             width: 100%;
-            height: 0.6rem; /* Thicker slider */
-            background-color: #a7f3d0;
-            border-radius: 0.3rem;
+            height: 0.75rem; /* Thicker slider */
+            background-color: #d1fae5; /* Lighter green track */
+            border-radius: 0.4rem;
             appearance: none;
-            cursor: grab; /* Indicates draggable */
-            margin-top: 1.5rem;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+            cursor: grab;
+            margin-top: 2rem; /* Increased margin */
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.1);
         }
 
         .range-slider::-webkit-slider-thumb {
             appearance: none;
-            width: 1.5rem; /* Larger thumb */
-            height: 1.5rem; /* Larger thumb */
-            background: #10b981;
+            width: 1.8rem; /* Larger thumb */
+            height: 1.8rem; /* Larger thumb */
+            background: var(--secondary-green);
             border-radius: 50%;
-            border: 3px solid white; /* Thicker white border */
-            box-shadow: 0 3px 6px rgba(0,0,0,0.3); /* Stronger thumb shadow */
+            border: 4px solid white; /* Thicker white border */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Stronger thumb shadow */
             transition: background 0.15s ease-in-out;
             cursor: grab;
         }
@@ -202,12 +223,12 @@
         }
 
         .range-slider::-moz-range-thumb {
-            width: 1.5rem;
-            height: 1.5rem;
-            background: #10b981;
+            width: 1.8rem;
+            height: 1.8rem;
+            background: var(--secondary-green);
             border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            border: 4px solid white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             transition: background 0.15s ease-in-out;
             cursor: grab;
         }
@@ -217,76 +238,79 @@
 
         .range-slider::-webkit-slider-runnable-track {
             background: linear-gradient(to right, #a7f3d0 0%, #a7f3d0 var(--slider-fill, 0%), #fff var(--slider-fill, 0%), #fff 100%);
-            border-radius: 0.3rem;
+            border-radius: 0.4rem;
         }
 
         .range-slider::-moz-range-track {
             background: linear-gradient(to right, #a7f3d0 0%, #a7f3d0 var(--slider-fill, 0%), #fff var(--slider-fill, 0%), #fff 100%);
-            border-radius: 0.3rem;
+            border-radius: 0.4rem;
         }
 
         /* Device Table Styling */
         .device-table-container {
             overflow-x: auto;
-            max-height: 450px; /* Slightly taller table */
-            border: 1px solid #e0e4e7;
-            border-radius: 0.75rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08);
+            max-height: 500px; /* Slightly taller table */
+            border: 1px solid var(--neutral-gray-light);
+            border-radius: 1rem;
+            margin-bottom: 2rem; /* Increased margin */
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
         }
 
         .device-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 700px; /* Ensure table doesn't get too narrow on small screens */
+            min-width: 800px; /* Ensure table doesn't get too narrow on small screens */
         }
 
         .device-table th, .device-table td {
-            padding: 0.9rem 0.7rem; /* More padding */
+            padding: 1rem 0.8rem; /* More padding */
             text-align: center;
-            border-bottom: 1px solid #dee2e6; /* Lighter border */
-            font-size: 0.9rem;
+            border-bottom: 1px solid #e0e7ee; /* Lighter border */
+            font-size: 0.95rem; /* Slightly larger font */
         }
 
         .device-table th {
-            background-color: #f2f4f6; /* Lighter header background */
+            background-color: #f8fafd; /* Lighter header background */
             font-weight: 700;
             position: sticky;
             top: 0;
             z-index: 10;
+            color: var(--neutral-gray-dark);
         }
 
         .device-table tbody tr:hover {
-            background-color: #f8f9fa; /* Subtle hover effect */
+            background-color: #f0f7ff; /* Subtle hover effect */
         }
 
         .device-table tbody tr.selected-row {
-            background-color: #e0f2fe; /* Highlight selected row */
-            box-shadow: inset 0 0 0 2px #4a90e2; /* Blue border on selected row */
+            background-color: #dbeafe; /* Highlight selected row */
+            box-shadow: inset 0 0 0 3px var(--primary-blue); /* Blue border on selected row */
         }
 
         .device-table input[type="text"],
         .device-table input[type="number"] {
             width: 100%;
-            padding: 0.4rem;
+            padding: 0.5rem;
             border: 1px solid #cdd2d7;
-            border-radius: 0.3rem;
+            border-radius: 0.4rem;
             text-align: center;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
+            background-color: #fcfdff;
+            color: var(--neutral-gray-dark);
         }
 
         .device-table input[type="checkbox"] {
-            width: 1.1rem; /* Slightly larger checkbox */
-            height: 1.1rem;
+            width: 1.2rem; /* Slightly larger checkbox */
+            height: 1.2rem;
             cursor: pointer;
-            border-radius: 0.25rem;
-            accent-color: #4a90e2; /* Blue accent for checkbox */
+            border-radius: 0.3rem;
+            accent-color: var(--primary-blue);
         }
 
         .device-table .output-cell {
-            background-color: #eaf3fa; /* Light blue for output values */
+            background-color: #e0f2fe; /* Light blue for output values */
             font-weight: 600;
-            color: #4a90e2; /* A subtle blue for output values */
+            color: var(--primary-blue); /* A subtle blue for output values */
         }
 
         /* Responsive adjustments for table inputs */
@@ -304,7 +328,7 @@
 
     <div class="main-container">
         <!-- Left Column - Calculations -->
-        <div class="flex flex-col w-full lg:w-1/2 space-y-6">
+        <div class="flex flex-col w-full lg:w-1/2 space-y-8"> <!-- Increased space-y -->
 
             <!-- 1. Manual Calculation -->
             <div class="section-card">
@@ -346,7 +370,7 @@
                         <div class="result-value" id="manualAvgRate">0.00 IQD/kWh</div>
                     </div>
                 </div>
-                <button id="manualReportButton" class="btn btn-purple mt-4 w-full">Generate Report</button>
+                <button id="manualReportButton" class="btn btn-purple mt-6 w-full">Generate Report</button> <!-- Increased mt -->
             </div>
 
             <!-- 2. By Meter Calculation -->
@@ -379,7 +403,7 @@
                         <div class="result-value" id="meterAvgRate">0.00 IQD/kWh</div>
                     </div>
                 </div>
-                <button id="meterReportButton" class="btn btn-blue mt-4 w-full">Generate Report</button> <!-- New button -->
+                <button id="meterReportButton" class="btn btn-blue mt-6 w-full">Generate Report</button>
             </div>
 
             <!-- 3. Budget Optimization -->
@@ -403,7 +427,7 @@
             </div>
             
             <!-- New buttons for showing/hiding sections -->
-            <div class="flex flex-wrap justify-center gap-4 mt-4 p-2 border border-gray-200 rounded-lg bg-gray-50">
+            <div class="flex flex-wrap justify-center gap-4 mt-6 p-4 border border-gray-200 rounded-lg bg-gray-50"> <!-- Increased padding and margin -->
                 <button id="toggleBudgetOptimizationButton" class="btn btn-indigo">Show Budget Optimization</button>
                 <button id="toggleCurvePlotButton" class="btn btn-indigo">Hide Tariff Curve Plot</button> 
                 <button id="toggleTableButton" class="btn btn-indigo">Show Device Table</button>
@@ -413,7 +437,7 @@
         </div>
 
         <!-- Right Column - Plots and Table -->
-        <div class="flex flex-col w-full lg:w-1/2 space-y-6">
+        <div class="flex flex-col w-full lg:w-1/2 space-y-8"> <!-- Increased space-y -->
 
             <!-- 5. Device Consumption Table -->
             <div class="section-card flex-grow" id="deviceTableSection" style="display: none;">
@@ -438,14 +462,14 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="flex flex-wrap justify-center gap-3 mt-4">
+                <div class="flex flex-wrap justify-center gap-4 mt-6"> <!-- Increased gap and margin -->
                     <button id="addRowButton" class="btn btn-green">Add Row</button>
                     <button id="deleteRowButton" class="btn btn-red">Delete Selected</button>
                     <button id="saveTableButton" class="btn btn-orange">Save Data</button>
                     <label for="loadFileInput" class="btn btn-orange cursor-pointer">Load Data<input type="file" id="loadFileInput" accept=".json" class="hidden"></label>
                     <button id="clearAllButton" class="btn btn-gray">Clear All</button>
                 </div>
-                <button id="deviceReportButton" class="btn btn-green mt-4 w-full">Generate Report</button> <!-- New button -->
+                <button id="deviceReportButton" class="btn btn-green mt-6 w-full">Generate Report</button>
             </div>
 
             <!-- 6. Device Consumption Bar Plot -->
@@ -471,13 +495,11 @@
                     <canvas id="tariffPlot"></canvas>
                 </div>
                 <input type="range" id="tariffSlider" min="0" max="2000" value="0" step="1" class="range-slider">
-                <div class="mt-2 text-center text-sm">
-                    <div class="p-2 bg-yellow-100 border border-yellow-300 rounded shadow-sm inline-block">
-                        <p class="font-semibold" id="tariffPlotKwh">0.00 kWh</p>
-                        <p class="font-semibold" id="tariffPlotBill">0 IQD</p>
-                        <p id="tariffPlotAmperes">0.00 A</p>
-                        <p id="tariffPlotAvgRate">0.00 IQD/kWh</p>
-                    </div>
+                <div class="mt-4 text-center text-base p-3 bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm"> <!-- Increased padding, font size, and margin-top -->
+                    <p class="font-semibold text-yellow-800" id="tariffPlotKwh">0.00 kWh</p>
+                    <p class="font-semibold text-yellow-800" id="tariffPlotBill">0 IQD</p>
+                    <p class="text-yellow-700" id="tariffPlotAmperes">0.00 A</p>
+                    <p class="text-yellow-700" id="tariffPlotAvgRate">0.00 IQD/kWh</p>
                 </div>
             </div>
 
@@ -490,15 +512,15 @@
             let devicePlot, tariffBarPlot, tariffPlot;
             // Updated chartBaseColors for a more professional look
             const chartBaseColors = [
-                '#4a90e2', // Primary Blue (softer)
-                '#f5a623', // Orange/Yellow (warm)
-                '#7ed321', // Green (fresh)
-                '#9013fe', // Purple (muted)
-                '#503795', // Indigo (deeper)
-                '#d0021b', // Red (clean)
-                '#8898aa'  // Muted Gray (fallback)
+                '#3b82f6', // Primary Blue
+                '#f97316', // Accent Orange
+                '#22c55e', // Secondary Green
+                '#8b5cf6', // Accent Purple
+                '#ef4444', // Error Red
+                '#14b8a6', // Teal
+                '#6b7280'  // Medium Gray
             ];
-            const highlightColor = '#FFFF00'; // Yellow for highlight (can be adjusted if needed)
+            const highlightColor = '#facc15'; // Yellow for highlight
             const highlightBorder = '#000000'; // Black border for highlight
 
             // --- GLOBAL CONSTANTS ---
@@ -526,7 +548,7 @@
             const meterAmperesElem = document.getElementById('meterAmperes');
             const meterBillElem = document.getElementById('meterBill');
             const meterAvgRateElem = document.getElementById('meterAvgRate');
-            const meterReportButton = document.getElementById('meterReportButton'); // New reference
+            const meterReportButton = document.getElementById('meterReportButton');
 
             const optimizeBudgetButton = document.getElementById('optimizeBudgetButton');
             const optimizationTargetDropdown = document.getElementById('optimizationTargetDropdown');
@@ -546,7 +568,7 @@
             const saveTableButton = document.getElementById('saveTableButton');
             const loadFileInput = document.getElementById('loadFileInput');
             const clearAllButton = document.getElementById('clearAllButton');
-            const deviceReportButton = document.getElementById('deviceReportButton'); // New reference
+            const deviceReportButton = document.getElementById('deviceReportButton');
             
             // New UI element references for toggling visibility
             const toggleBudgetOptimizationButton = document.getElementById('toggleBudgetOptimizationButton'); 
@@ -1457,8 +1479,8 @@
                 alert(`Detailed Report (Manual Input)\n---------------------------------\nConsumption: ${manualKwhElem.textContent}\nAverage Amperes: ${manualAmperesElem.textContent}\nTotal Bill: ${manualBillElem.textContent}\nAverage Rate: ${manualAvgRateElem.textContent}\nCategory: ${category}\n\nTariff Breakdown:\n${breakdown}`);
             });
 
-            meterReportButton.addEventListener('click', generateMeterReport); // Event listener for new button
-            deviceReportButton.addEventListener('click', generateDeviceReport); // Event listener for new button
+            meterReportButton.addEventListener('click', generateMeterReport);
+            deviceReportButton.addEventListener('click', generateDeviceReport);
 
             addRowButton.addEventListener('click', () => {
                 addTableRow();
