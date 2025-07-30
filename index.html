@@ -1,1253 +1,1472 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
-
-// Ensure Tailwind CSS is loaded via CDN in the HTML file for this to work
-// <script src="https://cdn.tailwindcss.com"></script>
-
-// Utility Functions
-const formatNumber = (value, decimalPlaces = 2, isCurrency = false, removeTrailingZeroDecimal = false) => {
-    try {
-        const fValue = parseFloat(value);
-        if (isNaN(fValue)) return String(value);
-        if (isCurrency) {
-            return new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.round(fValue));
-        } else if (removeTrailingZeroDecimal && fValue === parseInt(fValue)) {
-            return new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.round(fValue));
-        } else {
-            return new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: decimalPlaces, maximumFractionDigits: decimalPlaces }).format(fValue);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ronaki Electricity Bill Calculator & Energy Analyzer for Kurdistan Region</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN for plotting -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+    <style>
+        /* Custom styles for better aesthetics and responsiveness */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+            margin: 0;
+            padding: 1rem;
+            color: #334155; /* Darker text for readability */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+            touch-action: pan-x pan-y; /* Allow two-finger pan/zoom */
         }
-    } catch (e) {
-        console.error("Error formatting number:", e);
-        return String(value);
-    }
-};
 
-const kwhToAmperes = (kwhConsumption, daysPerPeriod, voltage = 220, hoursPerDay = 24) => {
-    if (voltage === 0 || daysPerPeriod === 0) return 0.0;
-    const hoursTotal = hoursPerDay * daysPerPeriod;
-    return (kwhConsumption * 1000) / (voltage * hoursTotal);
-};
+        h1 {
+            color: #1e3a8a; /* Darker blue for headings */
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
 
-const amperesToKwh = (amperes, daysPerPeriod, voltage = 220, hoursPerDay = 24) => {
-    if (voltage === 0 || daysPerPeriod === 0) return 0.0;
-    const hoursTotal = hoursPerDay * daysPerDay;
-    return (amperes * voltage * hoursTotal) / 1000;
-};
+        h2 {
+            color: #1f2937; /* Even darker for subheadings */
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-align: left;
+        }
 
-// Tariff Calculation Logic
-const getRonakiHouseholdTariffDetails = (kWh) => {
-    const tiers = [400, 800, 1200, 1600];
-    const rates = [72, 108, 175, 265, 350];
-    const slabNames = ["1-400 kWh", "401-800 kWh", "801-1200 kWh", "1201-1600 kWh", "1601+ kWh"];
+        .main-container {
+            display: flex;
+            flex-direction: column; /* Default to column for mobile */
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 80rem; /* Max width for desktop */
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
 
-    let totalCost = 0;
-    let remainingKwh = kWh;
-    const breakdown = [];
-    let previousSlabLimit = 0;
-
-    for (let i = 0; i < rates.length; i++) {
-        const slabRate = rates[i];
-        const slabLimit = i < tiers.length ? tiers[i] : Infinity;
-        const slabName = slabNames[i];
-
-        let consumptionInThisSlab = 0;
-
-        if (remainingKwh > 0) {
-            if (i === 0) {
-                consumptionInThisSlab = Math.min(remainingKwh, slabLimit);
-            } else if (i < tiers.length) {
-                consumptionInThisSlab = Math.min(remainingKwh, slabLimit - previousSlabLimit);
-            } else {
-                consumptionInThisSlab = remainingKwh;
+        @media (min-width: 1024px) { /* Large screens (lg) */
+            .main-container {
+                flex-direction: row; /* Row layout for larger screens */
             }
+        }
 
-            const costInThisSlab = consumptionInThisSlab * slabRate;
-            totalCost += costInThisSlab;
-            remainingKwh -= consumptionInThisSlab;
+        .section-card {
+            background-color: #f8fafc; /* Lighter background for cards */
+            border: 1px solid #e2e8f0; /* Light border */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
 
-            if (consumptionInThisSlab > 0) {
-                breakdown.push(`  - Slab ${i + 1} (${slabName}): ${formatNumber(consumptionInThisSlab, 2)} kWh @ ${formatNumber(slabRate, 2)} IQD/kWh = ${formatNumber(costInThisSlab, 0, true)} IQD`);
-                if (i < tiers.length) {
-                    breakdown.push("");
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            font-weight: 500;
+            color: #475569; /* Medium gray for labels */
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #cbd5e1; /* Light gray border */
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            text-align: center;
+            background-color: #ffffff;
+            color: #1e293b;
+            flex-grow: 1; /* Allow inputs to grow */
+            min-width: 6rem; /* Minimum width for inputs */
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            white-space: nowrap; /* Prevent text wrapping on buttons */
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .btn-purple { background-color: #e9d5ff; color: #7e2f8e; border: 1px solid #c084fc; }
+        .btn-blue { background-color: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+        .btn-orange { background-color: #ffedd5; color: #c2410c; border: 1px solid #fdba74; }
+        .btn-green { background-color: #dcfce7; color: #16a34a; border: 1px solid #86efac; }
+        .btn-red { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+        .btn-gray { background-color: #e2e8f0; color: #475569; border: 1px solid #cbd5e1; }
+        .btn-indigo { background-color: #4f46e5; color: white; border: 1px solid #6366f1; }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); /* Responsive grid for results */
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .result-item {
+            background-color: #f1f5f9; /* Light gray for result items */
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .result-label {
+            color: #64748b; /* Gray for result labels */
+            margin-bottom: 0.25rem;
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: #b91c1c; /* Red for emphasis */
+        }
+
+        .overall-summary .result-item {
+            background-color: #e0f2fe; /* Lighter blue for overall summary */
+            border-color: #90cdf4;
+        }
+
+        /* Chart container styling */
+        .chart-container {
+            width: 100%;
+            height: 300px; /* Fixed height for charts */
+            margin-top: 1rem;
+        }
+
+        /* Slider styling */
+        .range-slider {
+            width: 100%;
+            height: 0.5rem;
+            background-color: #a7f3d0; /* Light green for slider track */
+            border-radius: 0.25rem;
+            appearance: none;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            background: #10b981; /* Green thumb */
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: background 0.15s ease-in-out;
+        }
+
+        .range-slider::-moz-range-thumb {
+            width: 1.25rem;
+            height: 1.25rem;
+            background: #10b981;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: background 0.15s ease-in-out;
+        }
+
+        .range-slider::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, #a7f3d0 0%, #a7f3d0 var(--slider-fill, 0%), #fff var(--slider-fill, 0%), #fff 100%);
+            border-radius: 0.25rem;
+        }
+
+        .range-slider::-moz-range-track {
+            background: linear-gradient(to right, #a7f3d0 0%, #a7f3d0 var(--slider-fill, 0%), #fff var(--slider-fill, 0%), #fff 100%);
+            border-radius: 0.25rem;
+        }
+
+        /* Device Table Styling */
+        .device-table-container {
+            overflow-x: auto;
+            max-height: 400px; /* Limit table height for scrolling */
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .device-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px; /* Ensure table doesn't get too narrow on small screens */
+        }
+
+        .device-table th, .device-table td {
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.875rem;
+        }
+
+        .device-table th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .device-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .device-table tbody tr.selected-row {
+            background-color: #e0f2fe; /* Highlight selected row */
+        }
+
+        .device-table input[type="text"],
+        .device-table input[type="number"] {
+            width: 100%;
+            padding: 0.3rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.25rem;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+
+        .device-table input[type="checkbox"] {
+            width: 1rem;
+            height: 1rem;
+            cursor: pointer;
+        }
+
+        .device-table .output-cell {
+            background-color: #f8fafc;
+            font-weight: 500;
+            color: #334155;
+        }
+
+        /* Responsive adjustments for table inputs */
+        @media (max-width: 768px) {
+            .device-table input[type="text"],
+            .device-table input[type="number"] {
+                width: 100%; /* Full width for inputs on smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="text-3xl lg:text-4xl">Ronaki Electricity Bill Calculator & Energy Analyzer for Kurdistan Region of Iraq</h1>
+
+    <div class="main-container">
+        <!-- Left Column - Calculations -->
+        <div class="flex flex-col w-full lg:w-1/2 space-y-6">
+
+            <!-- 1. Manual Calculation -->
+            <div class="section-card">
+                <h2 class="text-xl">1. Manual Calculation</h2>
+                <div class="input-group">
+                    <button id="calculateManualButton" class="btn btn-purple">Calculate Bill</button>
+                    <label for="categoryDropdown">Category:</label>
+                    <select id="categoryDropdown" class="p-2 border rounded-md">
+                        <option value="Household">Household</option>
+                        <option value="Commercial">Commercial</option>
+                        <option value="Agriculture">Agriculture</option>
+                        <option value="Industrial">Industrial</option>
+                        <option value="Large Industry">Large Industry</option>
+                        <option value="State">State</option>
+                    </select>
+                    <label for="manualInputTypeDropdown">Input:</label>
+                    <select id="manualInputTypeDropdown" class="p-2 border rounded-md">
+                        <option value="kWh">kWh</option>
+                        <option value="Avg Amperes">Avg Amperes</option>
+                        <option value="Given Bill">Given Bill</option>
+                    </select>
+                    <input type="text" id="manualInput" value="1891" class="w-28">
+                </div>
+                <div class="result-grid">
+                    <div class="result-item">
+                        <div class="result-label">Consumption</div>
+                        <div class="result-value" id="manualKwh">0.00 kWh</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Avg Amperes</div>
+                        <div class="result-value" id="manualAmperes">0.00 A</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Bill</div>
+                        <div class="result-value" id="manualBill">0 IQD</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Avg Rate</div>
+                        <div class="result-value" id="manualAvgRate">0.00 IQD/kWh</div>
+                    </div>
+                </div>
+                <button id="manualReportButton" class="btn btn-purple mt-4 w-full">Generate Report</button>
+            </div>
+
+            <!-- 2. By Meter Calculation -->
+            <div class="section-card">
+                <h2 class="text-xl">2. By Meter Calculation</h2>
+                <div class="input-group">
+                    <button id="calculateMeterButton" class="btn btn-blue">Calculate Bill</button>
+                    <label for="meterPrevReading">Prev Reading:</label>
+                    <input type="text" id="meterPrevReading" value="31051" class="w-24">
+                    <label for="meterCurrReading">Curr Reading:</label>
+                    <input type="text" id="meterCurrReading" value="31910" class="w-24">
+                    <label for="daysInput">Days:</label>
+                    <input type="number" id="daysInput" value="30" min="1" max="365" class="w-16">
+                </div>
+                <div class="result-grid">
+                    <div class="result-item">
+                        <div class="result-label">Consumption</div>
+                        <div class="result-value" id="meterKwh">0.00 kWh</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Avg Amperes</div>
+                        <div class="result-value" id="meterAmperes">0.00 A</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Bill</div>
+                        <div class="result-value" id="meterBill">0 IQD</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Avg Rate</div>
+                        <div class="result-value" id="meterAvgRate">0.00 IQD/kWh</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Budget Optimization -->
+            <div class="section-card">
+                <h2 class="text-xl">3. Budget Optimization</h2>
+                <div class="input-group">
+                    <button id="optimizeBudgetButton" class="btn btn-orange">Optimize Target</button>
+                    <select id="optimizationTargetDropdown" class="p-2 border rounded-md">
+                        <option value="Target Cost">Target Cost</option>
+                        <option value="Target Amperes">Target Amperes</option>
+                        <option value="Target kWh">Target kWh</option>
+                    </select>
+                    <input type="text" id="budgetLimitInput" value="100,000" class="w-32">
+                </div>
+                <div class="result-grid">
+                    <div class="result-item col-span-full">
+                        <div class="result-label">Optimization Result</div>
+                        <div class="result-value" id="budgetResultLabel">Not Optimized</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overall Summary -->
+            <div class="section-card overall-summary">
+                <h2 class="text-xl">Overall Summary (from Device Consumption)</h2>
+                <div class="result-grid">
+                    <div class="result-item">
+                        <div class="result-label">Total Consumption</div>
+                        <div class="result-value" id="totalKwhValue">0.00 kWh</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Average Amperes</div>
+                        <div class="result-value" id="avgAmperesValue">0.00 A</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Total Bill</div>
+                        <div class="result-value" id="totalBillValue">0 IQD</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Average Rate</div>
+                        <div class="result-value" id="avgRateValue">0.00 IQD/kWh</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column - Plots and Table -->
+        <div class="flex flex-col w-full lg:w-1/2 space-y-6">
+
+            <!-- 4. Dynamic Tariff Curves Plot -->
+            <div class="section-card flex flex-col items-center">
+                <h2 class="text-xl">4. Dynamic Tariff Curves</h2>
+                <div class="chart-container">
+                    <canvas id="tariffPlot"></canvas>
+                </div>
+                <input type="range" id="tariffSlider" min="0" max="2000" value="0" step="1" class="range-slider">
+                <div class="mt-2 text-center text-sm">
+                    <div class="p-2 bg-yellow-100 border border-yellow-300 rounded shadow-sm inline-block">
+                        <p class="font-semibold" id="tariffPlotKwh">0.00 kWh</p>
+                        <p class="font-semibold" id="tariffPlotBill">0 IQD</p>
+                        <p id="tariffPlotAmperes">0.00 A</p>
+                        <p id="tariffPlotAvgRate">0.00 IQD/kWh</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Device Consumption Table -->
+            <div class="section-card flex-grow">
+                <h2 class="text-xl">5. Device Consumption Table</h2>
+                <div class="device-table-container">
+                    <table id="deviceTable" class="device-table">
+                        <thead>
+                            <tr>
+                                <th>Device</th>
+                                <th>Watt</th>
+                                <th>Hours</th>
+                                <th>Day</th>
+                                <th>Count</th>
+                                <th>kWh</th>
+                                <th>IQD</th>
+                                <th>On</th>
+                                <th>Fixed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Device rows will be populated here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex flex-wrap justify-center gap-3 mt-4">
+                    <button id="addRowButton" class="btn btn-green">Add Row</button>
+                    <button id="deleteRowButton" class="btn btn-red">Delete Selected</button>
+                    <button id="saveTableButton" class="btn btn-orange">Save Data</button>
+                    <label for="loadFileInput" class="btn btn-orange cursor-pointer">Load Data<input type="file" id="loadFileInput" accept=".json" class="hidden"></label>
+                    <button id="clearAllButton" class="btn btn-gray">Clear All</button>
+                </div>
+            </div>
+
+            <!-- Plot Toggle Button -->
+            <div class="flex justify-center">
+                <button id="togglePlotsButton" class="btn btn-indigo">Show Plots</button>
+            </div>
+
+            <!-- 6. Device Consumption Bar Plot -->
+            <div class="section-card" id="deviceBarPlotContainer" style="display: none;">
+                <h2 class="text-xl">6. Device Consumption Bar Plot</h2>
+                <div class="chart-container">
+                    <canvas id="devicePlot"></canvas>
+                </div>
+            </div>
+
+            <!-- 7. Tariff Rate Bar Plot -->
+            <div class="section-card" id="tariffBarPlotContainer" style="display: none;">
+                <h2 class="text-xl">7. Tariff Rate Bar Plot</h2>
+                <div class="chart-container">
+                    <canvas id="tariffBarPlot"></canvas>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CHART INITIALIZATION ---
+            let devicePlot, tariffBarPlot, tariffPlot;
+            const baseColors = [
+                '#0072BD', // Blue (Household)
+                '#D95319', // Orange (Commercial)
+                '#EDB120', // Yellow (Agriculture)
+                '#7E2F8E', // Purple (Industrial)
+                '#77AC30', // Green (Large Industry)
+                '#4DBEEE', // Light Blue/Cyan (State)
+                '#A2142F'  // Reddish (Fallback)
+            ];
+            const highlightColor = '#FFFF00'; // Yellow for highlight
+            const highlightBorder = '#000000'; // Black border for highlight
+
+            // --- GLOBAL CONSTANTS ---
+            const VOLTAGE = 220;
+            const HOURS_PER_DAY = 24;
+
+            // --- UI ELEMENTS ---
+            const categoryDropdown = document.getElementById('categoryDropdown');
+            const manualInputTypeDropdown = document.getElementById('manualInputTypeDropdown');
+            const manualInput = document.getElementById('manualInput');
+            const calculateManualButton = document.getElementById('calculateManualButton');
+            const manualReportButton = document.getElementById('manualReportButton');
+
+            const manualKwhElem = document.getElementById('manualKwh');
+            const manualAmperesElem = document.getElementById('manualAmperes');
+            const manualBillElem = document.getElementById('manualBill');
+            const manualAvgRateElem = document.getElementById('manualAvgRate');
+
+            const calculateMeterButton = document.getElementById('calculateMeterButton');
+            const meterPrevReading = document.getElementById('meterPrevReading');
+            const meterCurrReading = document.getElementById('meterCurrReading');
+            const daysInput = document.getElementById('daysInput');
+
+            const meterKwhElem = document.getElementById('meterKwh');
+            const meterAmperesElem = document.getElementById('meterAmperes');
+            const meterBillElem = document.getElementById('meterBill');
+            const meterAvgRateElem = document.getElementById('meterAvgRate');
+
+            const optimizeBudgetButton = document.getElementById('optimizeBudgetButton');
+            const optimizationTargetDropdown = document.getElementById('optimizationTargetDropdown');
+            const budgetLimitInput = document.getElementById('budgetLimitInput');
+            const budgetResultLabel = document.getElementById('budgetResultLabel');
+
+            const totalKwhValue = document.getElementById('totalKwhValue');
+            const avgAmperesValue = document.getElementById('avgAmperesValue');
+            const totalBillValue = document.getElementById('totalBillValue');
+            const avgRateValue = document.getElementById('avgRateValue');
+
+            const tariffPlotCanvas = document.getElementById('tariffPlot');
+            const tariffSlider = document.getElementById('tariffSlider');
+            const tariffPlotKwhElem = document.getElementById('tariffPlotKwh');
+            const tariffPlotBillElem = document.getElementById('tariffPlotBill');
+            const tariffPlotAmperesElem = document.getElementById('tariffPlotAmperes');
+            const tariffPlotAvgRateElem = document.getElementById('tariffPlotAvgRate');
+
+            const deviceTableBody = document.querySelector("#deviceTable tbody");
+            const addRowButton = document.getElementById('addRowButton');
+            const deleteRowButton = document.getElementById('deleteRowButton');
+            const saveTableButton = document.getElementById('saveTableButton');
+            const loadFileInput = document.getElementById('loadFileInput');
+            const clearAllButton = document.getElementById('clearAllButton');
+            const togglePlotsButton = document.getElementById('togglePlotsButton');
+            const deviceBarPlotContainer = document.getElementById('deviceBarPlotContainer');
+            const tariffBarPlotContainer = document.getElementById('tariffBarPlotContainer');
+
+            let selectedTableRow = null; // To keep track of the selected row in the device table
+
+            // --- UTILITY FUNCTIONS ---
+            const formatNumber = (value, decimalPlaces = 2, isCurrency = false, removeTrailingZeroDecimal = false) => {
+                try {
+                    const num = parseFloat(value);
+                    if (isNaN(num)) return String(value);
+                    if (isCurrency) return Math.round(num).toLocaleString('en-US');
+                    if (removeTrailingZeroDecimal && num === parseInt(num)) return parseInt(num).toLocaleString('en-US');
+                    return num.toLocaleString('en-US', {
+                        minimumFractionDigits: decimalPlaces,
+                        maximumFractionDigits: decimalPlaces,
+                    });
+                } catch (e) {
+                    console.error("Error formatting number:", e);
+                    return String(value);
                 }
-            }
-        }
-        previousSlabLimit = slabLimit;
-    }
-    return { totalCost, breakdown: breakdown.join("\n") };
-};
+            };
 
-const getRonakiFlatTariffDetails = (kWh, rate) => {
-    const totalCost = kWh * rate;
-    const breakdown = `  - Consumption: ${formatNumber(kWh, 2)} kWh @ ${formatNumber(rate, 2)} IQD/kWh = ${formatNumber(totalCost, 0, true)} IQD`;
-    return { totalCost, breakdown };
-};
+            const validateNumeric = (textInput) => {
+                if (typeof textInput !== 'string') textInput = String(textInput);
+                const cleanInput = textInput.replace(/,/g, '');
+                if (!cleanInput.trim()) return 0.0;
+                const value = parseFloat(cleanInput);
+                return isNaN(value) ? 0.0 : value;
+            };
 
-const calculateCostForCategory = (consumption, category) => {
-    if (category === 'Household') {
-        return getRonakiHouseholdTariffDetails(consumption).totalCost;
-    } else if (category === 'Commercial') {
-        return getRonakiFlatTariffDetails(consumption, 185).totalCost;
-    } else if (category === 'Agriculture') {
-        return getRonakiFlatTariffDetails(consumption, 60).totalCost;
-    } else if (category === 'Industrial') {
-        return getRonakiFlatTariffDetails(consumption, 160).totalCost;
-    } else if (category === 'Large Industry') {
-        return getRonakiFlatTariffDetails(consumption, 125).totalCost;
-    } else if (category === 'State') {
-        return getRonakiFlatTariffDetails(consumption, 160).totalCost;
-    } else {
-        console.error(`Unknown category for cost calculation: ${category}`);
-        return NaN;
-    }
-};
+            const kwhToAmperes = (kwh, days) => {
+                if (!days || days <= 0) return 0.0;
+                const hoursTotal = HOURS_PER_DAY * days;
+                return (kwh * 1000) / (VOLTAGE * hoursTotal);
+            };
 
-const getRonakiHouseholdTierIndex = (kwhPoint) => {
-    const tiers = [400, 800, 1200, 1600];
-    if (kwhPoint <= 0) return 0;
-    for (let i = 0; i < tiers.length; i++) {
-        if (kwhPoint <= tiers[i]) {
-            return i;
-        }
-    }
-    return tiers.length;
-};
+            const amperesToKwh = (amperes, days) => {
+                if (!days || days <= 0) return 0.0;
+                const hoursTotal = HOURS_PER_DAY * days;
+                return (amperes * VOLTAGE * hoursTotal) / 1000;
+            };
 
-// Base colors for plots
-const baseColors = [
-    '#0072BD', // Blue (Household)
-    '#D95319', // Orange (Commercial)
-    '#EDB120', // Yellow (Agriculture)
-    '#7E2F8E', // Purple (Industrial)
-    '#77AC30', // Green (Large Industry)
-    '#4DBEEE', // Light Blue/Cyan (State)
-    '#A2142F'  // Reddish (Fallback)
-];
+            // --- TARIFF CALCULATION LOGIC (KURDISTAN RUNAKI SYSTEM) ---
+            const getRonakiHouseholdTariffDetails = (kWh) => {
+                const tiers = [400, 800, 1200, 1600];
+                const rates = [72, 108, 175, 265, 350];
+                const slabNames = ["1-400 kWh", "401-800 kWh", "801-1200 kWh", "1201-1600 kWh", "1601+ kWh"];
 
-const highlightColor = '#FFFF00'; // Yellow for highlight
+                let totalCost = 0;
+                let remainingKwh = kWh;
+                const breakdown = [];
+                let previousSlabLimit = 0;
 
-const defaultDevices = [
-    { name: 'LED TV', watt: 100, hours: 8, day: 30, count: 1, on: true, fixed: false },
-    { name: 'Refrigerator', watt: 125, hours: 24, day: 30, count: 1, on: true, fixed: true },
-    { name: 'Washing Machine', watt: 2000, hours: 2, day: 4, count: 1, on: true, fixed: false },
-    { name: 'LED Lighting', watt: 12, hours: 12, day: 30, count: 20, on: true, fixed: false },
-    { name: 'Freezer', watt: 150, hours: 24, day: 30, count: 1, on: true, fixed: true },
-    { name: 'Water Pump', watt: 500, hours: 1, day: 30, count: 1, on: true, fixed: false },
-    { name: 'Water Heater', watt: 2500, hours: 1, day: 15, count: 1, on: false, fixed: false },
-    { name: 'Air Cooler', watt: 150, hours: 18, day: 30, count: 1, on: true, fixed: false },
-    { name: 'Fan', watt: 75, hours: 18, day: 30, count: 1, on: true, fixed: false },
-    { name: 'Dishwasher', watt: 1200, hours: 2, day: 15, count: 1, on: true, fixed: false },
-    { name: 'Water Dispenser', watt: 175, hours: 2, day: 15, count: 1, on: true, fixed: false },
-    { name: 'Split AC (1 ton)', watt: 1000, hours: 4, day: 30, count: 1, on: true, fixed: false },
-    { name: 'Split AC (1.5 ton)', watt: 1500, hours: 4, day: 30, count: 1, on: false, fixed: false },
-    { name: 'Split AC (2 ton)', watt: 2000, hours: 4, day: 30, count: 1, on: false, fixed: false },
-    { name: 'Tower AC', watt: 3000, hours: 4, day: 30, count: 1, on: false, fixed: false },
-    { name: 'Electric Heater', watt: 2000, hours: 6, day: 20, count: 1, on: false, fixed: false },
-    { name: 'Iron', watt: 1500, hours: 1, day: 8, count: 1, on: false, fixed: false },
-    { name: 'Microwave', watt: 1000, hours: 0.5, day: 15, count: 1, on: false, fixed: false },
-    { name: 'Electric Kettle', watt: 1800, hours: 0.2, day: 30, count: 1, on: false, fixed: false },
-    { name: 'Hair Dryer', watt: 1600, hours: 0.2, day: 10, count: 1, on: false, fixed: false },
-    { name: 'Vacuum Cleaner', watt: 1400, hours: 0.5, day: 4, count: 1, on: false, fixed: false },
-    { name: 'Electric Oven', watt: 2500, hours: 1, day: 10, count: 1, on: false, fixed: false },
-    { name: 'Phone Charger', watt: 10, hours: 8, day: 30, count: 2, on: false, fixed: true },
-    { name: 'Desktop PC', watt: 150, hours: 6, day: 30, count: 1, on: true, fixed: false },
-    { name: 'PC Monitor', watt: 40, hours: 6, day: 30, count: 1, on: false, fixed: false },
-];
+                for (let i = 0; i < rates.length; i++) {
+                    if (remainingKwh <= 0) break;
 
-function App() {
-    const [devices, setDevices] = useState(defaultDevices);
-    const [manualInput, setManualInput] = useState('1891');
-    const [manualInputType, setManualInputType] = useState('kWh');
-    const [meterPrevReading, setMeterPrevReading] = useState('31051');
-    const [meterCurrReading, setMeterCurrReading] = useState('31910');
-    const [days, setDays] = useState('30');
-    const [selectedCategory, setSelectedCategory] = useState('Household');
-    const [optimizationTargetType, setOptimizationTargetType] = useState('Target Cost');
-    const [budgetLimit, setBudgetLimit] = useState('100,000');
+                    const slabRate = rates[i];
+                    const slabLimit = (i < tiers.length) ? tiers[i] : Infinity;
+                    const slabName = slabNames[i];
 
-    const [manualResults, setManualResults] = useState({ kwh: 0, amperes: 0, bill: 0, avgRate: 0 });
-    const [meterResults, setMeterResults] = useState({ kwh: 0, amperes: 0, bill: 0, avgRate: 0 });
-    const [optimizationResult, setOptimizationResult] = useState('Not Optimized');
+                    let consumptionInThisSlab = 0;
+                    if (i === 0) {
+                        consumptionInThisSlab = Math.min(remainingKwh, slabLimit);
+                    } else {
+                        consumptionInThisSlab = Math.min(remainingKwh, slabLimit - previousSlabLimit);
+                    }
 
-    const [tariffPlotData, setTariffPlotData] = useState([]);
-    const [tariffSliderValue, setTariffSliderValue] = useState(0);
-    const [tariffPlotMaxKwh, setTariffPlotMaxKwh] = useState(2000);
-    const [tariffPlotResult, setTariffPlotResult] = useState(null); // {kwh, bill, amperes, avgRate}
+                    if (consumptionInThisSlab > 0) {
+                        const costInThisSlab = consumptionInThisSlab * slabRate;
+                        totalCost += costInThisSlab;
+                        breakdown.push(`  - Slab ${i + 1} (${slabName}): ${formatNumber(consumptionInThisSlab, 2)} kWh @ ${formatNumber(slabRate, 2)} IQD/kWh = ${formatNumber(costInThisSlab, 0, true)} IQD`);
+                    }
+                    remainingKwh -= consumptionInThisSlab;
+                    previousSlabLimit = slabLimit;
+                }
+                return { totalCost, breakdown: breakdown.join("\n") };
+            };
 
-    const [tariffRateBarChartData, setTariffRateBarChartData] = useState([]);
-    const [showPlots, setShowPlots] = useState(false); // State to control visibility of bar charts
+            const getRonakiFlatTariffDetails = (kWh, rate) => {
+                const totalCost = kWh * rate;
+                const breakdown = `  - Consumption: ${formatNumber(kWh, 2)} kWh @ ${formatNumber(rate, 2)} IQD/kWh = ${formatNumber(totalCost, 0, true)} IQD`;
+                return { totalCost, breakdown };
+            };
 
-    const [selectedDeviceRow, setSelectedDeviceRow] = useState(null); // For table row selection
-
-
-    // --- Callbacks for Tariff Curve and Plotting ---
-    const getTariffCurvePoints = useCallback((category, maxKwh) => {
-        const kwhValues = Array.from({ length: 1000 }, (_, i) => (i / 999) * maxKwh);
-        return kwhValues.map(kwh => ({
-            kwh,
-            bill: calculateCostForCategory(kwh, category) / 1000 // Convert to kIQD
-        }));
-    }, []);
-
-    const updateTariffCurves = useCallback((maxKwh) => {
-        const categoriesForPlot = ['Household', 'Commercial', 'Agriculture', 'Industrial', 'Large Industry', 'State'];
-        const newPlotData = [];
-        for (let i = 0; i < categoriesForPlot.length; i++) {
-            const categoryName = categoriesForPlot[i];
-            const points = getTariffCurvePoints(categoryName, maxKwh);
-            points.forEach(p => {
-                newPlotData.push({
-                    name: categoryName,
-                    kwh: p.kwh,
-                    bill: p.bill,
-                    color: baseColors[i % baseColors.length]
-                });
-            });
-        }
-        setTariffPlotData(newPlotData);
-        setTariffPlotMaxKwh(maxKwh);
-    }, [getTariffCurvePoints]);
-
-    const plotResultOnTariffAxes = useCallback((consumption, totalBill, category, updateSlider = true) => {
-        if (isNaN(consumption) || isNaN(totalBill) || !isFinite(consumption) || !isFinite(totalBill)) {
-            console.warn('Invalid consumption or totalBill value for plotting. Skipping result plot.');
-            setTariffPlotResult(null);
-            return;
-        }
-
-        const daysVal = parseFloat(days) || 30;
-        const avgAmperes = kwhToAmperes(consumption, daysVal);
-        const avgRate = consumption > 0 ? totalBill / consumption : 0;
-
-        setTariffPlotResult({
-            kwh: consumption,
-            bill: totalBill,
-            amperes: avgAmperes,
-            avgRate: avgRate,
-            category: category
-        });
-
-        if (updateSlider) {
-            setTariffSliderValue(Math.round(consumption));
-        }
-    }, [days]);
-
-    // --- Derived state for devices (with kwh and iqd) and total summary using useMemo ---
-    const { processedDevices, calculatedTotalSummary, calculatedDeviceBarChartData } = useMemo(() => {
-        let totalConsumptionKwh = 0;
-        const daysVal = parseFloat(days) || 30;
-
-        const tempProcessedDevices = devices.map(device => {
-            if (!device.on) {
-                return { ...device, kwh: 0, iqd: 0 };
-            }
-            const watt = parseFloat(device.watt) || 0;
-            const hours = Math.min(Math.max(parseFloat(device.hours) || 0, 0), 24);
-            const day = Math.min(Math.max(parseFloat(device.day) || 0, 0), 31);
-            const count = parseFloat(device.count) || 0;
-
-            if (watt < 0 || hours < 0 || day < 0 || count < 0 || isNaN(watt) || isNaN(hours) || isNaN(day) || isNaN(count)) {
-                return { ...device, kwh: 0, iqd: 0 };
-            }
-
-            const calculatedKwh = (watt / 1000) * hours * day * count;
-            totalConsumptionKwh += calculatedKwh;
-            return { ...device, kwh: calculatedKwh };
-        });
-
-        const totalBill = calculateCostForCategory(totalConsumptionKwh, selectedCategory);
-        const avgRate = totalConsumptionKwh > 0 ? totalBill / totalConsumptionKwh : 0;
-        const avgAmperes = kwhToAmperes(totalConsumptionKwh, daysVal);
-
-        const finalProcessedDevices = tempProcessedDevices.map(device => ({
-            ...device,
-            iqd: device.kwh * avgRate // Calculate IQD based on the overall average rate
-        }));
-
-        const deviceBarData = finalProcessedDevices.filter(d => d.on && d.kwh > 0).map((d, idx) => ({
-            name: d.name,
-            kwh: d.kwh,
-            iqd: d.iqd, // Pass iqd for tooltip
-            fill: baseColors[idx % baseColors.length]
-        }));
-
-        return {
-            processedDevices: finalProcessedDevices,
-            calculatedTotalSummary: { kwh: totalConsumptionKwh, amperes: avgAmperes, bill: totalBill, avgRate: avgRate },
-            calculatedDeviceBarChartData: deviceBarData
-        };
-    }, [devices, selectedCategory, days]); // Dependencies for useMemo
-
-    // --- Effect to update states based on useMemo output and trigger plot updates ---
-    useEffect(() => {
-        // These values are now directly used in JSX where `totalSummary` and `deviceBarChartData` were
-        // No need to call setTotalSummary or setDeviceBarChartData here.
-
-        let newPlotMaxKwh = tariffPlotMaxKwh;
-        if (calculatedTotalSummary.kwh > tariffPlotMaxKwh) {
-            newPlotMaxKwh = selectedCategory === 'Household' ? Math.ceil(calculatedTotalSummary.kwh / 400) * 400 : Math.ceil(calculatedTotalSummary.kwh / 1000) * 1000;
-        } else if (calculatedTotalSummary.kwh <= 2000 && tariffPlotMaxKwh > 2000) {
-            newPlotMaxKwh = 2000;
-        }
-        updateTariffCurves(newPlotMaxKwh);
-        plotResultOnTariffAxes(calculatedTotalSummary.kwh, calculatedTotalSummary.bill, selectedCategory);
-    }, [calculatedTotalSummary, selectedCategory, tariffPlotMaxKwh, updateTariffCurves, plotResultOnTariffAxes]);
-
-
-    // --- Initial Calculations on Load (runs once) ---
-    useEffect(() => {
-        updateTariffCurves(tariffPlotMaxKwh);
-        plotTariffCategoryBarChart();
-        calculateManualBill(); // Perform initial manual calculation
-    }, []); // Run once on component mount, dependencies are stable callbacks
-
-    // --- Tariff Slider Handler ---
-    const handleTariffSliderChange = useCallback((value) => {
-        setTariffSliderValue(value);
-        const kwhFromSlider = parseFloat(value);
-        const totalBill = calculateCostForCategory(kwhFromSlider, selectedCategory);
-        const daysVal = parseFloat(days) || 30;
-        const avgAmperes = kwhToAmperes(kwhFromSlider, daysVal);
-        const avgRate = kwhFromSlider > 0 ? totalBill / kwhFromSlider : 0;
-
-        setManualResults({ kwh: kwhFromSlider, amperes: avgAmperes, bill: totalBill, avgRate: avgRate });
-        plotResultOnTariffAxes(kwhFromSlider, totalBill, selectedCategory, false);
-    }, [selectedCategory, days, plotResultOnTariffAxes]);
-
-    // --- Manual Calculation Logic ---
-    const calculateManualBill = useCallback(() => {
-        let inputValue = parseFloat(manualInput.replace(/,/g, ''));
-        if (isNaN(inputValue) || inputValue < 0) {
-            alert("Please enter a valid numeric value for consumption.");
-            setManualResults({ kwh: 0, amperes: 0, bill: 0, avgRate: 0 });
-            setTariffPlotResult(null);
-            return;
-        }
-
-        const daysVal = parseFloat(days) || 30;
-        let calculatedKwh = 0;
-        let calculatedAmperes = 0;
-        let totalBill = 0;
-
-        if (manualInputType === 'kWh') {
-            calculatedKwh = inputValue;
-            calculatedAmperes = kwhToAmperes(calculatedKwh, daysVal);
-            totalBill = calculateCostForCategory(calculatedKwh, selectedCategory);
-        } else if (manualInputType === 'Avg Amperes') {
-            calculatedAmperes = inputValue;
-            calculatedKwh = amperesToKwh(calculatedAmperes, daysVal);
-            totalBill = calculateCostForCategory(calculatedKwh, selectedCategory);
-        } else if (manualInputType === 'Given Bill') {
-            const targetBill = inputValue;
-            let lowKwh = 0;
-            let highKwh = 50000; // Max reasonable kWh for search
-            let foundKwh = 0;
-            const tolerance = 1.0;
-
-            for (let i = 0; i < 100; i++) { // Binary search for 100 iterations
-                const midKwh = (lowKwh + highKwh) / 2;
-                const calculatedBillAtMid = calculateCostForCategory(midKwh, selectedCategory);
-
-                if (Math.abs(calculatedBillAtMid - targetBill) < tolerance) {
-                    foundKwh = midKwh;
-                    break;
-                } else if (calculatedBillAtMid < targetBill) {
-                    lowKwh = midKwh;
+            const calculateCostForCategory = (consumption, category) => {
+                if (category === 'Household') {
+                    return getRonakiHouseholdTariffDetails(consumption).totalCost;
+                } else if (category === 'Commercial') {
+                    return getRonakiFlatTariffDetails(consumption, 185).totalCost;
+                } else if (category === 'Agriculture') {
+                    return getRonakiFlatTariffDetails(consumption, 60).totalCost;
+                } else if (category === 'Industrial') {
+                    return getRonakiFlatTariffDetails(consumption, 160).totalCost;
+                } else if (category === 'Large Industry') {
+                    return getRonakiFlatTariffDetails(consumption, 125).totalCost;
+                } else if (category === 'State') {
+                    return getRonakiFlatTariffDetails(consumption, 160).totalCost;
                 } else {
-                    highKwh = midKwh;
+                    console.error(`Unknown category for cost calculation: ${category}`);
+                    return NaN;
                 }
-            }
-            calculatedKwh = foundKwh;
-            calculatedAmperes = kwhToAmperes(calculatedKwh, daysVal);
-            totalBill = targetBill; // Use the target bill as the final bill
-        }
+            };
 
-        const avgRate = calculatedKwh > 0 ? totalBill / calculatedKwh : 0;
-        setManualResults({ kwh: calculatedKwh, amperes: calculatedAmperes, bill: totalBill, avgRate: avgRate });
-        let newPlotMaxKwh = tariffPlotMaxKwh;
-        if (calculatedKwh > tariffPlotMaxKwh) {
-            newPlotMaxKwh = selectedCategory === 'Household' ? Math.ceil(calculatedKwh / 400) * 400 : Math.ceil(calculatedKwh / 1000) * 1000;
-        } else if (calculatedKwh <= 2000 && tariffPlotMaxKwh > 2000) {
-            newPlotMaxKwh = 2000;
-        }
-        updateTariffCurves(newPlotMaxKwh);
-        plotResultOnTariffAxes(calculatedKwh, totalBill, selectedCategory);
-    }, [manualInput, manualInputType, days, selectedCategory, tariffPlotMaxKwh, updateTariffCurves, plotResultOnTariffAxes]);
+            const getRonakiHouseholdTierIndex = (kwhPoint) => {
+                const tiers = [400, 800, 1200, 1600];
+                if (kwhPoint <= 0) return 0;
+                for (let i = 0; i < tiers.length; i++) {
+                    if (kwhPoint <= tiers[i]) {
+                        return i;
+                    }
+                }
+                return tiers.length;
+            };
 
-    // --- Meter Reading Calculation Logic ---
-    const calculateMeterBill = useCallback(() => {
-        const prevReading = parseFloat(meterPrevReading.replace(/,/g, ''));
-        const currReading = parseFloat(meterCurrReading.replace(/,/g, ''));
-        const daysVal = parseFloat(days) || 30;
+            // Base colors for plots
+            const chartBaseColors = [
+                '#0072BD', // Blue (Household)
+                '#D95319', // Orange (Commercial)
+                '#EDB120', // Yellow (Agriculture)
+                '#7E2F8E', // Purple (Industrial)
+                '#77AC30', // Green (Large Industry)
+                '#4DBEEE', // Light Blue/Cyan (State)
+                '#A2142F'  // Reddish (Fallback)
+            ];
 
-        if (isNaN(prevReading) || isNaN(currReading) || prevReading < 0 || currReading < 0) {
-            alert("Please enter valid numeric values for meter readings.");
-            setMeterResults({ kwh: 0, amperes: 0, bill: 0, avgRate: 0 });
-            setTariffPlotResult(null);
-            return;
-        }
-        if (currReading < prevReading) {
-            alert("Current reading cannot be less than previous reading.");
-            setMeterResults({ kwh: 0, amperes: 0, bill: 0, avgRate: 0 });
-            setTariffPlotResult(null);
-            return;
-        }
-        if (isNaN(daysVal) || daysVal <= 0) {
-            alert("Please enter a positive integer for days.");
-            setMeterResults({ kwh: 0, amperes: 0, bill: 0, avgRate: 0 });
-            setTariffPlotResult(null);
-            return;
-        }
+            // --- PLOTTING FUNCTIONS ---
 
-        const consumption = currReading - prevReading;
-        const totalBill = calculateCostForCategory(consumption, selectedCategory);
-        const avgAmperes = kwhToAmperes(consumption, daysVal);
-        const avgRate = consumption > 0 ? totalBill / consumption : 0;
+            // 1. Device Plot
+            const plotDeviceConsumption = (deviceData = []) => {
+                const ctx = document.getElementById('devicePlot').getContext('2d');
+                if (devicePlot) devicePlot.destroy();
 
-        setMeterResults({ kwh: consumption, amperes: avgAmperes, bill: totalBill, avgRate: avgRate });
-        let newPlotMaxKwh = tariffPlotMaxKwh;
-        if (consumption > tariffPlotMaxKwh) {
-            newPlotMaxKwh = selectedCategory === 'Household' ? Math.ceil(consumption / 400) * 400 : Math.ceil(consumption / 1000) * 1000;
-        } else if (consumption <= 2000 && tariffPlotMaxKwh > 2000) {
-            newPlotMaxKwh = 2000;
-        }
-        updateTariffCurves(newPlotMaxKwh);
-        plotResultOnTariffAxes(consumption, totalBill, selectedCategory);
-    }, [meterPrevReading, meterCurrReading, days, selectedCategory, tariffPlotMaxKwh, updateTariffCurves, plotResultOnTariffAxes]);
+                const labels = deviceData.map(d => d.name);
+                const kwhValues = deviceData.map(d => d.kwh);
+                const backgroundColors = deviceData.map((_, i) => chartBaseColors[i % chartBaseColors.length].replace('1)', '0.7)'));
+                const borderColors = deviceData.map((_, i) => chartBaseColors[i % chartBaseColors.length]);
 
-    // --- Budget Optimization Logic ---
-    const optimizeForBudget = useCallback(() => {
-        let targetValue = parseFloat(budgetLimit.replace(/,/g, ''));
-        if (isNaN(targetValue) || targetValue < 0) {
-            alert("Please enter a valid, non-negative numeric value for the target.");
-            setOptimizationResult('Invalid Target');
-            return;
-        }
+                devicePlot = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Consumption (kWh)',
+                            data: kwhValues,
+                            backgroundColor: backgroundColors,
+                            borderColor: borderColors,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y', // Horizontal bars
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        const kwh = context.parsed.x;
+                                        const iqd = deviceData[context.dataIndex].iqd; // Assuming iqd is passed in deviceData
+                                        return `${label}${formatNumber(kwh, 2)} kWh (${formatNumber(iqd, 0, true)} IQD)`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: { display: true, text: 'Consumption (kWh)', font: { size: 14 } },
+                                beginAtZero: true
+                            },
+                            y: {
+                                ticks: {
+                                    font: { size: 12 }
+                                }
+                            }
+                        },
+                        onClick: (evt, elements) => {
+                            if (elements.length > 0) {
+                                const index = elements[0].index;
+                                const selectedDeviceName = devicePlot.data.labels[index];
+                                const rows = Array.from(deviceTableBody.children);
+                                rows.forEach((row, rowIndex) => {
+                                    const deviceNameInRow = row.querySelector('input[type="text"]').value;
+                                    if (deviceNameInRow === selectedDeviceName) {
+                                        handleTableRowClick(row, rowIndex);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            };
 
-        const daysVal = parseFloat(days) || 30;
-        const currentConsumptionKwh = calculatedTotalSummary.kwh; // Use calculatedTotalSummary
-        const currentBill = calculatedTotalSummary.bill; // Use calculatedTotalSummary
-        const currentAmperes = calculatedTotalSummary.amperes; // Use calculatedTotalSummary
+            // 2. Tariff Bar Plot
+            const plotTariffBarChart = (highlightKwh = 0, highlightCategory = 'Household') => {
+                const ctx = document.getElementById('tariffBarPlot').getContext('2d');
+                if (tariffBarPlot) tariffBarPlot.destroy();
 
-        let targetKwhForOptimization = 0;
-        if (optimizationTargetType === 'Target Cost') {
-            if (currentBill > 0) {
-                targetKwhForOptimization = (targetValue / currentBill) * currentConsumptionKwh;
-            } else {
-                targetKwhForOptimization = targetValue / 100; // Arbitrary small value if current bill is zero
-            }
-        } else if (optimizationTargetType === 'Target Amperes') {
-            targetKwhForOptimization = amperesToKwh(targetValue, daysVal);
-        } else if (optimizationTargetType === 'Target kWh') {
-            targetKwhForOptimization = targetValue;
-        }
+                const labels = ['1-400', '401-800', '801-1200', '1201-1600', '1601+', 'Commercial', 'Agriculture', 'Industrial', 'Large Industry', 'State'];
+                const rates = [72, 108, 175, 265, 350, 185, 60, 160, 125, 160];
 
-        if ((optimizationTargetType === 'Target Cost' && currentBill <= targetValue) ||
-            (optimizationTargetType === 'Target Amperes' && currentAmperes <= targetValue) ||
-            (optimizationTargetType === 'Target kWh' && currentConsumptionKwh <= targetValue)) {
-            setOptimizationResult('Within Target.');
-            alert('Your current status is within the specified target!');
-            return;
-        }
+                const backgroundColors = rates.map((_, i) => {
+                    let color = '';
+                    if (i < 5) color = chartBaseColors[0]; // Household
+                    else if (i === 5) color = chartBaseColors[1]; // Commercial
+                    else if (i === 6) color = chartBaseColors[2]; // Agriculture
+                    else if (i === 7) color = chartBaseColors[3]; // Industrial
+                    else if (i === 8) color = chartBaseColors[4]; // Large Industry
+                    else if (i === 9) color = chartBaseColors[5]; // State
+                    return color.replace('1)', '0.7)'); // Make it slightly transparent
+                });
 
-        let fixedDevicesKwh = 0;
-        let variableDevicesData = [];
+                const borderColors = rates.map((_, i) => {
+                    let color = '';
+                    if (i < 5) color = chartBaseColors[0];
+                    else if (i === 5) color = chartBaseColors[1];
+                    else if (i === 6) color = chartBaseColors[2];
+                    else if (i === 7) color = chartBaseColors[3];
+                    else if (i === 8) color = chartBaseColors[4];
+                    else if (i === 9) color = chartBaseColors[5];
+                    return color;
+                });
 
-        devices.forEach((device, idx) => {
-            if (device.on) {
-                const watt = parseFloat(device.watt) || 0;
-                const hours = parseFloat(device.hours) || 0;
-                const day = parseFloat(device.day) || 0;
-                const count = parseFloat(device.count) || 0;
+                // Apply highlight
+                const highlightIndex = getTariffTierIndex(highlightKwh, highlightCategory);
+                if (highlightIndex !== -1) {
+                    backgroundColors[highlightIndex] = highlightColor; // Yellow highlight
+                    borderColors[highlightIndex] = highlightBorder; // Black border
+                }
 
-                if (watt > 0 && hours >= 0 && day >= 0 && count >= 0) {
+                tariffBarPlot = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'IQD / kWh',
+                            data: rates,
+                            backgroundColor: backgroundColors,
+                            borderColor: borderColors,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                title: { display: true, text: 'IQD / kWh', font: { size: 14 } },
+                                beginAtZero: true
+                            },
+                            x: {
+                                ticks: {
+                                    font: { size: 12 }
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            // Helper for Tariff Bar Plot to get index for highlighting
+            const getTariffTierIndex = (kwh, category) => {
+                if (category === 'Household') {
+                    const tiers = [400, 800, 1200, 1600];
+                    if (kwh <= 400) return 0;
+                    if (kwh <= 800) return 1;
+                    if (kwh <= 1200) return 2;
+                    if (kwh <= 1600) return 3;
+                    return 4; // 1601+ kWh
+                } else if (category === 'Commercial') {
+                    return 5;
+                } else if (category === 'Agriculture') {
+                    return 6;
+                } else if (category === 'Industrial') {
+                    return 7;
+                } else if (category === 'Large Industry') {
+                    return 8;
+                } else if (category === 'State') {
+                    return 9;
+                }
+                return -1;
+            };
+
+
+            // 3. Main Tariff Curve Plot
+            const plotTariffCurves = (maxKwh = 2000, currentKwh = 0, currentBill = 0, currentCategory = 'Household') => {
+                const ctx = tariffPlotCanvas.getContext('2d');
+                if (tariffPlot) tariffPlot.destroy();
+
+                const categories = ['Household', 'Commercial', 'Agriculture', 'Industrial', 'Large Industry', 'State'];
+                const datasets = [];
+
+                categories.forEach((cat, index) => {
+                    const dataPoints = [];
+                    for (let kwh = 0; kwh <= maxKwh; kwh += maxKwh / 200) {
+                        dataPoints.push({ x: kwh, y: calculateCostForCategory(kwh, cat) / 1000 }); // kIQD
+                    }
+                    datasets.push({
+                        label: cat,
+                        data: dataPoints,
+                        borderColor: chartBaseColors[index % chartBaseColors.length],
+                        backgroundColor: chartBaseColors[index % chartBaseColors.length].replace('1)', '0.1)'),
+                        fill: false,
+                        tension: 0.1,
+                        pointRadius: 0,
+                        borderWidth: 2
+                    });
+                });
+
+                // Add calculated result point
+                if (currentKwh > 0 && currentBill > 0) {
+                    datasets.push({
+                        label: 'Calculated Result',
+                        data: [{ x: currentKwh, y: currentBill / 1000 }],
+                        borderColor: 'blue',
+                        backgroundColor: 'blue',
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        showLine: false,
+                        type: 'scatter' // Use scatter for single point
+                    });
+                }
+
+                tariffPlot = new Chart(ctx, {
+                    type: 'line',
+                    data: { datasets: datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                title: { display: true, text: 'Consumption (kWh)', font: { size: 14 } },
+                                min: 0,
+                                max: maxKwh,
+                                ticks: {
+                                    callback: function(value) { return formatNumber(value, 0); },
+                                    font: { size: 12 }
+                                }
+                            },
+                            y: {
+                                title: { display: true, text: 'Cost (kIQD)', font: { size: 14 } },
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) { return formatNumber(value, 0); },
+                                    font: { size: 12 }
+                                }
+                            },
+                            amperes: { // Second X-axis for Amperes
+                                type: 'linear',
+                                position: 'top',
+                                title: { display: true, text: 'Average Amperes (A)', font: { size: 14 } },
+                                min: 0,
+                                max: kwhToAmperes(maxKwh, parseFloat(daysInput.value) || 30),
+                                ticks: {
+                                    callback: function(value) { return formatNumber(value, 0) + ' A'; },
+                                    font: { size: 12 }
+                                },
+                                grid: {
+                                    drawOnChartArea: false, // Only draw grid lines for the primary x-axis
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { position: 'top', labels: { font: { size: 12 } } },
+                            tooltip: {
+                                callbacks: {
+                                    title: (tooltipItems) => `Consumption: ${formatNumber(tooltipItems[0].parsed.x, 2)} kWh`,
+                                    label: (tooltipItem) => `Cost: ${formatNumber(tooltipItem.parsed.y * 1000, 0, true)} IQD`
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            // --- UI UPDATE FUNCTIONS ---
+
+            const updateResultDisplay = (kwh, amperes, bill, avgRate, kwhElem, amperesElem, billElem, avgRateElem) => {
+                kwhElem.textContent = `${formatNumber(kwh, 2)} kWh`;
+                amperesElem.textContent = `${formatNumber(amperes, 2)} A`;
+                billElem.textContent = `${formatNumber(bill, 0, true)} IQD`;
+                avgRateElem.textContent = `${formatNumber(avgRate, 2)} IQD/kWh`;
+            };
+
+            const updateOverallSummary = (kwh, amperes, bill, avgRate) => {
+                totalKwhValue.textContent = `${formatNumber(kwh, 2)} kWh`;
+                avgAmperesValue.textContent = `${formatNumber(amperes, 2)} A`;
+                totalBillValue.textContent = `${formatNumber(bill, 0, true)} IQD`;
+                avgRateValue.textContent = `${formatNumber(avgRate, 2)} IQD/kWh`;
+            };
+
+            const updateTariffPlotResultDisplay = (kwh, amperes, bill, avgRate) => {
+                tariffPlotKwhElem.textContent = `${formatNumber(kwh, 2)} kWh`;
+                tariffPlotBillElem.textContent = `${formatNumber(bill, 0, true)} IQD`;
+                tariffPlotAmperesElem.textContent = `${formatNumber(amperes, 2)} A`;
+                tariffPlotAvgRateElem.textContent = `${formatNumber(avgRate, 2)} IQD/kWh`;
+            };
+
+            const updateTariffSliderBackground = (value, max) => {
+                const percentage = (value / max) * 100;
+                tariffSlider.style.setProperty('--slider-fill', `${percentage}%`);
+            };
+
+            // --- MAIN CALCULATION HANDLER ---
+            const performManualCalculation = () => {
+                let inputValue = validateNumeric(manualInput.value);
+                if (isNaN(inputValue) || inputValue < 0) {
+                    alert("Please enter a valid numeric value for consumption.");
+                    updateResultDisplay(0, 0, 0, 0, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem);
+                    plotTariffCurves(parseFloat(tariffSlider.max), 0, 0, categoryDropdown.value);
+                    plotTariffBarChart(0, categoryDropdown.value);
+                    return;
+                }
+
+                const daysVal = validateNumeric(daysInput.value) || 30;
+                const category = categoryDropdown.value;
+                let calculatedKwh = 0;
+                let calculatedAmperes = 0;
+                let totalBill = 0;
+
+                if (manualInputTypeDropdown.value === 'kWh') {
+                    calculatedKwh = inputValue;
+                    calculatedAmperes = kwhToAmperes(calculatedKwh, daysVal);
+                    totalBill = calculateCostForCategory(calculatedKwh, category);
+                } else if (manualInputTypeDropdown.value === 'Avg Amperes') {
+                    calculatedAmperes = inputValue;
+                    calculatedKwh = amperesToKwh(calculatedAmperes, daysVal);
+                    totalBill = calculateCostForCategory(calculatedKwh, category);
+                } else if (manualInputTypeDropdown.value === 'Given Bill') {
+                    const targetBill = inputValue;
+                    let lowKwh = 0;
+                    let highKwh = 50000; // Max reasonable kWh for search
+                    let foundKwh = 0;
+                    const tolerance = 1.0;
+
+                    for (let i = 0; i < 100; i++) { // Binary search for 100 iterations
+                        const midKwh = (lowKwh + highKwh) / 2;
+                        const calculatedBillAtMid = calculateCostForCategory(midKwh, category);
+
+                        if (Math.abs(calculatedBillAtMid - targetBill) < tolerance) {
+                            foundKwh = midKwh;
+                            break;
+                        } else if (calculatedBillAtMid < targetBill) {
+                            lowKwh = midKwh;
+                        } else {
+                            highKwh = midKwh;
+                        }
+                    }
+                    calculatedKwh = foundKwh;
+                    calculatedAmperes = kwhToAmperes(calculatedKwh, daysVal);
+                    totalBill = targetBill; // Use the target bill as the final bill
+                }
+
+                const avgRate = calculatedKwh > 0 ? totalBill / calculatedKwh : 0;
+
+                updateResultDisplay(calculatedKwh, calculatedAmperes, totalBill, avgRate, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem);
+                updateTariffPlotResultDisplay(calculatedKwh, calculatedAmperes, totalBill, avgRate);
+
+                let newPlotMaxKwh = parseFloat(tariffSlider.max);
+                if (calculatedKwh > newPlotMaxKwh) {
+                    newPlotMaxKwh = category === 'Household' ? Math.ceil(calculatedKwh / 400) * 400 : Math.ceil(calculatedKwh / 1000) * 1000;
+                    tariffSlider.max = newPlotMaxKwh;
+                } else if (calculatedKwh <= 2000 && newPlotMaxKwh > 2000) {
+                    newPlotMaxKwh = 2000;
+                    tariffSlider.max = newPlotMaxKwh;
+                }
+                plotTariffCurves(newPlotMaxKwh, calculatedKwh, totalBill, category);
+                plotTariffBarChart(calculatedKwh, category);
+
+                tariffSlider.value = Math.round(calculatedKwh);
+                updateTariffSliderBackground(tariffSlider.value, tariffSlider.max);
+            };
+
+            const performMeterCalculation = () => {
+                const prevReading = validateNumeric(meterPrevReading.value);
+                const currReading = validateNumeric(meterCurrReading.value);
+                const daysVal = validateNumeric(daysInput.value) || 30;
+                const category = categoryDropdown.value;
+
+                if (isNaN(prevReading) || isNaN(currReading) || prevReading < 0 || currReading < 0) {
+                    alert("Please enter valid numeric values for meter readings.");
+                    updateResultDisplay(0, 0, 0, 0, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem);
+                    plotTariffCurves(parseFloat(tariffSlider.max), 0, 0, category);
+                    plotTariffBarChart(0, category);
+                    return;
+                }
+                if (currReading < prevReading) {
+                    alert("Current reading cannot be less than previous reading.");
+                    updateResultDisplay(0, 0, 0, 0, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem);
+                    plotTariffCurves(parseFloat(tariffSlider.max), 0, 0, category);
+                    plotTariffBarChart(0, category);
+                    return;
+                }
+                if (isNaN(daysVal) || daysVal <= 0) {
+                    alert("Please enter a positive integer for days.");
+                    updateResultDisplay(0, 0, 0, 0, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem);
+                    plotTariffCurves(parseFloat(tariffSlider.max), 0, 0, category);
+                    plotTariffBarChart(0, category);
+                    return;
+                }
+
+                const consumption = currReading - prevReading;
+                const totalBill = calculateCostForCategory(consumption, category);
+                const avgAmperes = kwhToAmperes(consumption, daysVal);
+                const avgRate = consumption > 0 ? totalBill / consumption : 0;
+
+                updateResultDisplay(consumption, avgAmperes, totalBill, avgRate, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem);
+                updateTariffPlotResultDisplay(consumption, avgAmperes, totalBill, avgRate);
+
+                let newPlotMaxKwh = parseFloat(tariffSlider.max);
+                if (consumption > newPlotMaxKwh) {
+                    newPlotMaxKwh = category === 'Household' ? Math.ceil(consumption / 400) * 400 : Math.ceil(consumption / 1000) * 1000;
+                    tariffSlider.max = newPlotMaxKwh;
+                } else if (consumption <= 2000 && newPlotMaxKwh > 2000) {
+                    newPlotMaxKwh = 2000;
+                    tariffSlider.max = newPlotMaxKwh;
+                }
+                plotTariffCurves(newPlotMaxKwh, consumption, totalBill, category);
+                plotTariffBarChart(consumption, category);
+
+                tariffSlider.value = Math.round(consumption);
+                updateTariffSliderBackground(tariffSlider.value, tariffSlider.max);
+            };
+
+            const calculateDeviceConsumption = () => {
+                let totalKwh = 0;
+                const deviceDetails = [];
+                const category = categoryDropdown.value;
+                const daysVal = validateNumeric(daysInput.value) || 30;
+
+                Array.from(deviceTableBody.children).forEach(row => {
+                    const isOn = row.querySelector('.device-on').checked;
+                    const kwhOutputCell = row.querySelector('.output-kwh');
+                    const iqdOutputCell = row.querySelector('.output-iqd');
+
+                    if (!isOn) {
+                        kwhOutputCell.textContent = '0.00';
+                        iqdOutputCell.textContent = '0';
+                        return;
+                    }
+
+                    const inputs = row.querySelectorAll('input[type="text"], input[type="number"]');
+                    const deviceName = inputs[0].value;
+                    const watt = validateNumeric(inputs[1].value);
+                    const hours = validateNumeric(inputs[2].value);
+                    const day = validateNumeric(inputs[3].value);
+                    const count = validateNumeric(inputs[4].value);
+
+                    const kwh = (watt / 1000) * hours * day * count;
+                    kwhOutputCell.textContent = formatNumber(kwh, 2);
+                    totalKwh += kwh;
+                    deviceDetails.push({ name: deviceName, kwh: kwh, row: row }); // Store row reference for later IQD update
+                });
+
+                const totalBill = calculateCostForCategory(totalKwh, category);
+                const avgRate = totalKwh > 0 ? totalBill / totalKwh : 0;
+
+                // Update IQD for each device after total average rate is known
+                deviceDetails.forEach(device => {
+                    const iqd = device.kwh * avgRate;
+                    device.row.querySelector('.output-iqd').textContent = formatNumber(iqd, 0, true);
+                    device.iqd = iqd; // Add iqd to deviceDetails for plotting tooltip
+                });
+
+                const amperes = kwhToAmperes(totalKwh, daysVal);
+
+                updateOverallSummary(totalKwh, amperes, totalBill, avgRate);
+                updateTariffPlotResultDisplay(totalKwh, amperes, totalBill, avgRate);
+
+                let newPlotMaxKwh = parseFloat(tariffSlider.max);
+                if (totalKwh > newPlotMaxKwh) {
+                    newPlotMaxKwh = category === 'Household' ? Math.ceil(totalKwh / 400) * 400 : Math.ceil(totalKwh / 1000) * 1000;
+                    tariffSlider.max = newPlotMaxKwh;
+                } else if (totalKwh <= 2000 && newPlotMaxKwh > 2000) {
+                    newPlotMaxKwh = 2000;
+                    tariffSlider.max = newPlotMaxKwh;
+                }
+                plotTariffCurves(newPlotMaxKwh, totalKwh, totalBill, category);
+                plotTariffBarChart(totalKwh, category);
+
+                tariffSlider.value = Math.round(totalKwh);
+                updateTariffSliderBackground(tariffSlider.value, tariffSlider.max);
+
+                plotDeviceConsumption(deviceDetails); // Pass deviceDetails with IQD for tooltip
+            };
+
+            const optimizeForBudget = () => {
+                let targetValue = validateNumeric(budgetLimitInput.value);
+                if (isNaN(targetValue) || targetValue < 0) {
+                    alert("Please enter a valid, non-negative numeric value for the target.");
+                    budgetResultLabel.textContent = 'Invalid Target';
+                    return;
+                }
+
+                const daysVal = validateNumeric(daysInput.value) || 30;
+                let currentTotalKwh = 0;
+                let fixedDevicesKwh = 0;
+                const variableDevicesData = [];
+                const category = categoryDropdown.value;
+
+                Array.from(deviceTableBody.children).forEach((row, idx) => {
+                    const isOn = row.querySelector('.device-on').checked;
+                    if (!isOn) return;
+
+                    const inputs = row.querySelectorAll('input[type="text"], input[type="number"]');
+                    const deviceName = inputs[0].value;
+                    const watt = validateNumeric(inputs[1].value);
+                    const hours = validateNumeric(inputs[2].value);
+                    const day = validateNumeric(inputs[3].value);
+                    const count = validateNumeric(inputs[4].value);
+                    const isFixed = row.querySelector('.device-fixed').checked;
+
                     const currentKwhDevice = (watt / 1000) * hours * day * count;
-                    if (device.fixed) {
+                    currentTotalKwh += currentKwhDevice;
+
+                    if (isFixed) {
                         fixedDevicesKwh += currentKwhDevice;
                     } else {
                         variableDevicesData.push({
                             index: idx,
-                            name: device.name,
+                            name: deviceName,
                             initialKwh: currentKwhDevice,
                             watt, hours, day, count,
-                            newHours: hours
+                            row: row // Store reference to the actual DOM row
                         });
                     }
-                }
-            }
-        });
+                });
 
-        // Sort variable devices by initial kWh (descending) to prioritize larger consumers
-        variableDevicesData.sort((a, b) => b.initialKwh - a.initialKwh);
+                const currentBill = calculateCostForCategory(currentTotalKwh, category);
+                const currentAmperes = kwhToAmperes(currentTotalKwh, daysVal);
 
-        let optimizedConsumptionKwh = fixedDevicesKwh + variableDevicesData.reduce((sum, d) => sum + d.initialKwh, 0);
-        let optimizedBill = calculateCostForCategory(optimizedConsumptionKwh, selectedCategory);
-        let optimizedAmperes = kwhToAmperes(optimizedConsumptionKwh, daysVal);
-
-        let changesMade = false;
-        let summaryMessage = "Summary of Changes:\n";
-
-        for (const deviceData of variableDevicesData) {
-            let targetMet = false;
-            if ((optimizationTargetType === 'Target Cost' && optimizedBill <= targetValue) ||
-                (optimizationTargetType === 'Target Amperes' && optimizedAmperes <= targetValue) ||
-                (optimizationTargetType === 'Target kWh' && optimizedConsumptionKwh <= targetValue)) {
-                targetMet = true;
-            }
-
-            if (targetMet) break;
-
-            let tempHours = deviceData.hours;
-            while (tempHours > 0 && !targetMet) {
-                const testHours = Math.max(0, tempHours - 1); // Reduce by 1 hour
-                const newDeviceKwh = (deviceData.watt / 1000) * testHours * deviceData.day * deviceData.count;
-                const potentialNewTotalConsumption = optimizedConsumptionKwh - (deviceData.initialKwh - newDeviceKwh);
-
-                const potentialNewBill = calculateCostForCategory(potentialNewTotalConsumption, selectedCategory);
-                const potentialNewAmperes = kwhToAmperes(potentialNewTotalConsumption, daysVal);
-
-                let canReduce = false;
-                if ((optimizationTargetType === 'Target Cost' && potentialNewBill <= targetValue) ||
-                    (optimizationTargetType === 'Target Amperes' && potentialNewAmperes <= targetValue) ||
-                    (optimizationTargetType === 'Target kWh' && potentialNewTotalConsumption <= targetValue)) {
-                    canReduce = true;
-                }
-
-                if (canReduce || testHours === 0) {
-                    const hoursReduced = deviceData.hours - testHours;
-                    if (hoursReduced > 0) {
-                        deviceData.newHours = testHours;
-                        optimizedConsumptionKwh = potentialNewTotalConsumption;
-                        optimizedBill = potentialNewBill;
-                        optimizedAmperes = potentialNewAmperes;
-                        summaryMessage += `- Reduced '${deviceData.name}' hours by ${formatNumber(hoursReduced, 0)} to ${formatNumber(testHours, 0)}.\n`;
-                        changesMade = true;
+                let targetKwhForOptimization = 0;
+                if (optimizationTargetDropdown.value === 'Target Cost') {
+                    if (currentBill > 0) {
+                        targetKwhForOptimization = (targetValue / currentBill) * currentTotalKwh;
+                    } else {
+                        targetKwhForOptimization = targetValue / 100; // Arbitrary small value if current bill is zero
                     }
-                    break;
-                } else {
-                    tempHours = testHours;
-                    deviceData.hours = tempHours; // Update for next iteration
+                } else if (optimizationTargetDropdown.value === 'Target Amperes') {
+                    targetKwhForOptimization = amperesToKwh(targetValue, daysVal);
+                } else if (optimizationTargetDropdown.value === 'Target kWh') {
+                    targetKwhForOptimization = targetValue;
                 }
-            }
-        }
 
-        const finalOptimizedDevices = devices.map((device, idx) => {
-            const updatedDevice = variableDevicesData.find(d => d.index === idx);
-            if (updatedDevice) {
-                return { ...device, hours: updatedDevice.newHours };
-            }
-            return device;
-        });
-        setDevices(finalOptimizedDevices); // This will trigger the useMemo for derived data
+                if ((optimizationTargetDropdown.value === 'Target Cost' && currentBill <= targetValue) ||
+                    (optimizationTargetType === 'Target Amperes' && currentAmperes <= targetValue) ||
+                    (optimizationTargetType === 'Target kWh' && currentTotalKwh <= targetValue)) {
+                    budgetResultLabel.textContent = 'Result: Within Target!';
+                    alert('Your current status is already within the specified target!');
+                    return;
+                }
 
-        if (changesMade) {
-            setOptimizationResult('Optimized!');
-            alert(`Optimization completed successfully!\n${summaryMessage}`);
-        } else {
-            setOptimizationResult('Target Not Reachable.');
-            alert('Could not fully optimize consumption to reach your target.\nNo significant changes were made to device operating hours.\nConsider reducing usage days, number of devices, or increasing your target.');
-        }
+                // Sort variable devices by initial kWh (descending) to prioritize larger consumers
+                variableDevicesData.sort((a, b) => b.initialKwh - a.initialKwh);
 
-    }, [budgetLimit, optimizationTargetType, days, devices, selectedCategory, calculatedTotalSummary]);
+                let optimizedConsumptionKwh = currentTotalKwh;
+                let changesMade = false;
+                let summaryMessage = "Summary of Changes:\n";
 
+                for (const device of variableDevicesData) {
+                    if (optimizedConsumptionKwh <= targetKwhForOptimization) break; // Target reached
 
-    // --- Tariff Rate Bar Chart Data Generation ---
-    const plotTariffCategoryBarChart = useCallback(() => {
-        const householdRates = [72, 108, 175, 265, 350];
-        const householdTierLabels = ['1-400', '401-800', '801-1200', '1201-1600', '1601+'];
+                    const kwhPerHour = (device.watt / 1000) * device.day * device.count;
+                    if (kwhPerHour <= 0) continue;
 
-        const otherCategoriesRates = [185, 60, 160, 125, 160];
-        const otherCategoriesLabels = ['Comm.', 'Agri.', 'Ind.', 'Lrg Ind.', 'State.'];
+                    let currentDeviceHours = validateNumeric(device.row.querySelector('input[type="number"]').value);
 
-        const rates = [...householdRates, ...otherCategoriesRates];
-        const allXLabels = [...householdTierLabels, ...otherCategoriesLabels];
+                    // Iterate to reduce hours one by one until target is met or hours are 0
+                    while (currentDeviceHours > 0) {
+                        const testHours = Math.max(0, currentDeviceHours - 1); // Try reducing by 1 hour
+                        const kwhReducedByHour = (currentDeviceHours - testHours) * kwhPerHour;
+                        const potentialNewTotalConsumption = optimizedConsumptionKwh - kwhReducedByHour;
 
-        const data = rates.map((rate, i) => {
-            let category = '';
-            if (i < householdRates.length) {
-                category = 'Household';
-            } else if (i === householdRates.length) {
-                category = 'Commercial';
-            } else if (i === householdRates.length + 1) {
-                category = 'Agriculture';
-            } else if (i === householdRates.length + 2) {
-                category = 'Industrial';
-            } else if (i === householdRates.length + 3) {
-                category = 'Large Industry';
-            } else if (i === householdRates.length + 4) {
-                category = 'State';
-            }
+                        let potentialNewBill = calculateCostForCategory(potentialNewTotalConsumption, category);
+                        let potentialNewAmperes = kwhToAmperes(potentialNewTotalConsumption, daysVal);
 
-            let color = baseColors[i % baseColors.length];
-            if (i >= householdRates.length) { // Adjust index for other categories
-                color = baseColors[(i - householdRates.length + 1) % baseColors.length];
-            } else {
-                color = baseColors[0]; // Household always blue
-            }
+                        let canReduceFurther = false;
+                        if ((optimizationTargetDropdown.value === 'Target Cost' && potentialNewBill <= targetValue) ||
+                            (optimizationTargetDropdown.value === 'Target Amperes' && potentialNewAmperes <= targetValue) ||
+                            (optimizationTargetDropdown.value === 'Target kWh' && potentialNewTotalConsumption <= targetValue)) {
+                            canReduceFurther = true;
+                        }
 
-            // Lighten the colors for the bars
-            const lightenColor = (hex, percent) => {
-                const num = parseInt(hex.slice(1), 16);
-                const amt = Math.round(2.55 * percent);
-                const R = (num >> 16) + amt;
-                const B = ((num >> 8) & 0x00FF) + amt;
-                const G = (num & 0x0000FF) + amt;
-                return `#${(0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + (B < 255 ? B < 1 ? 0 : B : 255) * 0x100 + (G < 255 ? G < 1 ? 0 : G : 255)).toString(16).slice(1)}`;
+                        if (canReduceFurther || testHours === 0) { // If target met or hours hit zero
+                            const hoursReduced = currentDeviceHours - testHours;
+                            if (hoursReduced > 0) {
+                                device.row.querySelector('input[type="number"]').value = formatNumber(testHours, 1, false, true); // Update hours in table
+                                optimizedConsumptionKwh = potentialNewTotalConsumption;
+                                summaryMessage += `- Reduced '${device.name}' hours by ${formatNumber(hoursReduced, 0)} to ${formatNumber(testHours, 0)}.\n`;
+                                changesMade = true;
+                            }
+                            break; // Stop reducing this device
+                        } else {
+                            currentDeviceHours = testHours; // Continue reducing this device
+                        }
+                    }
+                }
+
+                if (changesMade) {
+                    budgetResultLabel.textContent = 'Result: Optimized!';
+                    calculateDeviceConsumption(); // Recalculate and update all displays
+                    alert(`Optimization completed successfully!\n${summaryMessage}`);
+                } else {
+                    budgetResultLabel.textContent = 'Result: Unreachable';
+                    alert('Could not reach the target by only reducing hours of variable devices.\nConsider reducing usage days, number of devices, or increasing your target.');
+                }
             };
 
-            const hexColor = color; // Assuming baseColors are hex or can be converted
-            const lightenedHex = lightenColor(hexColor, 30); // Lighten by 30%
+            // --- DEVICE TABLE LOGIC ---
+            const addTableRow = (deviceData = {}) => {
+                const row = deviceTableBody.insertRow();
+                const data = {
+                    name: 'New Device', watt: '100', hours: '8', day: '30', count: '1', on: true, fixed: false, ...deviceData
+                };
 
-            return {
-                name: allXLabels[i],
-                rate: rate,
-                category: category,
-                originalColor: color,
-                displayColor: lightenedHex
+                row.innerHTML = `
+                    <td><input type="text" value="${data.name}" class="device-input"></td>
+                    <td><input type="number" value="${data.watt}" class="device-input"></td>
+                    <td><input type="number" value="${data.hours}" class="device-input" min="0" max="24"></td>
+                    <td><input type="number" value="${data.day}" class="device-input" min="0" max="31"></td>
+                    <td><input type="number" value="${data.count}" class="device-input" min="0"></td>
+                    <td class="output-kwh output-cell">0.00</td>
+                    <td class="output-iqd output-cell">0</td>
+                    <td><input type="checkbox" class="device-on" ${data.on ? 'checked' : ''}></td>
+                    <td><input type="checkbox" class="device-fixed" ${data.fixed ? 'checked' : ''}></td>
+                `;
+
+                // Event listeners for inputs and checkboxes
+                row.querySelector('.device-on').addEventListener('change', () => calculateDeviceConsumption());
+                row.querySelector('.device-fixed').addEventListener('change', () => calculateDeviceConsumption());
+                row.querySelectorAll('.device-input').forEach(input => {
+                    input.addEventListener('change', () => calculateDeviceConsumption());
+                });
+
+                // Row click for selection
+                row.addEventListener('click', () => handleTableRowClick(row, Array.from(deviceTableBody.children).indexOf(row)));
+
+                if (!data.on) row.classList.add('inactive'); // Apply inactive class if device is off
             };
-        });
-        setTariffRateBarChartData(data);
-    }, []);
 
-    // --- Highlight logic for Tariff Rate Bar Chart ---
-    const getTariffBarFill = useCallback((entry) => {
-        const currentKwh = tariffPlotResult ? tariffPlotResult.kwh : 0;
-        const currentCategory = tariffPlotResult ? tariffPlotResult.category : selectedCategory;
+            const handleTableRowClick = (row, index) => {
+                if (selectedTableRow) {
+                    selectedTableRow.classList.remove('selected-row');
+                }
+                selectedTableRow = row;
+                selectedTableRow.classList.add('selected-row');
 
-        if (currentCategory === 'Household') {
-            const tierIdx = getRonakiHouseholdTierIndex(currentKwh);
-            const householdTierLabels = ['1-400', '401-800', '801-1200', '1201-1600', '1601+'];
-            if (entry.name === householdTierLabels[tierIdx]) {
-                return highlightColor;
-            }
-        } else if (entry.category === currentCategory) {
-            return highlightColor;
-        }
-        return entry.displayColor;
-    }, [tariffPlotResult, selectedCategory]);
+                // Highlight corresponding bar in the device plot
+                if (devicePlot) {
+                    const dataset = devicePlot.data.datasets[0];
+                    const newBorderColors = Array(dataset.data.length).fill(dataset.borderColor[0]);
+                    const newBorderWidths = Array(dataset.data.length).fill(1);
 
-    // --- Table Handlers ---
-    const handleDeviceChange = (index, field, value) => {
-        const newDevices = [...devices];
-        newDevices[index] = { ...newDevices[index], [field]: value }; // Create new object for the device
-        setDevices(newDevices);
-    };
+                    newBorderColors[index] = highlightBorder;
+                    newBorderWidths[index] = 2.5;
 
-    const handleCheckboxChange = (index, field) => {
-        const newDevices = [...devices];
-        newDevices[index] = { ...newDevices[index], [field]: !newDevices[index][field] }; // Create new object for the device
-        setDevices(newDevices);
-    };
+                    dataset.borderColor = newBorderColors;
+                    dataset.borderWidth = newBorderWidths;
+                    devicePlot.update('none');
+                }
+            };
 
-    const addDeviceRow = () => {
-        setDevices([...devices, { name: `Device ${devices.length + 1}`, watt: 0, hours: 24, day: 30, count: 1, on: true, fixed: false }]);
-    };
+            const startupPopulateDeviceTable = () => {
+                const sampleDevices = [
+                    { name: 'LED TV', watt: '100', hours: '8', day: '30', count: '1', on: true, fixed: false },
+                    { name: 'Refrigerator', watt: '125', hours: '24', day: '30', count: '1', on: true, fixed: true },
+                    { name: 'Washing Machine', watt: '2000', hours: '2', day: '4', count: '1', on: true, fixed: false },
+                    { name: 'LED Lighting', watt: '12', hours: '12', day: '30', count: '20', on: true, fixed: false },
+                    { name: 'Freezer', watt: '150', hours: '24', day: '30', count: '1', on: true, fixed: true },
+                    { name: 'Water Pump', watt: '500', hours: '1', day: '30', count: '1', on: true, fixed: false },
+                    { name: 'Split AC (1 ton)', watt: '1000', hours: '4', day: '30', count: 1, on: true, fixed: false },
+                ];
+                sampleDevices.forEach(addTableRow);
+            };
 
-    const deleteSelectedRows = () => {
-        if (selectedDeviceRow === null) {
-            alert("Please select a row to delete.");
-            return;
-        }
-        const newDevices = devices.filter((_, idx) => idx !== selectedDeviceRow);
-        setDevices(newDevices);
-        setSelectedDeviceRow(null); // Clear selection
-    };
+            // --- EVENT LISTENERS ---
+            manualInputTypeDropdown.addEventListener('change', (e) => {
+                const type = e.target.value;
+                if (type === 'kWh') manualInput.value = '1891';
+                else if (type === 'Avg Amperes') manualInput.value = '12';
+                else if (type === 'Given Bill') manualInput.value = '100,000';
+                performManualCalculation();
+            });
 
-    const handleRowClick = (index) => {
-        setSelectedDeviceRow(index);
-    };
+            calculateManualButton.addEventListener('click', performManualCalculation);
+            manualInput.addEventListener('change', performManualCalculation); // Recalculate on input change
+            categoryDropdown.addEventListener('change', () => {
+                performManualCalculation();
+                calculateDeviceConsumption(); // Also update device consumption as category affects it
+            });
 
-    const clearAllData = () => {
-        setDevices(defaultDevices); // Reset to default devices
-        setManualInput('1891');
-        setMeterPrevReading('31051');
-        setMeterCurrReading('31910');
-        setDays('30');
-        setSelectedCategory('Household');
-        setOptimizationTargetType('Target Cost');
-        setBudgetLimit('100,000');
-        setManualResults({ kwh: 0, amperes: 0, bill: 0, avgRate: 0 });
-        setMeterResults({ kwh: 0, amperes: 0, bill: 0, avgRate: 0 });
-        setOptimizationResult('Not Optimized');
-        setTariffPlotResult(null);
-        setTariffSliderValue(0);
-        updateTariffCurves(2000); // Reset tariff plot range
-        plotTariffCategoryBarChart(); // Re-plot tariff bar chart
-        alert("All data has been cleared and reset to default.");
-    };
+            calculateMeterButton.addEventListener('click', performMeterCalculation);
+            meterPrevReading.addEventListener('change', performMeterCalculation);
+            meterCurrReading.addEventListener('change', performMeterCalculation);
+            daysInput.addEventListener('change', () => {
+                performManualCalculation(); // Update manual calc with new days
+                performMeterCalculation(); // Update meter calc with new days
+                calculateDeviceConsumption(); // Update device calc with new days
+            });
 
-    // --- Save/Load Data ---
-    const saveData = () => {
-        const dataToSave = JSON.stringify(devices); // Save only the input data
-        const blob = new Blob([dataToSave], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'device_data.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        alert("Data saved successfully!");
-    };
+            tariffSlider.addEventListener('input', (e) => {
+                const kwhFromSlider = parseFloat(e.target.value);
+                const totalBill = calculateCostForCategory(kwhFromSlider, categoryDropdown.value);
+                const daysVal = validateNumeric(daysInput.value) || 30;
+                const avgAmperes = kwhToAmperes(kwhFromSlider, daysVal);
+                const avgRate = kwhFromSlider > 0 ? totalBill / kwhFromSlider : 0;
 
-    const loadData = (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
+                updateTariffPlotResultDisplay(kwhFromSlider, avgAmperes, totalBill, avgRate);
+                plotTariffCurves(parseFloat(tariffSlider.max), kwhFromSlider, totalBill, categoryDropdown.value);
+                plotTariffBarChart(kwhFromSlider, categoryDropdown.value);
+                updateTariffSliderBackground(kwhFromSlider, parseFloat(tariffSlider.max));
+            });
 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const loadedData = JSON.parse(e.target.result);
-                // Basic validation to ensure loaded data matches expected structure
-                if (Array.isArray(loadedData) && loadedData.every(item => typeof item === 'object' && 'name' in item && 'watt' in item)) {
-                    // Ensure loaded data has all necessary fields, set defaults if missing
-                    const sanitizedData = loadedData.map(d => ({
-                        name: d.name || '',
-                        watt: d.watt || 0,
-                        hours: d.hours || 0,
-                        day: d.day || 0,
-                        count: d.count || 0,
-                        on: typeof d.on === 'boolean' ? d.on : true,
-                        fixed: typeof d.fixed === 'boolean' ? d.fixed : false,
-                    }));
-                    setDevices(sanitizedData);
-                    alert("Data loaded successfully!");
+            manualReportButton.addEventListener('click', () => {
+                const kwh = validateNumeric(manualKwhElem.textContent);
+                const bill = validateNumeric(manualBillElem.textContent);
+                const category = categoryDropdown.value;
+                if (kwh <= 0) { alert("Please perform a calculation first."); return; }
+                const { breakdown } = getRonakiHouseholdTariffDetails(kwh, category); // Assuming household for breakdown detail
+                alert(`Detailed Report (Manual Input)\n---------------------------------\nConsumption: ${manualKwhElem.textContent}\nAverage Amperes: ${manualAmperesElem.textContent}\nTotal Bill: ${manualBillElem.textContent}\nAverage Rate: ${manualAvgRateElem.textContent}\nCategory: ${category}\n\nTariff Breakdown:\n${breakdown}`);
+            });
+
+            // Device Table Buttons
+            addRowButton.addEventListener('click', () => {
+                addTableRow();
+                calculateDeviceConsumption();
+            });
+            deleteRowButton.addEventListener('click', () => {
+                if (selectedTableRow) {
+                    selectedTableRow.remove();
+                    selectedTableRow = null; // Clear selection
+                    calculateDeviceConsumption();
                 } else {
-                    throw new Error("Invalid data format in file.");
+                    alert('Please select a row to delete.');
                 }
-            } catch (error) {
-                alert(`Error loading data: ${error.message}. Please ensure it's a valid JSON file.`);
-                console.error("Error loading data:", error);
-            }
-        };
-        reader.readAsText(file);
-    };
+            });
+            clearAllButton.addEventListener('click', () => {
+                deviceTableBody.innerHTML = '';
+                startupPopulateDeviceTable();
+                calculateDeviceConsumption();
+                alert("All device data has been cleared and reset to default.");
+            });
+            saveTableButton.addEventListener('click', () => {
+                const data = [];
+                Array.from(deviceTableBody.children).forEach(row => {
+                    const inputs = row.querySelectorAll('input[type="text"], input[type="number"]');
+                    data.push({
+                        name: inputs[0].value,
+                        watt: inputs[1].value,
+                        hours: inputs[2].value,
+                        day: inputs[3].value,
+                        count: inputs[4].value,
+                        on: row.querySelector('.device-on').checked,
+                        fixed: row.querySelector('.device-fixed').checked,
+                    });
+                });
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "devices_runaki.json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+                alert("Device data saved successfully!");
+            });
 
-    // --- Touch Behavior Control ---
-    // This CSS class will be applied to the body to prevent default touch actions
-    useEffect(() => {
-        document.body.classList.add('no-single-finger-pan');
-        return () => {
-            document.body.classList.remove('no-single-finger-pan');
-        };
-    }, []);
+            loadFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
 
-    // Custom Tooltip for Tariff Plot
-    const CustomTariffTooltip = ({ active, payload, label }) => {
-        if (active && payload && payload.length) {
-            const dataPoint = payload[0].payload; // Get the data object for the hovered point
-            return (
-                <div className="p-2 bg-white border border-gray-300 rounded shadow-lg text-sm">
-                    <p className="font-bold text-gray-700">Consumption: {formatNumber(dataPoint.kwh, 2)} kWh</p>
-                    <p className="text-gray-600">Cost: {formatNumber(dataPoint.bill * 1000, 0, true)} IQD</p>
-                </div>
-            );
-        }
-        return null;
-    };
+                const reader = new FileReader();
+                reader.onload = (readerEvent) => {
+                    try {
+                        const loadedData = JSON.parse(readerEvent.target.result);
+                        if (Array.isArray(loadedData) && loadedData.every(item => typeof item === 'object' && 'name' in item && 'watt' in item)) {
+                            deviceTableBody.innerHTML = ''; // Clear existing rows
+                            loadedData.forEach(addTableRow);
+                            calculateDeviceConsumption();
+                            alert("Device data loaded successfully!");
+                        } else {
+                            throw new Error("Invalid data format in file.");
+                        }
+                    } catch (error) {
+                        alert(`Error loading data: ${error.message}. Please ensure it's a valid JSON file.`);
+                        console.error("Error loading data:", error);
+                    }
+                };
+                reader.readAsText(file);
+            });
 
-    // Custom Tooltip for Device Bar Chart
-    const CustomDeviceTooltip = ({ active, payload, label }) => {
-        if (active && payload && payload.length) {
-            const dataPoint = payload[0].payload;
-            return (
-                <div className="p-2 bg-white border border-gray-300 rounded shadow-lg text-sm">
-                    <p className="font-bold text-gray-700">Device: {dataPoint.name}</p>
-                    <p className="text-gray-600">Consumption: {formatNumber(dataPoint.kwh, 2)} kWh</p>
-                    <p className="text-gray-600">Cost: {formatNumber(dataPoint.iqd, 0, true)} IQD</p>
-                </div>
-            );
-        }
-        return null;
-    };
+            // Budget Optimization
+            optimizationTargetDropdown.addEventListener('change', () => {
+                const target = optimizationTargetDropdown.value;
+                if (target === 'Target Cost') budgetLimitInput.value = '100,000';
+                else if (target === 'Target Amperes') budgetLimitInput.value = '12';
+                else if (target === 'Target kWh') budgetLimitInput.value = '1891';
+                budgetResultLabel.textContent = 'Result: Not Optimized';
+            });
+            optimizeBudgetButton.addEventListener('click', optimizeForBudget);
 
-    // Custom Tooltip for Tariff Rate Bar Chart
-    const CustomTariffRateTooltip = ({ active, payload, label }) => {
-        if (active && payload && payload.length) {
-            const dataPoint = payload[0].payload;
-            return (
-                <div className="p-2 bg-white border border-gray-300 rounded shadow-lg text-sm">
-                    <p className="font-bold text-gray-700">Category: {dataPoint.name}</p>
-                    <p className="text-gray-600">Rate: {formatNumber(dataPoint.rate, 0, true)} IQD/kWh</p>
-                </div>
-            );
-        }
-        return null;
-    };
-
-    return (
-        <div className="min-h-screen bg-gray-100 p-4 font-inter flex flex-col items-center">
-            {/* Global Styles for touch behavior */}
-            <style>
-                {`
-                body.no-single-finger-pan {
-                    overflow: hidden; /* Prevent body scrolling */
-                    touch-action: pan-x pan-y; /* Allow two-finger pan/zoom */
+            // Toggle Plots Button
+            togglePlotsButton.addEventListener('click', () => {
+                const isVisible = deviceBarPlotContainer.style.display === 'block';
+                deviceBarPlotContainer.style.display = isVisible ? 'none' : 'block';
+                tariffBarPlotContainer.style.display = isVisible ? 'none' : 'block';
+                togglePlotsButton.textContent = isVisible ? 'Show Plots' : 'Hide Plots';
+                // Re-render charts when they become visible to ensure correct sizing
+                if (!isVisible) {
+                    calculateDeviceConsumption(); // Re-plot device chart
+                    plotTariffBarChart(parseFloat(tariffPlotKwhElem.textContent), categoryDropdown.value); // Re-plot tariff bar chart
                 }
-                /* For elements that should be scrollable within the app */
-                .scrollable-content {
-                    overflow-y: auto;
-                    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-                }
-                `}
-            </style>
+            });
 
-            <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-                Ronaki Electricity Bill Calculator & Energy Analyzer for Kurdistan Region of Iraq
-            </h1>
-
-            <div className="flex flex-col w-full max-w-7xl bg-white shadow-lg rounded-lg p-6 space-y-6">
-
-                {/* 1. Calculations Section (Manual, Meter, Optimization) */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Manual Calculation */}
-                    <div className="p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-sm">
-                        <h2 className="text-lg font-semibold text-gray-700 mb-3">1. Manual Calculation</h2>
-                        <div className="flex flex-wrap items-center gap-3 mb-4">
-                            <button
-                                onClick={calculateManualBill}
-                                className="px-4 py-2 bg-purple-100 text-purple-800 rounded-md hover:bg-purple-200 transition-colors shadow-sm border border-purple-300"
-                            >
-                                Calculate Bill
-                            </button>
-                            <label className="text-gray-600">Category:</label>
-                            <select
-                                value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="p-2 border border-gray-300 rounded-md bg-white text-gray-700"
-                            >
-                                {['Household', 'Commercial', 'Agriculture', 'Industrial', 'Large Industry', 'State'].map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                            </select>
-                            <label className="text-gray-600">Consumption:</label>
-                            <select
-                                value={manualInputType}
-                                onChange={(e) => {
-                                    setManualInputType(e.target.value);
-                                    if (e.target.value === 'kWh') setManualInput('1891');
-                                    if (e.target.value === 'Avg Amperes') setManualInput('12');
-                                    if (e.target.value === 'Given Bill') setManualInput('100,000');
-                                }}
-                                className="p-2 border border-gray-300 rounded-md bg-white text-gray-700"
-                            >
-                                {['kWh', 'Avg Amperes', 'Given Bill'].map(type => (
-                                    <option key={type} value={type}>{type}</option>
-                                ))}
-                            </select>
-                            <input
-                                type="text"
-                                value={manualInput}
-                                onChange={(e) => setManualInput(e.target.value)}
-                                className="p-2 border border-gray-300 rounded-md w-28 text-center"
-                                placeholder={`Enter ${manualInputType}`}
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                            <div className="p-2 bg-gray-100 border border-gray-200 rounded">Consumption: <span className="font-bold text-red-700">{formatNumber(manualResults.kwh, 2)} kWh</span></div>
-                            <div className="p-2 bg-gray-100 border border-gray-200 rounded">Avg Amperes: <span className="font-bold text-red-700">{formatNumber(manualResults.amperes, 2)} A</span></div>
-                            <div className="p-2 bg-gray-100 border border-gray-200 rounded">Bill: <span className="font-bold text-red-700">{formatNumber(manualResults.bill, 0, true)} IQD</span></div>
-                            <div className="p-2 bg-gray-100 border border-gray-200 rounded">Avg Rate: <span className="font-bold text-red-700">{formatNumber(manualResults.avgRate, 2)} IQD/kWh</span></div>
-                        </div>
-                    </div>
-
-                    {/* Meter Reading Calculation */}
-                    <div className="p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-sm">
-                        <h2 className="text-lg font-semibold text-gray-700 mb-3">2. By Meter Calculation</h2>
-                        <div className="flex flex-wrap items-center gap-3 mb-4">
-                            <button
-                                onClick={calculateMeterBill}
-                                className="px-4 py-2 bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition-colors shadow-sm border border-blue-300"
-                            >
-                                Calculate Bill by Meter
-                            </button>
-                            <label className="text-gray-600">Prev Reading:</label>
-                            <input
-                                type="text"
-                                value={meterPrevReading}
-                                onChange={(e) => setMeterPrevReading(e.target.value)}
-                                className="p-2 border border-gray-300 rounded-md w-24 text-center"
-                            />
-                            <label className="text-gray-600">Curr Reading:</label>
-                            <input
-                                type="text"
-                                value={meterCurrReading}
-                                onChange={(e) => setMeterCurrReading(e.target.value)}
-                                className="p-2 border border-gray-300 rounded-md w-24 text-center"
-                            />
-                            <label className="text-gray-600">Days:</label>
-                            <input
-                                type="number"
-                                value={days}
-                                onChange={(e) => setDays(e.target.value)}
-                                className="p-2 border border-gray-300 rounded-md w-16 text-center"
-                                min="1" max="365"
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                            <div className="p-2 bg-gray-100 border border-gray-200 rounded">Consumption: <span className="font-bold text-red-700">{formatNumber(meterResults.kwh, 2)} kWh</span></div>
-                            <div className="p-2 bg-gray-100 border border-gray-200 rounded">Avg Amperes: <span className="font-bold text-red-700">{formatNumber(meterResults.amperes, 2)} A</span></div>
-                            <div className="p-2 bg-gray-100 border border-gray-200 rounded">Bill: <span className="font-bold text-red-700">{formatNumber(meterResults.bill, 0, true)} IQD</span></div>
-                            <div className="p-2 bg-gray-100 border border-gray-200 rounded">Avg Rate: <span className="font-bold text-red-700">{formatNumber(meterResults.avgRate, 2)} IQD/kWh</span></div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Budget Optimization */}
-                <div className="p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-sm">
-                    <h2 className="text-lg font-semibold text-gray-700 mb-3">3. Budget Optimization</h2>
-                    <div className="flex flex-wrap items-center gap-3 mb-3">
-                        <button
-                            onClick={optimizeForBudget}
-                            className="px-4 py-2 bg-orange-100 text-orange-800 rounded-md hover:bg-orange-200 transition-colors shadow-sm border border-orange-300"
-                        >
-                            Optimize Target
-                        </button>
-                        <select
-                            value={optimizationTargetType}
-                            onChange={(e) => {
-                                setOptimizationTargetType(e.target.value);
-                                if (e.target.value === 'Target Cost') setBudgetLimit('100,000');
-                                if (e.target.value === 'Target Amperes') setBudgetLimit('12');
-                                if (e.target.value === 'Target kWh') setBudgetLimit('1891');
-                            }}
-                            className="p-2 border border-gray-300 rounded-md bg-white text-gray-700"
-                        >
-                            {['Target Cost', 'Target Amperes', 'Target kWh'].map(target => (
-                                <option key={target} value={target}>{target}</option>
-                            ))}
-                        </select>
-                        <input
-                            type="text"
-                            value={budgetLimit}
-                            onChange={(e) => setBudgetLimit(e.target.value)}
-                            className="p-2 border border-gray-300 rounded-md w-32 text-center"
-                            placeholder="Enter Target"
-                        />
-                    </div>
-                    <div className="text-sm p-2 bg-gray-100 border border-gray-200 rounded">
-                        Result: <span className="font-bold text-red-700">{optimizationResult}</span>
-                    </div>
-                </div>
-
-                {/* Overall Summary */}
-                <div className="p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-sm">
-                    <h2 className="text-lg font-semibold text-gray-700 mb-3">Overall Summary</h2>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="p-2 bg-gray-100 border border-gray-200 rounded">Total Consumption: <span className="font-bold text-red-700">{formatNumber(calculatedTotalSummary.kwh, 2)} kWh</span></div>
-                        <div className="p-2 bg-gray-100 border border-gray-200 rounded">Average Amperes: <span className="font-bold text-red-700">{formatNumber(calculatedTotalSummary.amperes, 2)} A</span></div>
-                        <div className="p-2 bg-gray-100 border border-gray-200 rounded">Total Bill: <span className="font-bold text-red-700">{formatNumber(calculatedTotalSummary.bill, 0, true)} IQD</span></div>
-                        <div className="p-2 bg-gray-100 border border-gray-200 rounded">Average Rate: <span className="font-bold text-red-700">{formatNumber(calculatedTotalSummary.avgRate, 2)} IQD/kWh</span></div>
-                    </div>
-                </div>
-
-                {/* 4. Dynamic Tariff Curves Plot */}
-                <div className="p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-sm flex flex-col items-center">
-                    <h2 className="text-lg font-semibold text-gray-700 mb-3">4. Dynamic Tariff Curves</h2>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={tariffPlotData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-                            <XAxis
-                                type="number"
-                                dataKey="kwh"
-                                domain={[0, tariffPlotMaxKwh]}
-                                label={{ value: 'Consumption (kWh)', position: 'insideBottom', offset: -10, fill: '#333', fontSize: 15 }}
-                                tickFormatter={(value) => formatNumber(value, 0)}
-                                tick={{ fontSize: 12 }}
-                            />
-                            <YAxis
-                                dataKey="bill"
-                                label={{ value: 'Cost (kIQD)', angle: -90, position: 'insideLeft', fill: '#333', fontSize: 15 }}
-                                tickFormatter={(value) => formatNumber(value, 0)}
-                                tick={{ fontSize: 12 }}
-                            />
-                            {/* Second XAxis for Amperes */}
-                            <XAxis
-                                type="number"
-                                xAxisId="amperes"
-                                orientation="top"
-                                domain={[0, kwhToAmperes(tariffPlotMaxKwh, parseFloat(days) || 30)]}
-                                label={{ value: 'Average Amperes (A)', position: 'insideTop', offset: 5, fill: '#333', fontSize: 15 }}
-                                tickFormatter={(value) => formatNumber(value, 0) + ' A'}
-                                tick={{ fontSize: 12 }}
-                            />
-                            <Tooltip content={<CustomTariffTooltip />} />
-                            <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                            {['Household', 'Commercial', 'Agriculture', 'Industrial', 'Large Industry', 'State'].map((category, i) => (
-                                <Line
-                                    key={category}
-                                    type="monotone"
-                                    dataKey="bill"
-                                    data={tariffPlotData.filter(d => d.name === category)}
-                                    name={category}
-                                    stroke={baseColors[i % baseColors.length]}
-                                    dot={false}
-                                    strokeWidth={2}
-                                    isAnimationActive={false}
-                                />
-                            ))}
-                            {tariffPlotResult && (
-                                <>
-                                    {/* Result Marker */}
-                                    <Line
-                                        type="monotone"
-                                        dataKey="bill"
-                                        data={[{ kwh: tariffPlotResult.kwh, bill: tariffPlotResult.bill / 1000 }]}
-                                        dot={{ r: 6, fill: 'blue', stroke: 'blue', strokeWidth: 1 }}
-                                        activeDot={false}
-                                        stroke="transparent"
-                                        name="Calculated Result"
-                                        isAnimationActive={false}
-                                    />
-                                    {/* Vertical Line */}
-                                    <Line
-                                        type="monotone"
-                                        dataKey="bill"
-                                        data={[
-                                            { kwh: tariffPlotResult.kwh, bill: 0 },
-                                            { kwh: tariffPlotResult.kwh, bill: tariffPlotResult.bill / 1000 }
-                                        ]}
-                                        stroke="black"
-                                        strokeDasharray="3 3"
-                                        dot={false}
-                                        isAnimationActive={false}
-                                    />
-                                    {/* Horizontal Line */}
-                                    <Line
-                                        type="monotone"
-                                        dataKey="bill"
-                                        data={[
-                                            { kwh: 0, bill: tariffPlotResult.bill / 1000 },
-                                            { kwh: tariffPlotResult.kwh, bill: tariffPlotResult.bill / 1000 }
-                                        ]}
-                                        stroke="black"
-                                        strokeDasharray="3 3"
-                                        dot={false}
-                                        isAnimationActive={false}
-                                    />
-                                </>
-                            )}
-                        </LineChart>
-                    </ResponsiveContainer>
-                    <input
-                        type="range"
-                        min="0"
-                        max={tariffPlotMaxKwh}
-                        value={tariffSliderValue}
-                        onChange={(e) => handleTariffSliderChange(parseFloat(e.target.value))}
-                        className="w-full mt-4 h-2 bg-green-200 rounded-lg appearance-none cursor-pointer"
-                        style={{ background: 'linear-gradient(to right, #A2F0A2 0%, #A2F0A2 ' + (tariffSliderValue / tariffPlotMaxKwh * 100) + '%, #fff ' + (tariffSliderValue / tariffPlotMaxKwh * 100) + '%, #fff 100%)' }}
-                    />
-                    <div className="mt-2 text-center text-sm">
-                        {tariffPlotResult && (
-                            <div className="p-2 bg-yellow-100 border border-yellow-300 rounded shadow-sm inline-block">
-                                <p className="font-semibold">{formatNumber(tariffPlotResult.kwh, 2)} kWh</p>
-                                <p className="font-semibold">{formatNumber(tariffPlotResult.bill, 0, true)} IQD</p>
-                                <p>{formatNumber(tariffPlotResult.amperes, 2)} A</p>
-                                <p>{formatNumber(tariffPlotResult.avgRate, 2)} IQD/kWh</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* 5. Device Consumption Table */}
-                <div className="p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-sm flex flex-col">
-                    <h2 className="text-lg font-semibold text-gray-700 mb-3">5. Device Consumption Table</h2>
-                    <div className="overflow-x-auto scrollable-content max-h-80 lg:max-h-96"> {/* Added scrollable-content */}
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-200 sticky top-0">
-                                <tr>
-                                    {['Device', 'Watt', 'Hours', 'Day', 'Count', 'kWh', 'IQD', 'On', 'Fixed'].map((header) => (
-                                        <th key={header} className="px-4 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                            {header}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {processedDevices.map((device, index) => (
-                                    <tr
-                                        key={index}
-                                        className={`${!device.on ? 'bg-gray-100 text-gray-500' : 'hover:bg-gray-50'} ${selectedDeviceRow === index ? 'bg-blue-100' : ''}`}
-                                        onClick={() => handleRowClick(index)}
-                                    >
-                                        <td className="px-4 py-2 whitespace-nowrap text-sm font-medium">{device.name}</td>
-                                        <td className="px-4 py-2 whitespace-nowrap text-sm">
-                                            <input
-                                                type="number"
-                                                value={device.watt}
-                                                onChange={(e) => handleDeviceChange(index, 'watt', e.target.value)}
-                                                className="w-20 p-1 border border-gray-300 rounded text-center"
-                                            />
-                                        </td>
-                                        <td className="px-4 py-2 whitespace-nowrap text-sm">
-                                            <input
-                                                type="number"
-                                                value={device.hours}
-                                                onChange={(e) => handleDeviceChange(index, 'hours', e.target.value)}
-                                                className="w-16 p-1 border border-gray-300 rounded text-center"
-                                                min="0" max="24"
-                                            />
-                                        </td>
-                                        <td className="px-4 py-2 whitespace-nowrap text-sm">
-                                            <input
-                                                type="number"
-                                                value={device.day}
-                                                onChange={(e) => handleDeviceChange(index, 'day', e.target.value)}
-                                                className="w-16 p-1 border border-gray-300 rounded text-center"
-                                                min="0" max="31"
-                                            />
-                                        </td>
-                                        <td className="px-4 py-2 whitespace-nowrap text-sm">
-                                            <input
-                                                type="number"
-                                                value={device.count}
-                                                onChange={(e) => handleDeviceChange(index, 'count', e.target.value)}
-                                                className="w-16 p-1 border border-gray-300 rounded text-center"
-                                                min="0"
-                                            />
-                                        </td>
-                                        <td className="px-4 py-2 whitespace-nowrap text-sm text-center bg-gray-100">
-                                            {formatNumber(device.kwh, 2)}
-                                        </td>
-                                        <td className="px-4 py-2 whitespace-nowrap text-sm text-center bg-gray-100">
-                                            {formatNumber(device.iqd, 0, true)}
-                                        </td>
-                                        <td className="px-4 py-2 whitespace-nowrap text-sm text-center">
-                                            <input
-                                                type="checkbox"
-                                                checked={device.on}
-                                                onChange={() => handleCheckboxChange(index, 'on')}
-                                                className="form-checkbox h-4 w-4 text-blue-600 rounded"
-                                            />
-                                        </td>
-                                        <td className="px-4 py-2 whitespace-nowrap text-sm text-center">
-                                            <input
-                                                type="checkbox"
-                                                checked={device.fixed}
-                                                onChange={() => handleCheckboxChange(index, 'fixed')}
-                                                className="form-checkbox h-4 w-4 text-green-600 rounded"
-                                            />
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div className="flex flex-wrap justify-center gap-3 mt-4">
-                        <button
-                            onClick={addDeviceRow}
-                            className="px-4 py-2 bg-green-100 text-green-800 rounded-md hover:bg-green-200 transition-colors shadow-sm border border-green-300"
-                        >
-                            Add Row
-                        </button>
-                        <button
-                            onClick={deleteSelectedRows}
-                            className="px-4 py-2 bg-red-100 text-red-800 rounded-md hover:bg-red-200 transition-colors shadow-sm border border-red-300"
-                        >
-                            Delete Selected
-                        </button>
-                        <button
-                            onClick={saveData}
-                            className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 transition-colors shadow-sm border border-yellow-300"
-                        >
-                            Save Data
-                        </button>
-                        <label className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 transition-colors shadow-sm border border-yellow-300 cursor-pointer">
-                            Load Data
-                            <input type="file" accept=".json" onChange={loadData} className="hidden" />
-                        </label>
-                        <button
-                            onClick={clearAllData}
-                            className="px-4 py-2 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 transition-colors shadow-sm border border-gray-300"
-                        >
-                            Clear All
-                        </button>
-                    </div>
-                </div>
-
-                {/* Plot Toggle Button */}
-                <div className="flex justify-center">
-                    <button
-                        onClick={() => setShowPlots(!showPlots)}
-                        className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-md hover:bg-indigo-700 transition-colors transform hover:scale-105"
-                    >
-                        {showPlots ? 'Hide Plots' : 'Show Plots'}
-                    </button>
-                </div>
-
-                {/* 6. Device Consumption Bar Plot */}
-                {showPlots && (
-                    <div className="p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-sm">
-                        <h2 className="text-lg font-semibold text-gray-700 mb-3">6. Device Consumption Bar Plot</h2>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={calculatedDeviceBarChartData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-                                <XAxis
-                                    dataKey="name"
-                                    angle={-45}
-                                    textAnchor="end"
-                                    height={60}
-                                    tick={{ fontSize: 12 }}
-                                    interval={0}
-                                />
-                                <YAxis
-                                    label={{ value: 'Consumption (kWh)', angle: -90, position: 'insideLeft', fill: '#333', fontSize: 15 }}
-                                    tickFormatter={(value) => formatNumber(value, 0)}
-                                    tick={{ fontSize: 12 }}
-                                />
-                                <Tooltip content={<CustomDeviceTooltip />} />
-                                <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                                <Bar dataKey="kwh">
-                                    {calculatedDeviceBarChartData.map((entry, index) => (
-                                        <Cell
-                                            key={`cell-${index}`}
-                                            fill={entry.fill}
-                                            stroke="black"
-                                            strokeWidth={selectedDeviceRow !== null && processedDevices[selectedDeviceRow]?.name === entry.name ? 2 : 1}
-                                        />
-                                    ))}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                )}
-
-                {/* 7. Tariff Rate Bar Plot */}
-                {showPlots && (
-                    <div className="p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-sm">
-                        <h2 className="text-lg font-semibold text-gray-700 mb-3">7. Tariff Rate Bar Plot</h2>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={tariffRateBarChartData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-                                <XAxis
-                                    dataKey="name"
-                                    angle={0}
-                                    textAnchor="middle"
-                                    height={30}
-                                    tick={{ fontSize: 12 }}
-                                    interval={0}
-                                />
-                                <YAxis
-                                    label={{ value: 'IQD / kWh', angle: -90, position: 'insideLeft', fill: '#333', fontSize: 15 }}
-                                    tickFormatter={(value) => formatNumber(value, 0)}
-                                    tick={{ fontSize: 12 }}
-                                />
-                                <Tooltip content={<CustomTariffRateTooltip />} />
-                                <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                                <Bar dataKey="rate">
-                                    {tariffRateBarChartData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={getTariffBarFill(entry)} stroke="black" strokeWidth={1} />
-                                    ))}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
-
-export default App;
+            // --- INITIALIZATION CALLS ---
+            startupPopulateDeviceTable();
+            calculateDeviceConsumption(); // Initial calculation for devices and overall summary
+            performManualCalculation(); // Initial calculation for manual section
+            plotTariffBarChart(); // Initial plot for tariff bar chart
+            plotTariffCurves(); // Initial plot for tariff curves
+            updateTariffSliderBackground(parseFloat(tariffSlider.value), parseFloat(tariffSlider.max));
+        });
+    </script>
+</body>
+</html>
