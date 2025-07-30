@@ -187,20 +187,20 @@
 
         .result-value {
             font-weight: 800;
-            color: var(--error-red-dark); /* Consistent strong red for emphasis in night mode */
+            color: var(--text-light); /* Changed to white as requested */
             font-size: 1.25rem; /* Larger font for values */
             transition: color 0.2s ease-in-out; /* Smooth transition for color flash */
         }
 
         /* Flashing animation for result values */
         @keyframes flashEffect {
-            0% { color: var(--error-red-dark); } /* Start with normal color */
+            0% { color: var(--text-light); } /* Start with normal color (white) */
             16.6% { color: var(--highlight-yellow-dark); } /* Flash yellow */
-            33.3% { color: var(--error-red-dark); } /* Back to normal */
+            33.3% { color: var(--text-light); } /* Back to normal */
             50% { color: var(--highlight-yellow-dark); } /* Flash yellow again */
-            66.6% { color: var(--error-red-dark); } /* Back to normal */
+            66.6% { color: var(--text-light); } /* Back to normal */
             83.3% { color: var(--highlight-yellow-dark); } /* Flash yellow one last time */
-            100% { color: var(--error-red-dark); } /* End with normal color */
+            100% { color: var(--text-light); } /* End with normal color */
         }
 
         .flash-animation {
@@ -463,16 +463,16 @@
                 <button id="calculateManualButton" class="btn w-full">Calculate Bill</button>
                 <div class="result-grid">
                     <div class="result-item">
+                        <div class="result-label">Bill</div>
+                        <div class="result-value" id="manualBill">0 IQD</div>
+                    </div>
+                    <div class="result-item">
                         <div class="result-label">Consumption</div>
                         <div class="result-value" id="manualKwh">0.00 kWh</div>
                     </div>
                     <div class="result-item">
                         <div class="result-label">Avg Amperes</div>
                         <div class="result-value" id="manualAmperes">0.00 A</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Bill</div>
-                        <div class="result-value" id="manualBill">0 IQD</div>
                     </div>
                     <div class="result-item">
                         <div class="result-label">Avg Rate</div>
@@ -496,16 +496,16 @@
                 <button id="calculateMeterButton" class="btn w-full">Calculate Bill</button>
                 <div class="result-grid">
                     <div class="result-item">
+                        <div class="result-label">Bill</div>
+                        <div class="result-value" id="meterBill">0 IQD</div>
+                    </div>
+                    <div class="result-item">
                         <div class="result-label">Consumption</div>
                         <div class="result-value" id="meterKwh">0.00 kWh</div>
                     </div>
                     <div class="result-item">
                         <div class="result-label">Avg Amperes</div>
                         <div class="result-value" id="meterAmperes">0.00 A</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Bill</div>
-                        <div class="result-value" id="meterBill">0 IQD</div>
                     </div>
                     <div class="result-item">
                         <div class="result-label">Avg Rate</div>
@@ -518,7 +518,7 @@
             <!-- New buttons for showing/hiding sections -->
             <div class="flex flex-wrap justify-center gap-4 mt-6 p-4 border border-gray-700 rounded-lg" style="background-color: var(--card-dark);">
                 <button id="toggleTableButton" class="btn w-full">Show Device Table</button>
-                <button id="toggleBudgetOptimizationButton" class="btn w-full">Hide Budget Optimization</button>
+                <button id="toggleBudgetOptimizationButton" class="btn w-full">Show Budget Optimization</button>
                 <button id="showTariffDetailsButton" class="btn w-full">Show Tariff Details</button>
             </div>
 
@@ -556,7 +556,7 @@
             </div>
 
             <!-- 3. Budget Optimization -->
-            <div class="section-card" id="budgetOptimizationSection">
+            <div class="section-card" id="budgetOptimizationSection" style="display: none;">
                 <h2 class="text-xl">3. Budget Optimization</h2>
                 <div class="input-group">
                     <select id="optimizationTargetDropdown" class="p-2 border rounded-md">
@@ -773,9 +773,9 @@
                     elem.classList.add('flash-animation'); // Add animation
                 });
 
+                billElem.textContent = `${formatNumber(bill, 0, true)} IQD`; // Bill first
                 kwhElem.textContent = `${formatNumber(kwh, 2)} kWh`;
                 amperesElem.textContent = `${formatNumber(amperes, 2)} A`;
-                billElem.textContent = `${formatNumber(bill, 0, true)} IQD`;
                 avgRateElem.textContent = `${formatNumber(avgRate, 2)} IQD/kWh`;
             };
 
@@ -1081,7 +1081,7 @@
                 if (kwh <= 0) { showMessage("Please perform a calculation first.", 'info'); return; }
                 const { breakdown } = getRonakiHouseholdTariffDetails(kwh); 
                 // Using alert for report as it's a detailed summary, not a transient message
-                alert(`Detailed Report (Manual Input)\n---------------------------------\nConsumption: ${manualKwhElem.textContent}\nAverage Amperes: ${manualAmperesElem.textContent}\nTotal Bill: ${manualBillElem.textContent}\nAverage Rate: ${manualAvgRateElem.textContent}\nCategory: ${category}\n\nTariff Breakdown:\n${breakdown}`);
+                alert(`Detailed Report (Manual Input)\n---------------------------------\nBill: ${manualBillElem.textContent}\nConsumption: ${manualKwhElem.textContent}\nAverage Amperes: ${manualAmperesElem.textContent}\nAverage Rate: ${manualAvgRateElem.textContent}\nCategory: ${category}\n\nTariff Breakdown:\n${breakdown}`);
             };
 
             const generateMeterReport = () => {
@@ -1104,9 +1104,9 @@
                 reportContent += `Previous Reading: ${formatNumber(prevReading, 0, true)} kWh\n`;
                 reportContent += `Current Reading: ${formatNumber(currReading, 0, true)} kWh\n`;
                 reportContent += `Days: ${formatNumber(daysVal, 0, false, true)}\n`;
+                reportContent += `Bill: ${formatNumber(totalBill, 0, true)} IQD\n`; // Bill first
                 reportContent += `Consumption: ${formatNumber(consumption, 2)} kWh\n`;
                 reportContent += `Average Amperes: ${formatNumber(avgAmperes, 2)} A\n`;
-                reportContent += `Total Bill: ${formatNumber(totalBill, 0, true)} IQD\n`;
                 reportContent += `Average Rate: ${formatNumber(avgRate, 2)} IQD/kWh\n`;
                 reportContent += `Category: ${category}\n\n`;
 
@@ -1165,8 +1165,8 @@
                 const finalAvgAmperes = kwhToAmperes(totalKwh, daysVal);
 
                 let reportContent = `Detailed Report (Device Consumption)\n---------------------------------\n`;
+                reportContent += `Total Bill: ${formatNumber(finalTotalBill, 0, true)} IQD\n`; // Bill first
                 reportContent += `Total Consumption: ${formatNumber(totalKwh, 2)} kWh\n`;
-                reportContent += `Total Bill: ${formatNumber(finalTotalBill, 0, true)} IQD\n`;
                 reportContent += `Average Amperes: ${formatNumber(finalAvgAmperes, 2)} A\n`;
                 reportContent += `Average Rate: ${formatNumber(finalAvgRate, 2)} IQD/kWh\n`;
                 reportContent += `Category: ${category}\n\n`;
