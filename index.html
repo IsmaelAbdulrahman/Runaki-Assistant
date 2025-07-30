@@ -41,6 +41,7 @@
             --primary-blue-darker: #2563eb; /* A slightly darker blue for accents on dark background */
             --highlight-yellow-dark: #fbbf24; /* Brighter yellow for dark background */
             --error-red-dark: #ef4444; /* Keep error red, ensure visibility */
+            --result-static-yellow: #fef08a; /* Light yellow for static result text */
         }
 
         /* Custom styles for better aesthetics and responsiveness */
@@ -191,20 +192,20 @@
 
         .result-value {
             font-weight: 800;
-            color: var(--text-light); /* Changed to white as requested */
+            color: var(--result-static-yellow); /* Changed to light yellow as requested */
             font-size: 1.25rem; /* Larger font for values */
             transition: color 0.2s ease-in-out; /* Smooth transition for color flash */
         }
 
         /* Flashing animation for result values */
         @keyframes flashEffect {
-            0% { color: var(--text-light); } /* Start with normal color (white) */
-            16.6% { color: var(--highlight-yellow-dark); } /* Flash yellow */
-            33.3% { color: var(--text-light); } /* Back to normal */
-            50% { color: var(--highlight-yellow-dark); } /* Flash yellow again */
-            66.6% { color: var(--text-light); } /* Back to normal */
-            83.3% { color: var(--highlight-yellow-dark); } /* Flash yellow one last time */
-            100% { color: var(--text-light); } /* End with normal color */
+            0% { color: var(--result-static-yellow); } /* Start with light yellow */
+            16.6% { color: var(--highlight-yellow-dark); } /* Flash brighter yellow */
+            33.3% { color: var(--result-static-yellow); } /* Back to light yellow */
+            50% { color: var(--highlight-yellow-dark); } /* Flash brighter yellow again */
+            66.6% { color: var(--result-static-yellow); } /* Back to light yellow */
+            83.3% { color: var(--highlight-yellow-dark); } /* Flash brighter yellow one last time */
+            100% { color: var(--result-static-yellow); } /* End with light yellow */
         }
 
         .flash-animation {
@@ -444,7 +445,7 @@
         <div class="flex flex-col w-full space-y-8">
 
             <!-- 1. Manual Calculation -->
-            <div class="section-card">
+            <div class="section-card" id="manualCalculationSection">
                 <h2 class="text-xl">1. Manual Calculation</h2>
                 <div class="input-group">
                     <label for="categoryDropdown">Category:</label>
@@ -487,7 +488,7 @@
             </div>
 
             <!-- 2. By Meter Calculation -->
-            <div class="section-card">
+            <div class="section-card" id="meterCalculationSection" style="display: none;">
                 <h2 class="text-xl">2. By Meter Calculation</h2>
                 <div class="input-group">
                     <label for="meterPrevReading">Prev Reading:</label>
@@ -521,6 +522,8 @@
             
             <!-- New buttons for showing/hiding sections -->
             <div class="flex flex-wrap justify-center gap-4 mt-6 p-4 border border-gray-700 rounded-lg max-w-lg mx-auto" style="background-color: var(--card-dark);">
+                <button id="toggleManualCalculationButton" class="btn w-full sm:w-auto">Hide Manual Calculation</button>
+                <button id="toggleMeterCalculationButton" class="btn w-full sm:w-auto">Show By Meter Calculation</button>
                 <button id="toggleTableButton" class="btn w-full sm:w-auto">Show Device Table</button>
                 <button id="toggleBudgetOptimizationButton" class="btn w-full sm:w-auto">Show Budget Optimization</button>
                 <button id="showTariffDetailsButton" class="btn w-full sm:w-auto">Show Tariff Details</button>
@@ -645,8 +648,15 @@
             const toggleTableButton = document.getElementById('toggleTableButton');
             const showTariffDetailsButton = document.getElementById('showTariffDetailsButton'); // New button reference
 
+            // Section elements
+            const manualCalculationSection = document.getElementById('manualCalculationSection');
+            const meterCalculationSection = document.getElementById('meterCalculationSection');
             const budgetOptimizationSection = document.getElementById('budgetOptimizationSection'); 
             const deviceTableSection = document.getElementById('deviceTableSection');
+
+            // New toggle buttons for manual and meter sections
+            const toggleManualCalculationButton = document.getElementById('toggleManualCalculationButton');
+            const toggleMeterCalculationButton = document.getElementById('toggleMeterCalculationButton');
 
             // Modal elements
             const tariffDetailsModal = document.getElementById('tariffDetailsModal');
@@ -928,7 +938,7 @@
                     const deviceName = inputs[0].value;
                     const watt = validateNumeric(inputs[1].value);
                     const hours = validateNumeric(inputs[2].value);
-                    const day = validateNumeric(inputs[3].value);
+                    const day = validateNumeric(inputs(3).value);
                     const count = validateNumeric(inputs[4].value);
                     const isFixed = row.querySelector('.device-fixed').checked;
 
@@ -1397,6 +1407,23 @@
                     calculateDeviceConsumption(); 
                 }
             });
+
+            // Toggle Manual Calculation Section
+            toggleManualCalculationButton.addEventListener('click', () => {
+                manualCalculationSection.style.display = 'block';
+                meterCalculationSection.style.display = 'none';
+                toggleManualCalculationButton.textContent = 'Hide Manual Calculation';
+                toggleMeterCalculationButton.textContent = 'Show By Meter Calculation';
+            });
+
+            // Toggle Meter Calculation Section
+            toggleMeterCalculationButton.addEventListener('click', () => {
+                meterCalculationSection.style.display = 'block';
+                manualCalculationSection.style.display = 'none';
+                toggleMeterCalculationButton.textContent = 'Hide By Meter Calculation';
+                toggleManualCalculationButton.textContent = 'Show Manual Calculation';
+            });
+
 
             // Show Tariff Details Button
             showTariffDetailsButton.addEventListener('click', () => {
