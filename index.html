@@ -138,14 +138,14 @@
         button {
             padding: 0.75rem 1.5rem; /* More padding */
             border-radius: 0.6rem; /* More rounded corners */
-            border: 2px solid var(--button-light-gray); /* Wider border with light grey */
+            border: none; /* Removed border */
             font-size: 1rem; /* Slightly larger font */
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Stronger button shadow */
             white-space: nowrap;
-            color: var(--button-dark-text); /* Dark text for readability on light grey */
+            color: var(--result-static-yellow); /* Light yellow text for readability */
             margin: 0.5rem; /* Increased margin for spacing between buttons */
             background-color: var(--button-light-gray); /* Light grey background */
         }
@@ -160,7 +160,7 @@
         button:active {
             transform: translateY(0);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            background-color: var(--button-active-gray); /* Even darker grey on active */
+            background-color: var(--button-light-gray); /* Keep background light grey when active */
         }
 
         .result-grid {
