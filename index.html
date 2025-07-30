@@ -22,6 +22,10 @@
             --card-background: #ffffff; /* White for cards */
             --highlight-yellow: #facc15; /* Yellow for highlights */
             --error-red: #ef4444; /* Standard error red */
+
+            /* New light gray button colors */
+            --button-light-gray: #e0e0e0;
+            --button-dark-text: #333f48;
         }
 
         /* Custom styles for better aesthetics and responsiveness */
@@ -123,36 +127,40 @@
         button {
             padding: 0.75rem 1.5rem; /* More padding */
             border-radius: 0.6rem; /* More rounded corners */
-            border: none;
+            border: 1px solid var(--neutral-gray-medium); /* Added border for definition */
             font-size: 1rem; /* Slightly larger font */
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Stronger button shadow */
             white-space: nowrap;
-            color: white; /* Default text color for buttons */
-            margin: 0.25rem; /* Added margin for spacing between buttons */
+            color: var(--button-dark-text); /* Default text color for buttons */
+            margin: 0.5rem; /* Increased margin for spacing between buttons */
+            background-color: var(--button-light-gray); /* Default light gray background */
         }
 
         button:hover {
             transform: translateY(-3px); /* More pronounced lift */
             box-shadow: 0 8px 16px rgba(0,0,0,0.2); /* Stronger hover shadow */
             opacity: 0.95;
+            background-color: #d1d1d1; /* Slightly darker gray on hover */
         }
 
         button:active {
             transform: translateY(0);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #c0c0c0; /* Even darker gray on active */
         }
 
-        /* Specific button colors (softer, professional palette) */
-        .btn-purple { background-color: var(--accent-purple); color: white; }
-        .btn-blue { background-color: var(--primary-blue); color: white; }
-        .btn-orange { background-color: var(--accent-orange); color: white; }
-        .btn-green { background-color: var(--secondary-green); color: white; }
-        .btn-red { background-color: var(--error-red); color: white; }
-        .btn-gray { background-color: var(--neutral-gray-medium); color: white;}
-        .btn-indigo { background-color: #4f46e5; color: white; } /* A slightly darker indigo for toggle buttons */
+        /* Specific button colors (overriding default light gray if needed for specific actions) */
+        /* These will still be light gray, but their original class names are kept for clarity */
+        .btn-purple { /* background-color: var(--accent-purple); */ color: var(--button-dark-text); }
+        .btn-blue { /* background-color: var(--primary-blue); */ color: var(--button-dark-text); }
+        .btn-orange { /* background-color: var(--accent-orange); */ color: var(--button-dark-text); }
+        .btn-green { /* background-color: var(--secondary-green); */ color: var(--button-dark-text); }
+        .btn-red { /* background-color: var(--error-red); */ color: var(--button-dark-text); }
+        .btn-gray { background-color: var(--neutral-gray-medium); color: white;} /* Keep this one distinct if desired */
+        .btn-indigo { /* background-color: #4f46e5; */ color: var(--button-dark-text); }
 
 
         .result-grid {
@@ -370,7 +378,7 @@
                         <div class="result-value" id="manualAvgRate">0.00 IQD/kWh</div>
                     </div>
                 </div>
-                <button id="manualReportButton" class="btn btn-purple mt-6 w-full">Generate Report</button> <!-- Increased mt -->
+                <button id="manualReportButton" class="btn btn-purple mt-6 w-full">Generate Report</button>
             </div>
 
             <!-- 2. By Meter Calculation -->
@@ -427,9 +435,9 @@
             </div>
             
             <!-- New buttons for showing/hiding sections -->
-            <div class="flex flex-wrap justify-center gap-4 mt-6 p-4 border border-gray-200 rounded-lg bg-gray-50"> <!-- Increased padding and margin -->
+            <div class="flex flex-wrap justify-center gap-4 mt-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
                 <button id="toggleBudgetOptimizationButton" class="btn btn-indigo">Show Budget Optimization</button>
-                <button id="toggleCurvePlotButton" class="btn btn-indigo">Hide Tariff Curve Plot</button> 
+                <button id="toggleCurvePlotButton" class="btn btn-indigo">Show Tariff Curve Plot</button> <!-- Changed initial text -->
                 <button id="toggleTableButton" class="btn btn-indigo">Show Device Table</button>
                 <button id="toggleBarPlotsButton" class="btn btn-indigo">Show Bar Plots</button>
             </div>
@@ -437,7 +445,7 @@
         </div>
 
         <!-- Right Column - Plots and Table -->
-        <div class="flex flex-col w-full lg:w-1/2 space-y-8"> <!-- Increased space-y -->
+        <div class="flex flex-col w-full lg:w-1/2 space-y-8">
 
             <!-- 5. Device Consumption Table -->
             <div class="section-card flex-grow" id="deviceTableSection" style="display: none;">
@@ -462,7 +470,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="flex flex-wrap justify-center gap-4 mt-6"> <!-- Increased gap and margin -->
+                <div class="flex flex-wrap justify-center gap-4 mt-6">
                     <button id="addRowButton" class="btn btn-green">Add Row</button>
                     <button id="deleteRowButton" class="btn btn-red">Delete Selected</button>
                     <button id="saveTableButton" class="btn btn-orange">Save Data</button>
@@ -488,14 +496,14 @@
                 </div>
             </div>
 
-            <!-- 4. Dynamic Tariff Curves Plot (Moved to end and visible by default) -->
-            <div class="section-card flex flex-col items-center" id="tariffCurvePlotContainer" style="display: block;"> 
+            <!-- 4. Dynamic Tariff Curves Plot (Moved to end and hidden by default) -->
+            <div class="section-card flex flex-col items-center" id="tariffCurvePlotContainer" style="display: none;"> <!-- Changed to display: none -->
                 <h2 class="text-xl">4. Dynamic Tariff Curves</h2>
                 <div class="chart-container">
                     <canvas id="tariffPlot"></canvas>
                 </div>
                 <input type="range" id="tariffSlider" min="0" max="2000" value="0" step="1" class="range-slider">
-                <div class="mt-4 text-center text-base p-3 bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm"> <!-- Increased padding, font size, and margin-top -->
+                <div class="mt-4 text-center text-base p-3 bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm">
                     <p class="font-semibold text-yellow-800" id="tariffPlotKwh">0.00 kWh</p>
                     <p class="font-semibold text-yellow-800" id="tariffPlotBill">0 IQD</p>
                     <p class="text-yellow-700" id="tariffPlotAmperes">0.00 A</p>
@@ -505,6 +513,10 @@
 
         </div>
     </div>
+
+    <footer class="mt-8 text-center text-neutral-gray-medium text-sm">
+        <p>Created by Dr. Ismael Abdulrahman</p>
+    </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -934,7 +946,7 @@
                             },
                             tooltip: {
                                 callbacks: {
-                                    title: (tooltipItems) => `Consumption: ${formatNumber(tooltipItems[0].parsed.x, 2)} kWh`,
+                                    title: (tooltipItems) => `Consumption: ${formatNumber(tooltipMs[0].parsed.x, 2)} kWh`,
                                     label: (tooltipItem) => `Cost: ${formatNumber(tooltipItem.parsed.y * 1000, 0, true)} IQD`
                                 }
                             }
