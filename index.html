@@ -197,7 +197,7 @@
                 <select id="manualInputTypeDropdown" class="p-2 border rounded-md">
                     <option value="kWh">kWh</option>
                     <option value="Avg Amperes">Avg Amperes</option>
-                    <option value="Given Bill">Given Bill</option>
+                    <option value="Given Bill">Given Bill (IQD)</option> <!-- Changed text here -->
                 </select>
                 <input type="number" id="manualInput" value="1891" class="w-28">
             </div>
@@ -526,7 +526,14 @@
             };
 
             // --- EVENT LISTENERS ---
-            manualInputTypeDropdown.addEventListener('change', performManualCalculation);
+            manualInputTypeDropdown.addEventListener('change', (e) => {
+                const type = e.target.value;
+                if (type === 'kWh') manualInput.value = '1891';
+                else if (type === 'Avg Amperes') manualInput.value = '12';
+                else if (type === 'Given Bill') manualInput.value = '100000';
+                performManualCalculation();
+            });
+
             calculateManualButton.addEventListener('click', performManualCalculation);
             manualInput.addEventListener('change', performManualCalculation); 
             manualInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') performManualCalculation(); });
