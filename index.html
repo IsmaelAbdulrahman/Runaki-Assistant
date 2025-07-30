@@ -127,13 +127,13 @@
         }
 
         /* Specific button colors (softer palette) */
-        .btn-purple { background-color: #9013fe; } /* Muted purple */
-        .btn-blue { background-color: #4a90e2; } /* Softer blue */
-        .btn-orange { background-color: #f5a623; } /* Warm orange/yellow */
-        .btn-green { background-color: #7ed321; } /* Fresh green */
-        .btn-red { background-color: #d0021b; } /* Clean red */
-        .btn-gray { background-color: #8898aa; color: white;} /* Muted gray, white text */
-        .btn-indigo { background-color: #503795; } /* Deeper, calmer indigo */
+        .btn-purple { background-color: #a78bfa; } /* Softer purple */
+        .btn-blue { background-color: #60a5fa; } /* Lighter, more vibrant blue */
+        .btn-orange { background-color: #fbbf24; } /* Softer orange */
+        .btn-green { background-color: #4ade80; } /* Lighter green */
+        .btn-red { background-color: #ef4444; } /* Slightly softer red */
+        .btn-gray { background-color: #9ca3af; color: white;} /* Muted gray, white text */
+        .btn-indigo { background-color: #818cf8; } /* Lighter indigo */
 
 
         .result-grid {
@@ -402,9 +402,9 @@
             </div>
             
             <!-- New buttons for showing/hiding sections -->
-            <div class="flex flex-wrap justify-center gap-3 mt-4">
+            <div class="flex flex-wrap justify-center gap-4 mt-4"> <!-- Increased gap to gap-4 -->
                 <button id="toggleBudgetOptimizationButton" class="btn btn-indigo">Show Budget Optimization</button>
-                <button id="toggleCurvePlotButton" class="btn btn-indigo">Show Tariff Curve Plot</button>
+                <button id="toggleCurvePlotButton" class="btn btn-indigo">Hide Tariff Curve Plot</button> <!-- Updated initial text -->
                 <button id="toggleTableButton" class="btn btn-indigo">Show Device Table</button>
                 <button id="toggleBarPlotsButton" class="btn btn-indigo">Show Bar Plots</button>
             </div>
@@ -413,23 +413,6 @@
 
         <!-- Right Column - Plots and Table -->
         <div class="flex flex-col w-full lg:w-1/2 space-y-6">
-
-            <!-- 4. Dynamic Tariff Curves Plot -->
-            <div class="section-card flex flex-col items-center" id="tariffCurvePlotContainer" style="display: none;">
-                <h2 class="text-xl">4. Dynamic Tariff Curves</h2>
-                <div class="chart-container">
-                    <canvas id="tariffPlot"></canvas>
-                </div>
-                <input type="range" id="tariffSlider" min="0" max="2000" value="0" step="1" class="range-slider">
-                <div class="mt-2 text-center text-sm">
-                    <div class="p-2 bg-yellow-100 border border-yellow-300 rounded shadow-sm inline-block">
-                        <p class="font-semibold" id="tariffPlotKwh">0.00 kWh</p>
-                        <p class="font-semibold" id="tariffPlotBill">0 IQD</p>
-                        <p id="tariffPlotAmperes">0.00 A</p>
-                        <p id="tariffPlotAvgRate">0.00 IQD/kWh</p>
-                    </div>
-                </div>
-            </div>
 
             <!-- 5. Device Consumption Table -->
             <div class="section-card flex-grow" id="deviceTableSection" style="display: none;">
@@ -476,6 +459,23 @@
                 <h2 class="text-xl">7. Tariff Rate Bar Plot</h2>
                 <div class="chart-container">
                     <canvas id="tariffBarPlot"></canvas>
+                </div>
+            </div>
+
+            <!-- 4. Dynamic Tariff Curves Plot (Moved to end) -->
+            <div class="section-card flex flex-col items-center" id="tariffCurvePlotContainer" style="display: block;"> <!-- Changed to display: block -->
+                <h2 class="text-xl">4. Dynamic Tariff Curves</h2>
+                <div class="chart-container">
+                    <canvas id="tariffPlot"></canvas>
+                </div>
+                <input type="range" id="tariffSlider" min="0" max="2000" value="0" step="1" class="range-slider">
+                <div class="mt-2 text-center text-sm">
+                    <div class="p-2 bg-yellow-100 border border-yellow-300 rounded shadow-sm inline-block">
+                        <p class="font-semibold" id="tariffPlotKwh">0.00 kWh</p>
+                        <p class="font-semibold" id="tariffPlotBill">0 IQD</p>
+                        <p id="tariffPlotAmperes">0.00 A</p>
+                        <p id="tariffPlotAvgRate">0.00 IQD/kWh</p>
+                    </div>
                 </div>
             </div>
 
