@@ -656,8 +656,11 @@
         <div class="modal-content">
             <button class="modal-close-button" id="closeTariffDetailsModal">&times;</button>
             <h3 id="tariffDetailsModalTitle">Tariff Details</h3>
-            <div id="tariffChartContainer" class="chart-container" style="display: none;">
-                <canvas id="tariffChart"></canvas>
+            <div id="householdTariffChartContainer" class="chart-container" style="display: none;">
+                <canvas id="householdTariffChart"></canvas>
+            </div>
+            <div id="otherCategoriesTariffChartContainer" class="chart-container" style="display: none;">
+                <canvas id="otherCategoriesTariffChart"></canvas>
             </div>
             <pre id="tariffDetailsModalContent"></pre>
         </div>
@@ -741,9 +744,12 @@
             const closeTariffDetailsModal = document.getElementById('closeTariffDetailsModal');
             const tariffDetailsModalTitle = document.getElementById('tariffDetailsModalTitle');
             const tariffDetailsModalContent = document.getElementById('tariffDetailsModalContent');
-            const tariffChartContainer = document.getElementById('tariffChartContainer');
-            const tariffChartCanvas = document.getElementById('tariffChart');
-            let tariffChartInstance = null;
+            const householdTariffChartContainer = document.getElementById('householdTariffChartContainer');
+            const householdTariffChartCanvas = document.getElementById('householdTariffChart');
+            const otherCategoriesTariffChartContainer = document.getElementById('otherCategoriesTariffChartContainer');
+            const otherCategoriesTariffChartCanvas = document.getElementById('otherCategoriesTariffChart');
+            let householdTariffChartInstance = null;
+            let otherCategoriesTariffChartInstance = null;
 
             // Modal elements (Report)
             const reportModal = document.getElementById('reportModal');
@@ -1184,15 +1190,45 @@
 
             const startupPopulateDeviceTable = () => {
                 const sampleDevices = [
-                    { name: 'LED TV', watt: '100', hours: '8', day: '30', count: '1', on: true, fixed: false },
-                    { name: 'Refrigerator', watt: '125', hours: '24', day: '30', count: '1', on: true, fixed: true },
-                    { name: 'Washing Machine', watt: '2000', hours: '2', day: '4', count: '1', on: true, fixed: false },
-                    { name: 'LED Lighting', watt: '12', hours: '12', day: '30', count: '20', on: true, fixed: false },
-                    { name: 'Freezer', watt: '150', hours: '24', day: '30', count: '1', on: true, fixed: true },
-                    { name: 'Water Pump', watt: '500', hours: '1', day: '30', count: '1', on: true, fixed: false },
-                    { name: 'Split AC (1 ton)', watt: '1000', hours: '4', day: '30', count: 1, on: true, fixed: false },
+                    ['LED TV', '100', '8', '30', '1', true, false],
+                    ['Refrigerator', '175', '24', '30', '1', true, true],
+                    ['Washing Machine', '2000', '2', '4', '1', true, false],
+                    ['LED Lighting', '12', '12', '30', '20', true, false],
+                    ['Freezer', '150', '24', '30', '1', true, true],
+                    ['Water Pump', '500', '1', '30', '1', true, false],
+                    ['Water Heater', '2500', '1', '15', '1', false, false],
+                    ['Air Cooler', '250', '18', '30', '1', true, false],
+                    ['Fan', '75', '18', '30', '1', true, false],
+                    ['Dishwasher', '1800', '2', '15', '1', true, false],
+                    ['Water Dispenser', '175', '2', '15', '1', true, false],
+                    ['Split AC (1 ton)', '1000', '4', '30', '1', true, false],
+                    ['Split AC (1.5 ton)', '1500', '4', '30', '1', false, false],
+                    ['Split AC (2 ton)', '2000', '4', '30', '1', false, false],
+                    ['Tower AC', '3000', '4', '30', '1', false, false],
+                    ['Electric Heater', '2000', '6', '20', '1', false, false],
+                    ['Iron', '1500', '1', '8', '1', false, false],
+                    ['Microwave', '1000', '0.5', '15', '1', false, false],
+                    ['Electric Kettle', '1800', '0.2', '30', '1', false, false],
+                    ['Hair Dryer', '1600', '0.2', '10', '1', false, false],
+                    ['Vacuum Cleaner', '1400', '0.5', '4', '1', false, false],
+                    ['Electric Oven', '2500', '1', '10', '1', false, false],
+                    ['Phone Charger', '10', '8', '30', '2', false, true],
+                    ['Desktop PC', '150', '6', '30', '1', true, false],
+                    ['PC Monitor', '40', '6', '30', '1', false, false],
                 ];
-                sampleDevices.forEach(addTableRow);
+                
+                deviceTableBody.innerHTML = ''; // Clear existing rows before populating
+                sampleDevices.forEach(deviceArray => {
+                    addTableRow({
+                        name: deviceArray[0],
+                        watt: deviceArray[1],
+                        hours: deviceArray[2],
+                        day: deviceArray[3],
+                        count: deviceArray[4],
+                        on: deviceArray[5],
+                        fixed: deviceArray[6],
+                    });
+                });
             };
 
             // --- REPORT GENERATION FUNCTIONS ---
@@ -1593,56 +1629,51 @@
             // Show Tariff Details Button
             showTariffDetailsButton.addEventListener('click', () => {
                 const currentCategory = categoryDropdown.value;
-                tariffDetailsModalTitle.textContent = `All Tariff Details`; // Changed title
+                tariffDetailsModalTitle.textContent = `Electricity Tariff Details`; // Changed title to be more general
 
-                // Destroy existing chart if it exists
-                if (tariffChartInstance) {
-                    tariffChartInstance.destroy();
-                    tariffChartInstance = null;
+                // Destroy existing charts if they exist
+                if (householdTariffChartInstance) {
+                    householdTariffChartInstance.destroy();
+                    householdTariffChartInstance = null;
+                }
+                if (otherCategoriesTariffChartInstance) {
+                    otherCategoriesTariffChartInstance.destroy();
+                    otherCategoriesTariffChartInstance = null;
                 }
 
-                tariffChartContainer.style.display = 'block';
-                tariffDetailsModalContent.style.display = 'none'; // Hide preformatted text
+                // Show chart containers, hide preformatted text
+                householdTariffChartContainer.style.display = 'block';
+                otherCategoriesTariffChartContainer.style.display = 'block';
+                tariffDetailsModalContent.style.display = 'none';
 
-                const allLabels = [];
-                const allData = [];
-                const allBackgroundColors = [];
-                const allBorderColors = [];
-
-                // Household Tariffs
+                // Data for Household Chart
                 const { tiers, rates, slabNames } = getRonakiHouseholdTariffDetails(1600); // Get all tiers
-                slabNames.forEach((name, i) => {
-                    allLabels.push(`Household (${name})`);
-                    allData.push(rates[i]);
-                    allBackgroundColors.push('rgba(255, 99, 132, 0.6)'); // Reddish for Household
-                    allBorderColors.push('rgba(255, 99, 132, 1)');
-                });
-
-                // Other Categories' Flat Tariffs
-                const otherCategories = [
-                    { name: 'Commercial', rate: 185, color: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)' }, // Blue
-                    { name: 'Agriculture', rate: 60, color: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)' }, // Green
-                    { name: 'Industrial', rate: 160, color: 'rgba(255, 206, 86, 0.6)', borderColor: 'rgba(255, 206, 86, 1)' }, // Yellow
-                    { name: 'Large Industry', rate: 125, color: 'rgba(153, 102, 255, 0.6)', borderColor: 'rgba(153, 102, 255, 1)' }, // Purple
-                    { name: 'State', rate: 160, color: 'rgba(255, 159, 64, 0.6)', borderColor: 'rgba(255, 159, 64, 1)' } // Orange
+                const householdLabels = slabNames;
+                const householdData = rates;
+                const householdBackgroundColors = [
+                    'rgba(255, 99, 132, 0.6)', // Red
+                    'rgba(255, 159, 64, 0.6)', // Orange
+                    'rgba(255, 206, 86, 0.6)', // Yellow
+                    'rgba(75, 192, 192, 0.6)', // Green
+                    'rgba(54, 162, 235, 0.6)'  // Blue
+                ];
+                const householdBorderColors = [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(54, 162, 235, 1)'
                 ];
 
-                otherCategories.forEach(cat => {
-                    allLabels.push(cat.name);
-                    allData.push(cat.rate);
-                    allBackgroundColors.push(cat.color);
-                    allBorderColors.push(cat.borderColor);
-                });
-
-                tariffChartInstance = new Chart(tariffChartCanvas, {
+                householdTariffChartInstance = new Chart(householdTariffChartCanvas, {
                     type: 'bar',
                     data: {
-                        labels: allLabels,
+                        labels: householdLabels,
                         datasets: [{
                             label: 'IQD/kWh',
-                            data: allData,
-                            backgroundColor: allBackgroundColors,
-                            borderColor: allBorderColors,
+                            data: householdData,
+                            backgroundColor: householdBackgroundColors,
+                            borderColor: householdBorderColors,
                             borderWidth: 1
                         }]
                     },
@@ -1650,65 +1681,120 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            legend: {
-                                display: false, // Hide legend as labels are self-explanatory
-                            },
+                            legend: { display: false },
                             title: {
                                 display: true,
-                                text: 'Electricity Tariff Rates by Category (IQD/kWh)',
+                                text: 'Household Tariff Rates (IQD/kWh)',
                                 color: 'var(--text-light)',
-                                font: {
-                                    size: 16
-                                }
+                                font: { size: 16 }
                             },
-                            tooltip: { // Show values on hover
+                            tooltip: {
                                 callbacks: {
                                     label: function(context) {
-                                        let label = context.dataset.label || '';
-                                        if (label) {
-                                            label += ': ';
-                                        }
-                                        if (context.parsed.y !== null) {
-                                            label += formatNumber(context.parsed.y, 2) + ' IQD/kWh';
-                                        }
-                                        return label;
+                                        return `${context.label}: ${formatNumber(context.parsed.y, 2)} IQD/kWh`;
                                     }
+                                }
+                            },
+                            datalabels: { // Add datalabels plugin configuration
+                                anchor: 'end',
+                                align: 'top',
+                                color: 'var(--text-light)',
+                                font: {
+                                    weight: 'bold'
+                                },
+                                formatter: function(value) {
+                                    return formatNumber(value, 0); // Format value for display
                                 }
                             }
                         },
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Rate (IQD/kWh)',
-                                    color: 'var(--text-medium-light)'
-                                },
-                                ticks: {
-                                    color: 'var(--text-light)'
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
+                                title: { display: true, text: 'Rate (IQD/kWh)', color: 'var(--text-medium-light)' },
+                                ticks: { color: 'var(--text-light)' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
                             },
                             x: {
-                                title: {
-                                    display: true,
-                                    text: 'Category / Consumption Tier',
-                                    color: 'var(--text-medium-light)'
-                                },
-                                ticks: {
-                                    color: 'var(--text-light)',
-                                    autoSkip: false, // Prevent skipping labels if too many
-                                    maxRotation: 45, // Rotate labels to prevent overlap
-                                    minRotation: 45
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
+                                title: { display: true, text: 'Consumption Tiers', color: 'var(--text-medium-light)' },
+                                ticks: { color: 'var(--text-light)', autoSkip: false, maxRotation: 45, minRotation: 45 },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
                             }
                         }
-                    }
+                    },
+                    plugins: [ChartDataLabels] // Register the plugin
+                });
+
+                // Data for Other Categories Chart
+                const otherCategories = [
+                    { name: 'Commercial', rate: 185, color: 'rgba(153, 102, 255, 0.6)', borderColor: 'rgba(153, 102, 255, 1)' }, // Purple
+                    { name: 'Agriculture', rate: 60, color: 'rgba(255, 205, 86, 0.6)', borderColor: 'rgba(255, 205, 86, 1)' }, // Yellow
+                    { name: 'Industrial', rate: 160, color: 'rgba(201, 203, 207, 0.6)', borderColor: 'rgba(201, 203, 207, 1)' }, // Grey
+                    { name: 'Large Industry', rate: 125, color: 'rgba(255, 99, 132, 0.6)', borderColor: 'rgba(255, 99, 132, 1)' }, // Red
+                    { name: 'State', rate: 160, color: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)' } // Blue
+                ];
+
+                const otherLabels = otherCategories.map(cat => cat.name);
+                const otherData = otherCategories.map(cat => cat.rate);
+                const otherBackgrounds = otherCategories.map(cat => cat.color);
+                const otherBorders = otherCategories.map(cat => cat.borderColor);
+
+                otherCategoriesTariffChartInstance = new Chart(otherCategoriesTariffChartCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: otherLabels,
+                        datasets: [{
+                            label: 'IQD/kWh',
+                            data: otherData,
+                            backgroundColor: otherBackgrounds,
+                            borderColor: otherBorders,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: 'Other Categories Tariff Rates (IQD/kWh)',
+                                color: 'var(--text-light)',
+                                font: { size: 16 }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.label}: ${formatNumber(context.parsed.y, 2)} IQD/kWh`;
+                                    }
+                                }
+                            },
+                            datalabels: { // Add datalabels plugin configuration
+                                anchor: 'end',
+                                align: 'top',
+                                color: 'var(--text-light)',
+                                font: {
+                                    weight: 'bold'
+                                },
+                                formatter: function(value) {
+                                    return formatNumber(value, 0); // Format value for display
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Rate (IQD/kWh)', color: 'var(--text-medium-light)' },
+                                ticks: { color: 'var(--text-light)' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            },
+                            x: {
+                                title: { display: true, text: 'Category', color: 'var(--text-medium-light)' },
+                                ticks: { color: 'var(--text-light)', autoSkip: false, maxRotation: 45, minRotation: 45 },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            }
+                        }
+                    },
+                    plugins: [ChartDataLabels] // Register the plugin
                 });
 
                 tariffDetailsModal.style.display = 'flex'; // Show the modal
@@ -1716,12 +1802,16 @@
 
             closeTariffDetailsModal.addEventListener('click', () => {
                 tariffDetailsModal.style.display = 'none'; // Hide the modal
+                householdTariffChartContainer.style.display = 'none'; // Hide chart containers
+                otherCategoriesTariffChartContainer.style.display = 'none';
             });
 
             // Close modal if clicked outside content
             tariffDetailsModal.addEventListener('click', (e) => {
                 if (e.target === tariffDetailsModal) {
                     tariffDetailsModal.style.display = 'none';
+                    householdTariffChartContainer.style.display = 'none'; // Hide chart containers
+                    otherCategoriesTariffChartContainer.style.display = 'none';
                 }
             });
 
@@ -1743,5 +1833,6 @@
             performMeterCalculation(); // Perform initial meter calculation
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </body>
 </html>
