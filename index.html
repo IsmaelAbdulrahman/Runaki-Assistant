@@ -584,11 +584,11 @@
             
             <!-- New buttons for showing/hiding sections -->
             <div class="flex flex-col items-start gap-2 mt-6 p-4 border border-gray-700 rounded-lg max-w-lg ml-0 mr-auto" style="background-color: var(--card-dark);">
-                <button id="toggleManualCalculationButton" class="btn w-full">Hide Manual Calculation</button>
-                <button id="toggleMeterCalculationButton" class="btn w-full">Show By Meter Calculation</button>
-                <button id="toggleTableButton" class="btn w-full">Show Device Table</button>
-                <button id="toggleBudgetOptimizationButton" class="btn w-full">Show Budget Optimization</button>
-                <button id="showTariffDetailsButton" class="btn w-full">Show Tariff Details</button>
+                <button id="toggleManualCalculationButton" class="btn w-full text-left">Hide Manual Calculation</button>
+                <button id="toggleMeterCalculationButton" class="btn w-full text-left">Show By Meter Calculation</button>
+                <button id="toggleTableButton" class="btn w-full text-left">Show Device Table</button>
+                <button id="toggleBudgetOptimizationButton" class="btn w-full text-left">Show Budget Optimization</button>
+                <button id="showTariffDetailsButton" class="btn w-full text-left">Show Tariff Details</button>
             </div>
 
             <!-- 5. Device Consumption Table -->
@@ -615,11 +615,11 @@
                     </table>
                 </div>
                 <div class="flex flex-wrap items-start gap-4 mt-6 max-w-lg ml-0 mr-auto">
-                    <button id="addRowButton" class="btn w-full sm:w-auto">Add Row</button>
-                    <button id="deleteRowButton" class="btn w-full sm:w-auto">Delete Selected</button>
-                    <button id="saveTableButton" class="btn w-full sm:w-auto">Save Data (CSV)</button>
-                    <label for="loadFileInput" class="btn cursor-pointer w-full sm:w-auto">Load Data (CSV)<input type="file" id="loadFileInput" accept=".csv" class="hidden"></label>
-                    <button id="clearAllButton" class="btn w-full sm:w-auto">Clear All</button>
+                    <button id="addRowButton" class="btn w-full sm:w-auto text-left">Add Row</button>
+                    <button id="deleteRowButton" class="btn w-full sm:w-auto text-left">Delete Selected</button>
+                    <button id="saveTableButton" class="btn w-full sm:w-auto text-left">Save Data (CSV)</button>
+                    <label for="loadFileInput" class="btn cursor-pointer w-full sm:w-auto text-left">Load Data (CSV)<input type="file" id="loadFileInput" accept=".csv" class="hidden"></label>
+                    <button id="clearAllButton" class="btn w-full sm:w-auto text-left">Clear All</button>
                 </div>
                 <button id="deviceReportButton" class="btn w-full mt-6">Generate Report</button>
             </div>
@@ -1021,6 +1021,7 @@
                     device.iqd = iqd; 
                 });
                 // Update a dummy result grid for device consumption to trigger color change
+                // We'll use the manualResultGrid for this as it's always visible and we need a target for the color change.
                 updateResultDisplay(totalKwh, kwhToAmperes(totalKwh, daysVal), totalBill, avgRate, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem, manualResultGrid, 'device');
             };
 
@@ -1206,7 +1207,7 @@
                 const { breakdown } = getRonakiHouseholdTariffDetails(kwh); 
 
                 let reportHtml = `
-                    <div class="report-section-title">Summary</div>
+                    <div class="report-section-title">Manual Calculation Summary</div>
                     <p><span class="report-item-label">Category:</span> <span class="report-item-value">${category}</span></p>
                     <p><span class="report-item-label">Bill:</span> <span class="report-item-value">${formatNumber(bill, 0, true)} IQD</span></p>
                     <p><span class="report-item-label">Consumption:</span> <span class="report-item-value">${formatNumber(kwh, 2)} kWh</span></p>
@@ -1592,7 +1593,7 @@
             // Show Tariff Details Button
             showTariffDetailsButton.addEventListener('click', () => {
                 const currentCategory = categoryDropdown.value;
-                tariffDetailsModalTitle.textContent = `${currentCategory} Tariff Details`;
+                tariffDetailsModalTitle.textContent = `All Tariff Details`; // Changed title
 
                 // Destroy existing chart if it exists
                 if (tariffChartInstance) {
@@ -1600,104 +1601,115 @@
                     tariffChartInstance = null;
                 }
 
-                if (currentCategory === 'Household') {
-                    const { tiers, rates, slabNames } = getRonakiHouseholdTariffDetails(1600); // Pass a high value to get all tiers
-                    const labels = slabNames;
-                    const data = rates;
-                    const backgroundColors = [
-                        'rgba(255, 99, 132, 0.6)', // Red
-                        'rgba(54, 162, 235, 0.6)', // Blue
-                        'rgba(255, 206, 86, 0.6)', // Yellow
-                        'rgba(75, 192, 192, 0.6)', // Green
-                        'rgba(153, 102, 255, 0.6)' // Purple
-                    ];
-                    const borderColors = [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)'
-                    ];
+                tariffChartContainer.style.display = 'block';
+                tariffDetailsModalContent.style.display = 'none'; // Hide preformatted text
 
-                    tariffChartContainer.style.display = 'block';
-                    tariffDetailsModalContent.style.display = 'none';
+                const allLabels = [];
+                const allData = [];
+                const allBackgroundColors = [];
+                const allBorderColors = [];
 
-                    tariffChartInstance = new Chart(tariffChartCanvas, {
-                        type: 'bar',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                label: 'IQD/kWh',
-                                data: data,
-                                backgroundColor: backgroundColors,
-                                borderColor: borderColors,
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    display: false,
-                                    labels: {
-                                        color: 'var(--text-light)'
-                                    }
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Household Tariff Rates (IQD/kWh)',
-                                    color: 'var(--text-light)',
-                                    font: {
-                                        size: 16
-                                    }
+                // Household Tariffs
+                const { tiers, rates, slabNames } = getRonakiHouseholdTariffDetails(1600); // Get all tiers
+                slabNames.forEach((name, i) => {
+                    allLabels.push(`Household (${name})`);
+                    allData.push(rates[i]);
+                    allBackgroundColors.push('rgba(255, 99, 132, 0.6)'); // Reddish for Household
+                    allBorderColors.push('rgba(255, 99, 132, 1)');
+                });
+
+                // Other Categories' Flat Tariffs
+                const otherCategories = [
+                    { name: 'Commercial', rate: 185, color: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)' }, // Blue
+                    { name: 'Agriculture', rate: 60, color: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)' }, // Green
+                    { name: 'Industrial', rate: 160, color: 'rgba(255, 206, 86, 0.6)', borderColor: 'rgba(255, 206, 86, 1)' }, // Yellow
+                    { name: 'Large Industry', rate: 125, color: 'rgba(153, 102, 255, 0.6)', borderColor: 'rgba(153, 102, 255, 1)' }, // Purple
+                    { name: 'State', rate: 160, color: 'rgba(255, 159, 64, 0.6)', borderColor: 'rgba(255, 159, 64, 1)' } // Orange
+                ];
+
+                otherCategories.forEach(cat => {
+                    allLabels.push(cat.name);
+                    allData.push(cat.rate);
+                    allBackgroundColors.push(cat.color);
+                    allBorderColors.push(cat.borderColor);
+                });
+
+                tariffChartInstance = new Chart(tariffChartCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: allLabels,
+                        datasets: [{
+                            label: 'IQD/kWh',
+                            data: allData,
+                            backgroundColor: allBackgroundColors,
+                            borderColor: allBorderColors,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false, // Hide legend as labels are self-explanatory
+                            },
+                            title: {
+                                display: true,
+                                text: 'Electricity Tariff Rates by Category (IQD/kWh)',
+                                color: 'var(--text-light)',
+                                font: {
+                                    size: 16
                                 }
                             },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    title: {
-                                        display: true,
-                                        text: 'Rate (IQD/kWh)',
-                                        color: 'var(--text-medium-light)'
-                                    },
-                                    ticks: {
-                                        color: 'var(--text-light)'
-                                    },
-                                    grid: {
-                                        color: 'rgba(255, 255, 255, 0.1)'
-                                    }
-                                },
-                                x: {
-                                    title: {
-                                        display: true,
-                                        text: 'Consumption Tiers',
-                                        color: 'var(--text-medium-light)'
-                                    },
-                                    ticks: {
-                                        color: 'var(--text-light)'
-                                    },
-                                    grid: {
-                                        color: 'rgba(255, 255, 255, 0.1)'
+                            tooltip: { // Show values on hover
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += formatNumber(context.parsed.y, 2) + ' IQD/kWh';
+                                        }
+                                        return label;
                                     }
                                 }
                             }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Rate (IQD/kWh)',
+                                    color: 'var(--text-medium-light)'
+                                },
+                                ticks: {
+                                    color: 'var(--text-light)'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Category / Consumption Tier',
+                                    color: 'var(--text-medium-light)'
+                                },
+                                ticks: {
+                                    color: 'var(--text-light)',
+                                    autoSkip: false, // Prevent skipping labels if too many
+                                    maxRotation: 45, // Rotate labels to prevent overlap
+                                    minRotation: 45
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            }
                         }
-                    });
-
-                } else {
-                    let rate = 0;
-                    if (currentCategory === 'Commercial') rate = 185;
-                    else if (currentCategory === 'Agriculture') rate = 60;
-                    else if (currentCategory === 'Industrial') rate = 160;
-                    else if (currentCategory === 'Large Industry') rate = 125;
-                    else if (currentCategory === 'State') rate = 160;
-
-                    const details = `${currentCategory} Tariff Rate:\n  - All kWh: ${formatNumber(rate, 2)} IQD/kWh`;
-                    tariffDetailsModalContent.textContent = details;
-                    tariffChartContainer.style.display = 'none';
-                    tariffDetailsModalContent.style.display = 'block';
-                }
+                    }
+                });
 
                 tariffDetailsModal.style.display = 'flex'; // Show the modal
             });
