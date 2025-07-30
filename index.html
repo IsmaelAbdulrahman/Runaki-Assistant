@@ -490,31 +490,11 @@
                 </div>
                 <button id="meterReportButton" class="btn w-full mt-6">Generate Report</button>
             </div>
-
-            <!-- 3. Budget Optimization -->
-            <div class="section-card" id="budgetOptimizationSection" style="display: none;">
-                <h2 class="text-xl">3. Budget Optimization</h2>
-                <div class="input-group">
-                    <select id="optimizationTargetDropdown" class="p-2 border rounded-md">
-                        <option value="Target Cost">Target Cost</option>
-                        <option value="Target Amperes">Target Amperes</option>
-                        <option value="Target kWh">Target kWh</option>
-                    </select>
-                    <input type="number" id="budgetLimitInput" value="100000" class="w-32">
-                </div>
-                <button id="optimizeBudgetButton" class="btn w-full">Optimize Target</button>
-                <div class="result-grid">
-                    <div class="result-item col-span-full">
-                        <div class="result-label">Optimization Result</div>
-                        <div class="result-value" id="budgetResultLabel">Not Optimized</div>
-                    </div>
-                </div>
-            </div>
             
             <!-- New buttons for showing/hiding sections -->
             <div class="flex flex-wrap justify-center gap-4 mt-6 p-4 border border-gray-700 rounded-lg" style="background-color: var(--card-dark);">
-                <button id="toggleBudgetOptimizationButton" class="btn w-full">Show Budget Optimization</button>
                 <button id="toggleTableButton" class="btn w-full">Show Device Table</button>
+                <button id="toggleBudgetOptimizationButton" class="btn w-full">Hide Budget Optimization</button>
                 <button id="showTariffDetailsButton" class="btn w-full">Show Tariff Details</button>
             </div>
 
@@ -549,6 +529,26 @@
                     <button id="clearAllButton" class="btn">Clear All</button>
                 </div>
                 <button id="deviceReportButton" class="btn w-full mt-6">Generate Report</button>
+            </div>
+
+            <!-- 3. Budget Optimization -->
+            <div class="section-card" id="budgetOptimizationSection">
+                <h2 class="text-xl">3. Budget Optimization</h2>
+                <div class="input-group">
+                    <select id="optimizationTargetDropdown" class="p-2 border rounded-md">
+                        <option value="Target Cost">Target Cost</option>
+                        <option value="Target Amperes">Target Amperes</option>
+                        <option value="Target kWh">Target kWh</option>
+                    </select>
+                    <input type="number" id="budgetLimitInput" value="100000" class="w-32">
+                </div>
+                <button id="optimizeBudgetButton" class="btn w-full">Optimize Target</button>
+                <div class="result-grid">
+                    <div class="result-item col-span-full">
+                        <div class="result-label">Optimization Result</div>
+                        <div class="result-value" id="budgetResultLabel">Not Optimized</div>
+                    </div>
+                </div>
             </div>
 
         </div>
