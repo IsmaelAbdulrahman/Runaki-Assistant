@@ -146,11 +146,6 @@
             color: #b91c1c; /* Red for emphasis */
         }
 
-        .overall-summary .result-item {
-            background-color: #e0f2fe; /* Lighter blue for overall summary */
-            border-color: #90cdf4;
-        }
-
         /* Chart container styling */
         .chart-container {
             width: 100%;
@@ -371,28 +366,12 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Overall Summary -->
-            <div class="section-card overall-summary">
-                <h2 class="text-xl">Overall Summary (from Device Consumption)</h2>
-                <div class="result-grid">
-                    <div class="result-item">
-                        <div class="result-label">Total Consumption</div>
-                        <div class="result-value" id="totalKwhValue">0.00 kWh</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Average Amperes</div>
-                        <div class="result-value" id="avgAmperesValue">0.00 A</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Total Bill</div>
-                        <div class="result-value" id="totalBillValue">0 IQD</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Average Rate</div>
-                        <div class="result-value" id="avgRateValue">0.00 IQD/kWh</div>
-                    </div>
-                </div>
+            
+            <!-- New buttons for showing/hiding plots and table -->
+            <div class="flex flex-wrap justify-center gap-3 mt-4">
+                <button id="toggleCurvePlotButton" class="btn btn-indigo">Show Tariff Curve Plot</button>
+                <button id="toggleTableButton" class="btn btn-indigo">Show Device Table</button>
+                <button id="toggleBarPlotsButton" class="btn btn-indigo">Show Bar Plots</button>
             </div>
 
         </div>
@@ -401,7 +380,7 @@
         <div class="flex flex-col w-full lg:w-1/2 space-y-6">
 
             <!-- 4. Dynamic Tariff Curves Plot -->
-            <div class="section-card flex flex-col items-center">
+            <div class="section-card flex flex-col items-center" id="tariffCurvePlotContainer" style="display: none;">
                 <h2 class="text-xl">4. Dynamic Tariff Curves</h2>
                 <div class="chart-container">
                     <canvas id="tariffPlot"></canvas>
@@ -418,7 +397,7 @@
             </div>
 
             <!-- 5. Device Consumption Table -->
-            <div class="section-card flex-grow">
+            <div class="section-card flex-grow" id="deviceTableSection" style="display: none;">
                 <h2 class="text-xl">5. Device Consumption Table</h2>
                 <div class="device-table-container">
                     <table id="deviceTable" class="device-table">
@@ -447,11 +426,6 @@
                     <label for="loadFileInput" class="btn btn-orange cursor-pointer">Load Data<input type="file" id="loadFileInput" accept=".json" class="hidden"></label>
                     <button id="clearAllButton" class="btn btn-gray">Clear All</button>
                 </div>
-            </div>
-
-            <!-- Plot Toggle Button -->
-            <div class="flex justify-center">
-                <button id="togglePlotsButton" class="btn btn-indigo">Show Plots</button>
             </div>
 
             <!-- 6. Device Consumption Bar Plot -->
@@ -520,10 +494,7 @@
             const budgetLimitInput = document.getElementById('budgetLimitInput');
             const budgetResultLabel = document.getElementById('budgetResultLabel');
 
-            const totalKwhValue = document.getElementById('totalKwhValue');
-            const avgAmperesValue = document.getElementById('avgAmperesValue');
-            const totalBillValue = document.getElementById('totalBillValue');
-            const avgRateValue = document.getElementById('avgRateValue');
+            // Removed: totalKwhValue, avgAmperesValue, totalBillValue, avgRateValue for Overall Summary
 
             const tariffPlotCanvas = document.getElementById('tariffPlot');
             const tariffSlider = document.getElementById('tariffSlider');
@@ -538,7 +509,14 @@
             const saveTableButton = document.getElementById('saveTableButton');
             const loadFileInput = document.getElementById('loadFileInput');
             const clearAllButton = document.getElementById('clearAllButton');
-            const togglePlotsButton = document.getElementById('togglePlotsButton');
+            
+            // New UI element references for toggling visibility
+            const toggleCurvePlotButton = document.getElementById('toggleCurvePlotButton');
+            const toggleTableButton = document.getElementById('toggleTableButton');
+            const toggleBarPlotsButton = document.getElementById('toggleBarPlotsButton'); // Renamed from togglePlotsButton
+
+            const tariffCurvePlotContainer = document.getElementById('tariffCurvePlotContainer');
+            const deviceTableSection = document.getElementById('deviceTableSection');
             const deviceBarPlotContainer = document.getElementById('deviceBarPlotContainer');
             const tariffBarPlotContainer = document.getElementById('tariffBarPlotContainer');
 
@@ -930,12 +908,7 @@
                 avgRateElem.textContent = `${formatNumber(avgRate, 2)} IQD/kWh`;
             };
 
-            const updateOverallSummary = (kwh, amperes, bill, avgRate) => {
-                totalKwhValue.textContent = `${formatNumber(kwh, 2)} kWh`;
-                avgAmperesValue.textContent = `${formatNumber(amperes, 2)} A`;
-                totalBillValue.textContent = `${formatNumber(bill, 0, true)} IQD`;
-                avgRateValue.textContent = `${formatNumber(avgRate, 2)} IQD/kWh`;
-            };
+            // Removed: updateOverallSummary function
 
             const updateTariffPlotResultDisplay = (kwh, amperes, bill, avgRate) => {
                 tariffPlotKwhElem.textContent = `${formatNumber(kwh, 2)} kWh`;
@@ -1112,7 +1085,7 @@
 
                 const amperes = kwhToAmperes(totalKwh, daysVal);
 
-                updateOverallSummary(totalKwh, amperes, totalBill, avgRate);
+                // Removed: updateOverallSummary(totalKwh, amperes, totalBill, avgRate);
                 updateTariffPlotResultDisplay(totalKwh, amperes, totalBill, avgRate);
 
                 let newPlotMaxKwh = parseFloat(tariffSlider.max);
@@ -1446,12 +1419,33 @@
             });
             optimizeBudgetButton.addEventListener('click', optimizeForBudget);
 
-            // Toggle Plots Button
-            togglePlotsButton.addEventListener('click', () => {
+            // Toggle Curve Plot Button
+            toggleCurvePlotButton.addEventListener('click', () => {
+                const isVisible = tariffCurvePlotContainer.style.display === 'block';
+                tariffCurvePlotContainer.style.display = isVisible ? 'none' : 'block';
+                toggleCurvePlotButton.textContent = isVisible ? 'Show Tariff Curve Plot' : 'Hide Tariff Curve Plot';
+                if (!isVisible) {
+                    // Re-plot when shown to ensure correct sizing
+                    plotTariffCurves(parseFloat(tariffSlider.max), parseFloat(tariffPlotKwhElem.textContent), parseFloat(tariffPlotBillElem.textContent.replace(/[^0-9.-]+/g,"")), categoryDropdown.value);
+                }
+            });
+
+            // Toggle Device Table Button
+            toggleTableButton.addEventListener('click', () => {
+                const isVisible = deviceTableSection.style.display === 'block';
+                deviceTableSection.style.display = isVisible ? 'none' : 'block';
+                toggleTableButton.textContent = isVisible ? 'Show Device Table' : 'Hide Device Table';
+                if (!isVisible) {
+                    calculateDeviceConsumption(); // Recalculate and update when table is shown
+                }
+            });
+
+            // Toggle Bar Plots Button (renamed)
+            toggleBarPlotsButton.addEventListener('click', () => {
                 const isVisible = deviceBarPlotContainer.style.display === 'block';
                 deviceBarPlotContainer.style.display = isVisible ? 'none' : 'block';
                 tariffBarPlotContainer.style.display = isVisible ? 'none' : 'block';
-                togglePlotsButton.textContent = isVisible ? 'Show Plots' : 'Hide Plots';
+                toggleBarPlotsButton.textContent = isVisible ? 'Show Bar Plots' : 'Hide Bar Plots';
                 // Re-render charts when they become visible to ensure correct sizing
                 if (!isVisible) {
                     calculateDeviceConsumption(); // Re-plot device chart
