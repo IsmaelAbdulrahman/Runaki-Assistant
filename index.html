@@ -6,7 +6,7 @@
     <title>Runaki Bill Assistant</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN for plotting (kept for potential future use, but not actively used in this version) -->
+    <!-- Chart.js CDN for plotting -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
     <style>
         /* Define a custom color palette using CSS variables for consistency */
@@ -40,8 +40,16 @@
             --result-item-dark-border: #5a6a7c; /* Darker result item border */
             --primary-blue-darker: #2563eb; /* A slightly darker blue for accents on dark background */
             --highlight-yellow-dark: #fbbf24; /* Brighter yellow for dark background */
-            --error-red-dark: #ef4444; /* Keep error red, ensure visibility */
-            --result-static-yellow: #fef08a; /* Light yellow for static result text */
+            
+            /* Dynamic colors for result displays */
+            --manual-result-color: #fef08a; /* Light yellow */
+            --manual-highlight-color: #fbbf24; /* Brighter yellow */
+            --meter-result-color: #bbf7d0; /* Light green */
+            --meter-highlight-color: #86efac; /* Brighter green */
+            --device-result-color: #a7f3d0; /* Light teal/cyan */
+            --device-highlight-color: #5eead4; /* Brighter teal/cyan */
+            --optimization-result-color: #bfdbfe; /* Light blue */
+            --optimization-highlight-color: #93c5fd; /* Brighter blue */
         }
 
         /* Custom styles for better aesthetics and responsiveness */
@@ -191,30 +199,31 @@
 
         .result-value {
             font-weight: 800;
-            color: var(--result-static-yellow); /* Changed to light yellow as requested */
+            /* Use dynamic CSS variables for color */
+            color: var(--current-result-color); 
             font-size: 1.25rem; /* Larger font for values */
             transition: color 0.2s ease-in-out; /* Smooth transition for color flash */
         }
 
         /* Flashing animation for result values */
         @keyframes flashEffect {
-            0% { color: var(--result-static-yellow); } /* Start with light yellow */
-            16.6% { color: var(--highlight-yellow-dark); } /* Flash brighter yellow */
-            33.3% { color: var(--result-static-yellow); } /* Back to light yellow */
-            50% { color: var(--highlight-yellow-dark); } /* Flash brighter yellow again */
-            66.6% { color: var(--result-static-yellow); } /* Back to light yellow */
-            83.3% { color: var(--highlight-yellow-dark); } /* Flash brighter yellow one last time */
-            100% { color: var(--result-static-yellow); } /* End with light yellow */
+            0% { color: var(--current-result-color); } /* Start with dynamic color */
+            16.6% { color: var(--current-highlight-color); } /* Flash brighter dynamic color */
+            33.3% { color: var(--current-result-color); } /* Back to dynamic color */
+            50% { color: var(--current-highlight-color); } /* Flash brighter dynamic color again */
+            66.6% { color: var(--current-result-color); } /* Back to dynamic color */
+            83.3% { color: var(--current-highlight-color); } /* Flash brighter dynamic color one last time */
+            100% { color: var(--current-result-color); } /* End with dynamic color */
         }
 
         .flash-animation {
             animation: flashEffect 1.8s ease-out; /* 3 flashes over 1.8 seconds */
         }
 
-        /* Chart container styling (Not used in this version, but kept for reference) */
+        /* Chart container styling */
         .chart-container {
             width: 100%;
-            height: 500px; 
+            height: 300px; /* Fixed height for chart */
             margin-top: 2rem; 
             background-color: var(--card-dark); 
             border-radius: 1rem;
@@ -228,14 +237,14 @@
             height: 0.75rem; 
             background-color: #d1fae5; 
             border-radius: 0.4rem;
-            Runakiearance: none;
+            appearance: none;
             cursor: grab;
             margin-top: 2rem; 
             box-shadow: inset 0 1px 4px rgba(0,0,0,0.1);
         }
 
         .range-slider::-webkit-slider-thumb {
-            Runakiearance: none;
+            appearance: none;
             width: 1.8rem; 
             height: 1.8rem; 
             background: var(--secondary-green);
@@ -433,6 +442,60 @@
         #appMessage.info { background-color: #3b82f6; } /* Blue for info */
         #appMessage.success { background-color: #22c55e; } /* Green for success */
         #appMessage.error { background-color: #ef4444; } /* Red for error */
+
+        /* Report Modal Specific Styles */
+        .report-section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-blue-darker);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            border-bottom: 2px solid var(--primary-blue-darker);
+            padding-bottom: 0.5rem;
+        }
+
+        .report-item-label {
+            font-weight: 600;
+            color: var(--text-medium-light);
+            margin-right: 0.5rem;
+        }
+
+        .report-item-value {
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .report-breakdown-item {
+            margin-left: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-medium-light);
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background-color: var(--input-dark-bg);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .report-table th, .report-table td {
+            padding: 0.75rem;
+            border: 1px solid var(--input-dark-border);
+            text-align: left;
+            color: var(--text-light);
+        }
+
+        .report-table th {
+            background-color: var(--primary-blue-darker);
+            color: white;
+            font-weight: 700;
+        }
+
+        .report-table tbody tr:nth-child(even) {
+            background-color: #3a475c; /* Slightly different background for even rows */
+        }
     </style>
 </head>
 <body>
@@ -465,7 +528,7 @@
                     <input type="number" id="manualInput" value="1891" class="w-28">
                 </div>
                 <button id="calculateManualButton" class="btn w-full">Calculate Bill</button>
-                <div class="result-grid">
+                <div class="result-grid" id="manualResultGrid">
                     <div class="result-item">
                         <div class="result-label">Bill</div>
                         <div class="result-value" id="manualBill">0 IQD</div>
@@ -498,7 +561,7 @@
                     <input type="number" id="daysInput" value="30" min="1" max="365" class="w-16">
                 </div>
                 <button id="calculateMeterButton" class="btn w-full">Calculate Bill</button>
-                <div class="result-grid">
+                <div class="result-grid" id="meterResultGrid">
                     <div class="result-item">
                         <div class="result-label">Bill</div>
                         <div class="result-value" id="meterBill">0 IQD</div>
@@ -520,7 +583,7 @@
             </div>
             
             <!-- New buttons for showing/hiding sections -->
-            <div class="flex flex-col justify-center gap-2 mt-6 p-4 border border-gray-700 rounded-lg max-w-lg mx-auto" style="background-color: var(--card-dark);">
+            <div class="flex flex-col items-start gap-2 mt-6 p-4 border border-gray-700 rounded-lg max-w-lg ml-0 mr-auto" style="background-color: var(--card-dark);">
                 <button id="toggleManualCalculationButton" class="btn w-full">Hide Manual Calculation</button>
                 <button id="toggleMeterCalculationButton" class="btn w-full">Show By Meter Calculation</button>
                 <button id="toggleTableButton" class="btn w-full">Show Device Table</button>
@@ -551,7 +614,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="flex flex-wrap justify-center gap-4 mt-6 max-w-lg mx-auto">
+                <div class="flex flex-wrap items-start gap-4 mt-6 max-w-lg ml-0 mr-auto">
                     <button id="addRowButton" class="btn w-full sm:w-auto">Add Row</button>
                     <button id="deleteRowButton" class="btn w-full sm:w-auto">Delete Selected</button>
                     <button id="saveTableButton" class="btn w-full sm:w-auto">Save Data (CSV)</button>
@@ -573,7 +636,7 @@
                     <input type="number" id="budgetLimitInput" value="100000" class="w-32">
                 </div>
                 <button id="optimizeBudgetButton" class="btn w-full">Optimize Target</button>
-                <div class="result-grid">
+                <div class="result-grid" id="budgetOptimizationResultGrid">
                     <div class="result-item col-span-full">
                         <div class="result-label">Optimization Result</div>
                         <div class="result-value" id="budgetResultLabel">Not Optimized</div>
@@ -593,7 +656,19 @@
         <div class="modal-content">
             <button class="modal-close-button" id="closeTariffDetailsModal">&times;</button>
             <h3 id="tariffDetailsModalTitle">Tariff Details</h3>
+            <div id="tariffChartContainer" class="chart-container" style="display: none;">
+                <canvas id="tariffChart"></canvas>
+            </div>
             <pre id="tariffDetailsModalContent"></pre>
+        </div>
+    </div>
+
+    <!-- Custom Modal for Reports -->
+    <div id="reportModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-button" id="closeReportModal">&times;</button>
+            <h3 id="reportModalTitle">Report</h3>
+            <div id="reportModalContent" class="prose"></div>
         </div>
     </div>
 
@@ -617,6 +692,7 @@
             const manualAmperesElem = document.getElementById('manualAmperes');
             const manualBillElem = document.getElementById('manualBill');
             const manualAvgRateElem = document.getElementById('manualAvgRate');
+            const manualResultGrid = document.getElementById('manualResultGrid');
 
             const calculateMeterButton = document.getElementById('calculateMeterButton');
             const meterPrevReading = document.getElementById('meterPrevReading');
@@ -628,11 +704,13 @@
             const meterBillElem = document.getElementById('meterBill');
             const meterAvgRateElem = document.getElementById('meterAvgRate');
             const meterReportButton = document.getElementById('meterReportButton');
+            const meterResultGrid = document.getElementById('meterResultGrid');
 
             const optimizeBudgetButton = document.getElementById('optimizeBudgetButton');
             const optimizationTargetDropdown = document.getElementById('optimizationTargetDropdown');
             const budgetLimitInput = document.getElementById('budgetLimitInput');
             const budgetResultLabel = document.getElementById('budgetResultLabel');
+            const budgetOptimizationResultGrid = document.getElementById('budgetOptimizationResultGrid');
 
             const deviceTableBody = document.querySelector("#deviceTable tbody");
             const addRowButton = document.getElementById('addRowButton');
@@ -641,27 +719,37 @@
             const loadFileInput = document.getElementById('loadFileInput');
             const clearAllButton = document.getElementById('clearAllButton');
             const deviceReportButton = document.getElementById('deviceReportButton');
-            
+            const deviceTableSection = document.getElementById('deviceTableSection'); // For result grid color
+
             // New UI element references for toggling visibility
             const toggleBudgetOptimizationButton = document.getElementById('toggleBudgetOptimizationButton'); 
             const toggleTableButton = document.getElementById('toggleTableButton');
-            const showTariffDetailsButton = document.getElementById('showTariffDetailsButton'); // New button reference
+            const showTariffDetailsButton = document.getElementById('showTariffDetailsButton'); 
 
             // Section elements
             const manualCalculationSection = document.getElementById('manualCalculationSection');
             const meterCalculationSection = document.getElementById('meterCalculationSection');
             const budgetOptimizationSection = document.getElementById('budgetOptimizationSection'); 
-            const deviceTableSection = document.getElementById('deviceTableSection');
+            
 
             // New toggle buttons for manual and meter sections
             const toggleManualCalculationButton = document.getElementById('toggleManualCalculationButton');
             const toggleMeterCalculationButton = document.getElementById('toggleMeterCalculationButton');
 
-            // Modal elements
+            // Modal elements (Tariff)
             const tariffDetailsModal = document.getElementById('tariffDetailsModal');
             const closeTariffDetailsModal = document.getElementById('closeTariffDetailsModal');
             const tariffDetailsModalTitle = document.getElementById('tariffDetailsModalTitle');
             const tariffDetailsModalContent = document.getElementById('tariffDetailsModalContent');
+            const tariffChartContainer = document.getElementById('tariffChartContainer');
+            const tariffChartCanvas = document.getElementById('tariffChart');
+            let tariffChartInstance = null;
+
+            // Modal elements (Report)
+            const reportModal = document.getElementById('reportModal');
+            const closeReportModal = document.getElementById('closeReportModal');
+            const reportModalTitle = document.getElementById('reportModalTitle');
+            const reportModalContent = document.getElementById('reportModalContent');
 
             // Message box element
             const appMessage = document.getElementById('appMessage');
@@ -748,7 +836,7 @@
                     remainingKwh -= consumptionInThisSlab;
                     previousSlabLimit = slabLimit;
                 }
-                return { totalCost, breakdown: breakdown.join("\n") };
+                return { totalCost, breakdown: breakdown.join("\n"), tiers, rates, slabNames };
             };
 
             const getRonakiFlatTariffDetails = (kWh, rate) => {
@@ -778,7 +866,26 @@
 
             // --- UI UPDATE FUNCTIONS ---
 
-            const updateResultDisplay = (kwh, amperes, bill, avgRate, kwhElem, amperesElem, billElem, avgRateElem) => {
+            const updateResultDisplay = (kwh, amperes, bill, avgRate, kwhElem, amperesElem, billElem, avgRateElem, resultGridElement, sectionType) => {
+                // Set dynamic CSS variables for colors
+                let resultColorVar, highlightColorVar;
+                if (sectionType === 'manual') {
+                    resultColorVar = 'var(--manual-result-color)';
+                    highlightColorVar = 'var(--manual-highlight-color)';
+                } else if (sectionType === 'meter') {
+                    resultColorVar = 'var(--meter-result-color)';
+                    highlightColorVar = 'var(--meter-highlight-color)';
+                } else if (sectionType === 'device') {
+                    resultColorVar = 'var(--device-result-color)';
+                    highlightColorVar = 'var(--device-highlight-color)';
+                } else if (sectionType === 'optimization') {
+                    resultColorVar = 'var(--optimization-result-color)';
+                    highlightColorVar = 'var(--optimization-highlight-color)';
+                }
+
+                resultGridElement.style.setProperty('--current-result-color', resultColorVar);
+                resultGridElement.style.setProperty('--current-highlight-color', highlightColorVar);
+
                 // Apply flashing animation
                 [kwhElem, amperesElem, billElem, avgRateElem].forEach(elem => {
                     elem.classList.remove('flash-animation'); // Remove existing animation
@@ -797,7 +904,7 @@
                 let inputValue = validateNumeric(manualInput.value);
                 if (isNaN(inputValue) || inputValue < 0) {
                     showMessage("Please enter a valid numeric value for consumption.", 'error');
-                    updateResultDisplay(0, 0, 0, 0, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem);
+                    updateResultDisplay(0, 0, 0, 0, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem, manualResultGrid, 'manual');
                     return;
                 }
 
@@ -842,7 +949,7 @@
 
                 const avgRate = calculatedKwh > 0 ? totalBill / calculatedKwh : 0;
 
-                updateResultDisplay(calculatedKwh, calculatedAmperes, totalBill, avgRate, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem);
+                updateResultDisplay(calculatedKwh, calculatedAmperes, totalBill, avgRate, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem, manualResultGrid, 'manual');
             };
 
             const performMeterCalculation = () => {
@@ -853,17 +960,17 @@
 
                 if (isNaN(prevReading) || isNaN(currReading) || prevReading < 0 || currReading < 0) {
                     showMessage("Please enter valid numeric values for meter readings.", 'error');
-                    updateResultDisplay(0, 0, 0, 0, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem);
+                    updateResultDisplay(0, 0, 0, 0, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem, meterResultGrid, 'meter');
                     return;
                 }
                 if (currReading < prevReading) {
                     showMessage("Current reading cannot be less than previous reading.", 'error');
-                    updateResultDisplay(0, 0, 0, 0, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem);
+                    updateResultDisplay(0, 0, 0, 0, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem, meterResultGrid, 'meter');
                     return;
                 }
                 if (isNaN(daysVal) || daysVal <= 0) {
                     showMessage("Please enter a positive integer for days.", 'error');
-                    updateResultDisplay(0, 0, 0, 0, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem);
+                    updateResultDisplay(0, 0, 0, 0, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem, meterResultGrid, 'meter');
                     return;
                 }
 
@@ -872,7 +979,7 @@
                 const avgAmperes = kwhToAmperes(consumption, daysVal);
                 const avgRate = consumption > 0 ? totalBill / consumption : 0;
 
-                updateResultDisplay(consumption, avgAmperes, totalBill, avgRate, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem);
+                updateResultDisplay(consumption, avgAmperes, totalBill, avgRate, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem, meterResultGrid, 'meter');
             };
 
             const calculateDeviceConsumption = () => {
@@ -913,6 +1020,8 @@
                     device.row.querySelector('.output-iqd').textContent = formatNumber(iqd, 0, true);
                     device.iqd = iqd; 
                 });
+                // Update a dummy result grid for device consumption to trigger color change
+                updateResultDisplay(totalKwh, kwhToAmperes(totalKwh, daysVal), totalBill, avgRate, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem, manualResultGrid, 'device');
             };
 
             const optimizeForBudget = () => {
@@ -920,12 +1029,12 @@
                 if (isNaN(targetValue) || targetValue < 0) {
                     showMessage("Please enter a valid, non-negative numeric value for the target.", 'error');
                     budgetResultLabel.textContent = 'Invalid Target';
+                    updateResultDisplay(0, 0, 0, 0, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem, budgetOptimizationResultGrid, 'optimization'); // Use dummy values for color update
                     return;
                 }
 
                 const daysVal = validateNumeric(daysInput.value) || 30;
                 let currentTotalKwh = 0;
-                let fixedDevicesKwh = 0;
                 const variableDevicesData = [];
                 const category = categoryDropdown.value;
 
@@ -944,9 +1053,7 @@
                     const currentKwhDevice = (watt / 1000) * hours * day * count;
                     currentTotalKwh += currentKwhDevice;
 
-                    if (isFixed) {
-                        fixedDevicesKwh += currentKwhDevice;
-                    } else {
+                    if (!isFixed) { // Only consider variable devices for optimization
                         variableDevicesData.push({
                             index: idx,
                             name: deviceName,
@@ -978,6 +1085,7 @@
                     (optimizationTargetDropdown.value === 'Target kWh' && currentTotalKwh <= targetValue)) {
                     budgetResultLabel.textContent = 'Result: Within Target!';
                     showMessage('Your current status is already within the specified target!', 'info');
+                    updateResultDisplay(currentTotalKwh, currentAmperes, currentBill, currentTotalKwh > 0 ? currentBill / currentTotalKwh : 0, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem, budgetOptimizationResultGrid, 'optimization');
                     return;
                 }
 
@@ -985,7 +1093,6 @@
 
                 let optimizedConsumptionKwh = currentTotalKwh;
                 let changesMade = false;
-                let summaryMessage = "Summary of Changes:\n";
 
                 for (const device of variableDevicesData) {
                     if (optimizedConsumptionKwh <= targetKwhForOptimization) break; 
@@ -1015,7 +1122,6 @@
                             if (hoursReduced > 0) {
                                 device.row.querySelector('input[type="number"]').value = formatNumber(testHours, 1, false, true); 
                                 optimizedConsumptionKwh = potentialNewTotalConsumption;
-                                summaryMessage += `- Reduced '${device.name}' hours by ${formatNumber(hoursReduced, 0)} to ${formatNumber(testHours, 0)}.\n`;
                                 changesMade = true;
                             }
                             break; 
@@ -1027,12 +1133,14 @@
 
                 if (changesMade) {
                     budgetResultLabel.textContent = 'Result: Optimized!';
-                    calculateDeviceConsumption(); 
+                    calculateDeviceConsumption(); // Recalculate device consumption to update table outputs
                     showMessage(`Optimization completed successfully!`, 'success');
                 } else {
                     budgetResultLabel.textContent = 'Result: Unreachable';
                     showMessage('Could not reach the target by only reducing hours of variable devices.', 'error');
                 }
+                // Update the optimization result display with the final (or current) values
+                updateResultDisplay(optimizedConsumptionKwh, kwhToAmperes(optimizedConsumptionKwh, daysVal), calculateCostForCategory(optimizedConsumptionKwh, category), optimizedConsumptionKwh > 0 ? calculateCostForCategory(optimizedConsumptionKwh, category) / optimizedConsumptionKwh : 0, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem, budgetOptimizationResultGrid, 'optimization');
             };
 
             // --- DEVICE TABLE LOGIC ---
@@ -1090,11 +1198,30 @@
             const generateManualReport = () => {
                 const kwh = validateNumeric(manualKwhElem.textContent);
                 const bill = validateNumeric(manualBillElem.textContent);
+                const amperes = validateNumeric(manualAmperesElem.textContent);
+                const avgRate = validateNumeric(manualAvgRateElem.textContent);
                 const category = categoryDropdown.value;
+
                 if (kwh <= 0) { showMessage("Please perform a calculation first.", 'info'); return; }
                 const { breakdown } = getRonakiHouseholdTariffDetails(kwh); 
-                // Using alert for report as it's a detailed summary, not a transient message
-                alert(`Detailed Report (Manual Input)\n---------------------------------\nBill: ${manualBillElem.textContent}\nConsumption: ${manualKwhElem.textContent}\nAverage Amperes: ${manualAmperesElem.textContent}\nAverage Rate: ${manualAvgRateElem.textContent}\nCategory: ${category}\n\nTariff Breakdown:\n${breakdown}`);
+
+                let reportHtml = `
+                    <div class="report-section-title">Summary</div>
+                    <p><span class="report-item-label">Category:</span> <span class="report-item-value">${category}</span></p>
+                    <p><span class="report-item-label">Bill:</span> <span class="report-item-value">${formatNumber(bill, 0, true)} IQD</span></p>
+                    <p><span class="report-item-label">Consumption:</span> <span class="report-item-value">${formatNumber(kwh, 2)} kWh</span></p>
+                    <p><span class="report-item-label">Average Amperes:</span> <span class="report-item-value">${formatNumber(amperes, 2)} A</span></p>
+                    <p><span class="report-item-label">Average Rate:</span> <span class="report-item-value">${formatNumber(avgRate, 2)} IQD/kWh</span></p>
+                `;
+                if (category === 'Household') {
+                    reportHtml += `<div class="report-section-title">Tariff Breakdown</div><pre>${breakdown}</pre>`;
+                } else {
+                    reportHtml += `<div class="report-section-title">Tariff Breakdown</div><pre>${getRonakiFlatTariffDetails(kwh, avgRate).breakdown}</pre>`;
+                }
+
+                reportModalTitle.textContent = "Manual Calculation Report";
+                reportModalContent.innerHTML = reportHtml;
+                reportModal.style.display = 'flex';
             };
 
             const generateMeterReport = () => {
@@ -1102,35 +1229,38 @@
                 const currReading = validateNumeric(meterCurrReading.value);
                 const daysVal = validateNumeric(daysInput.value) || 30;
                 const category = categoryDropdown.value;
+                const consumption = currReading - prevReading;
+                const totalBill = calculateCostForCategory(consumption, category);
+                const avgAmperes = kwhToAmperes(consumption, daysVal);
+                const avgRate = consumption > 0 ? totalBill / consumption : 0;
 
                 if (isNaN(prevReading) || isNaN(currReading) || prevReading < 0 || currReading < 0 || currReading < prevReading || isNaN(daysVal) || daysVal <= 0) {
                     showMessage("Please ensure valid meter readings and days are entered before generating a report.", 'error');
                     return;
                 }
 
-                const consumption = currReading - prevReading;
-                const totalBill = calculateCostForCategory(consumption, category);
-                const avgAmperes = kwhToAmperes(consumption, daysVal);
-                const avgRate = consumption > 0 ? totalBill / consumption : 0;
-
-                let reportContent = `Detailed Report (Meter Input)\n---------------------------------\n`;
-                reportContent += `Previous Reading: ${formatNumber(prevReading, 0, true)} kWh\n`;
-                reportContent += `Current Reading: ${formatNumber(currReading, 0, true)} kWh\n`;
-                reportContent += `Days: ${formatNumber(daysVal, 0, false, true)}\n`;
-                reportContent += `Bill: ${formatNumber(totalBill, 0, true)} IQD\n`; // Bill first
-                reportContent += `Consumption: ${formatNumber(consumption, 2)} kWh\n`;
-                reportContent += `Average Amperes: ${formatNumber(avgAmperes, 2)} A\n`;
-                reportContent += `Average Rate: ${formatNumber(avgRate, 2)} IQD/kWh\n`;
-                reportContent += `Category: ${category}\n\n`;
-
+                let reportHtml = `
+                    <div class="report-section-title">Meter Calculation Summary</div>
+                    <p><span class="report-item-label">Category:</span> <span class="report-item-value">${category}</span></p>
+                    <p><span class="report-item-label">Previous Reading:</span> <span class="report-item-value">${formatNumber(prevReading, 0, true)} kWh</span></p>
+                    <p><span class="report-item-label">Current Reading:</span> <span class="report-item-value">${formatNumber(currReading, 0, true)} kWh</span></p>
+                    <p><span class="report-item-label">Days:</span> <span class="report-item-value">${formatNumber(daysVal, 0, false, true)}</span></p>
+                    <p><span class="report-item-label">Bill:</span> <span class="report-item-value">${formatNumber(totalBill, 0, true)} IQD</span></p>
+                    <p><span class="report-item-label">Consumption:</span> <span class="report-item-value">${formatNumber(consumption, 2)} kWh</span></p>
+                    <p><span class="report-item-label">Average Amperes:</span> <span class="report-item-value">${formatNumber(avgAmperes, 2)} A</span></p>
+                    <p><span class="report-item-label">Average Rate:</span> <span class="report-item-value">${formatNumber(avgRate, 2)} IQD/kWh</span></p>
+                `;
                 if (category === 'Household') {
                     const { breakdown } = getRonakiHouseholdTariffDetails(consumption);
-                    reportContent += `Tariff Breakdown:\n${breakdown}`;
+                    reportHtml += `<div class="report-section-title">Tariff Breakdown</div><pre>${breakdown}</pre>`;
                 } else {
-                    const { breakdown } = getRonakiFlatTariffDetails(consumption, totalBill / consumption);
-                    reportContent += `Tariff Breakdown:\n${breakdown}`;
+                    const { breakdown } = getRonakiFlatTariffDetails(consumption, avgRate);
+                    reportHtml += `<div class="report-section-title">Tariff Breakdown</div><pre>${breakdown}</pre>`;
                 }
-                alert(reportContent);
+
+                reportModalTitle.textContent = "Meter Calculation Report";
+                reportModalContent.innerHTML = reportHtml;
+                reportModal.style.display = 'flex';
             };
 
             const generateDeviceReport = () => {
@@ -1150,7 +1280,6 @@
                     const isFixed = row.querySelector('.device-fixed').checked;
                     const kwh = (watt / 1000) * hours * day * count;
                     
-                    // Only sum kwh for devices that are "on"
                     if (isOn) {
                         totalKwh += kwh; 
                     }
@@ -1172,27 +1301,63 @@
                     return;
                 }
                 
-                // Recalculate total bill and average rate based on the final totalKwh
                 const finalTotalBill = calculateCostForCategory(totalKwh, category);
                 const finalAvgRate = totalKwh > 0 ? finalTotalBill / totalKwh : 0;
                 const finalAvgAmperes = kwhToAmperes(totalKwh, daysVal);
 
-                let reportContent = `Detailed Report (Device Consumption)\n---------------------------------\n`;
-                reportContent += `Total Bill: ${formatNumber(finalTotalBill, 0, true)} IQD\n`; // Bill first
-                reportContent += `Total Consumption: ${formatNumber(totalKwh, 2)} kWh\n`;
-                reportContent += `Average Amperes: ${formatNumber(finalAvgAmperes, 2)} A\n`;
-                reportContent += `Average Rate: ${formatNumber(finalAvgRate, 2)} IQD/kWh\n`;
-                reportContent += `Category: ${category}\n\n`;
-                reportContent += `Device Breakdown:\n`;
+                let reportHtml = `
+                    <div class="report-section-title">Overall Consumption Summary</div>
+                    <p><span class="report-item-label">Category:</span> <span class="report-item-value">${category}</span></p>
+                    <p><span class="report-item-label">Total Bill:</span> <span class="report-item-value">${formatNumber(finalTotalBill, 0, true)} IQD</span></p>
+                    <p><span class="report-item-label">Total Consumption:</span> <span class="report-item-value">${formatNumber(totalKwh, 2)} kWh</span></p>
+                    <p><span class="report-item-label">Average Amperes:</span> <span class="report-item-value">${formatNumber(finalAvgAmperes, 2)} A</span></p>
+                    <p><span class="report-item-label">Average Rate:</span> <span class="report-item-value">${formatNumber(finalAvgRate, 2)} IQD/kWh</span></p>
+
+                    <div class="report-section-title">Device Breakdown</div>
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Device</th>
+                                <th>Watt</th>
+                                <th>Hours/Day</th>
+                                <th>Days/Month</th>
+                                <th>Count</th>
+                                <th>kWh/Month</th>
+                                <th>IQD/Month</th>
+                                <th>On?</th>
+                                <th>Fixed?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
 
                 deviceDetailsForReport.forEach(device => {
-                    // Recalculate IQD for each device based on the final average rate
                     const iqd = validateNumeric(device.kwh) * finalAvgRate;
-                    reportContent += `- ${device.name}: ${device.watt}W, ${device.hours}h/day, ${device.day} days, ${device.count} units -> ${device.kwh} kWh (${formatNumber(iqd, 0, true)} IQD) [On: ${device.on}, Fixed: ${device.fixed}]\n`;
+                    reportHtml += `
+                            <tr>
+                                <td>${device.name}</td>
+                                <td>${device.watt}</td>
+                                <td>${device.hours}</td>
+                                <td>${device.day}</td>
+                                <td>${device.count}</td>
+                                <td>${device.kwh}</td>
+                                <td>${formatNumber(iqd, 0, true)}</td>
+                                <td>${device.on}</td>
+                                <td>${device.fixed}</td>
+                            </tr>
+                    `;
                 });
 
-                alert(reportContent);
+                reportHtml += `
+                        </tbody>
+                    </table>
+                `;
+
+                reportModalTitle.textContent = "Device Consumption Report";
+                reportModalContent.innerHTML = reportHtml;
+                reportModal.style.display = 'flex';
             };
+
 
             // --- CSV HANDLING FUNCTIONS ---
             const exportTableToCsv = () => {
@@ -1427,34 +1592,113 @@
             // Show Tariff Details Button
             showTariffDetailsButton.addEventListener('click', () => {
                 const currentCategory = categoryDropdown.value;
-                let details = '';
+                tariffDetailsModalTitle.textContent = `${currentCategory} Tariff Details`;
 
-                if (currentCategory === 'Household') {
-                    details = `Household Tariff Rates:\n` +
-                              `  - 1-400 kWh: 72 IQD/kWh\n` +
-                              `  - 401-800 kWh: 108 IQD/kWh\n` +
-                              `  - 801-1200 kWh: 175 IQD/kWh\n` +
-                              `  - 1201-1600 kWh: 265 IQD/kWh\n` +
-                              `  - 1601+ kWh: 350 IQD/kWh`;
-                } else if (currentCategory === 'Commercial') {
-                    details = `Commercial Tariff Rate:\n` +
-                              `  - All kWh: 185 IQD/kWh`;
-                } else if (currentCategory === 'Agriculture') {
-                    details = `Agriculture Tariff Rate:\n` +
-                              `  - All kWh: 60 IQD/kWh`;
-                } else if (currentCategory === 'Industrial') {
-                    details = `Industrial Tariff Rate:\n` +
-                              `  - All kWh: 160 IQD/kWh`;
-                } else if (currentCategory === 'Large Industry') {
-                    details = `Large Industry Tariff Rate:\n` +
-                              `  - All kWh: 125 IQD/kWh`;
-                } else if (currentCategory === 'State') {
-                    details = `State Tariff Rate:\n` +
-                              `  - All kWh: 160 IQD/kWh`;
+                // Destroy existing chart if it exists
+                if (tariffChartInstance) {
+                    tariffChartInstance.destroy();
+                    tariffChartInstance = null;
                 }
 
-                tariffDetailsModalTitle.textContent = `${currentCategory} Tariff Details`;
-                tariffDetailsModalContent.textContent = details;
+                if (currentCategory === 'Household') {
+                    const { tiers, rates, slabNames } = getRonakiHouseholdTariffDetails(1600); // Pass a high value to get all tiers
+                    const labels = slabNames;
+                    const data = rates;
+                    const backgroundColors = [
+                        'rgba(255, 99, 132, 0.6)', // Red
+                        'rgba(54, 162, 235, 0.6)', // Blue
+                        'rgba(255, 206, 86, 0.6)', // Yellow
+                        'rgba(75, 192, 192, 0.6)', // Green
+                        'rgba(153, 102, 255, 0.6)' // Purple
+                    ];
+                    const borderColors = [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ];
+
+                    tariffChartContainer.style.display = 'block';
+                    tariffDetailsModalContent.style.display = 'none';
+
+                    tariffChartInstance = new Chart(tariffChartCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'IQD/kWh',
+                                data: data,
+                                backgroundColor: backgroundColors,
+                                borderColor: borderColors,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false,
+                                    labels: {
+                                        color: 'var(--text-light)'
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Household Tariff Rates (IQD/kWh)',
+                                    color: 'var(--text-light)',
+                                    font: {
+                                        size: 16
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Rate (IQD/kWh)',
+                                        color: 'var(--text-medium-light)'
+                                    },
+                                    ticks: {
+                                        color: 'var(--text-light)'
+                                    },
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Consumption Tiers',
+                                        color: 'var(--text-medium-light)'
+                                    },
+                                    ticks: {
+                                        color: 'var(--text-light)'
+                                    },
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                } else {
+                    let rate = 0;
+                    if (currentCategory === 'Commercial') rate = 185;
+                    else if (currentCategory === 'Agriculture') rate = 60;
+                    else if (currentCategory === 'Industrial') rate = 160;
+                    else if (currentCategory === 'Large Industry') rate = 125;
+                    else if (currentCategory === 'State') rate = 160;
+
+                    const details = `${currentCategory} Tariff Rate:\n  - All kWh: ${formatNumber(rate, 2)} IQD/kWh`;
+                    tariffDetailsModalContent.textContent = details;
+                    tariffChartContainer.style.display = 'none';
+                    tariffDetailsModalContent.style.display = 'block';
+                }
+
                 tariffDetailsModal.style.display = 'flex'; // Show the modal
             });
 
@@ -1466,6 +1710,16 @@
             tariffDetailsModal.addEventListener('click', (e) => {
                 if (e.target === tariffDetailsModal) {
                     tariffDetailsModal.style.display = 'none';
+                }
+            });
+
+            closeReportModal.addEventListener('click', () => {
+                reportModal.style.display = 'none';
+            });
+
+            reportModal.addEventListener('click', (e) => {
+                if (e.target === reportModal) {
+                    reportModal.style.display = 'none';
                 }
             });
 
