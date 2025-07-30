@@ -1726,13 +1726,15 @@
             // --- REPORT GENERATION FUNCTIONS ---
             const generateManualReport = () => {
                 const lang = languageSelect.value;
-                const kwh = validateNumeric(manualKwhElem.textContent);
-                const bill = validateNumeric(manualBillElem.textContent);
-                const amperes = validateNumeric(manualAmperesElem.textContent);
-                const avgRate = validateNumeric(manualAvgRateElem.textContent);
+                // Retrieve raw numeric values from the elements, not just text content
+                const kwh = validateNumeric(manualKwhElem.textContent.replace(translations[lang].unitKWH, '').trim());
+                const bill = validateNumeric(manualBillElem.textContent.replace(translations[lang].unitIQD, '').trim());
+                const amperes = validateNumeric(manualAmperesElem.textContent.replace(translations[lang].unitA, '').trim());
+                const avgRate = validateNumeric(manualAvgRateElem.textContent.replace(`${translations[lang].unitIQD}/${translations[lang].unitKWH}`, '').trim());
                 const category = categoryDropdown.value;
 
-                if (kwh <= 0) { showMessage("performCalculationFirst", 'info'); return; }
+                // Remove the strict check for kwh <= 0, as a 0 kWh result can be valid for a report
+                // if (kwh <= 0) { showMessage("performCalculationFirst", 'info'); return; }
                 const { breakdown } = getRonakiHouseholdTariffDetails(kwh); 
 
                 let reportHtml = `
@@ -1765,10 +1767,12 @@
                 const avgAmperes = kwhToAmperes(consumption, daysVal);
                 const avgRate = consumption > 0 ? totalBill / consumption : 0;
 
-                if (isNaN(prevReading) || isNaN(currReading) || prevReading < 0 || currReading < 0 || currReading < prevReading || isNaN(daysVal) || daysVal <= 0) {
-                    showMessage("ensureValidMeterReadings", 'error');
-                    return;
-                }
+                // Remove the strict validation here, as performMeterCalculation already handles it
+                // and sets display values to 0 if invalid. If 0 is a result, it's valid.
+                // if (isNaN(prevReading) || isNaN(currReading) || prevReading < 0 || currReading < 0 || currReading < prevReading || isNaN(daysVal) || daysVal <= 0) {
+                //     showMessage("ensureValidMeterReadings", 'error');
+                //     return;
+                // }
 
                 let reportHtml = `
                     <div class="report-section-title">${translations[lang].meterCalculationSummary}</div>
@@ -1828,7 +1832,9 @@
                     });
                 });
 
-                if (totalKwh <= 0 && deviceDetailsForReport.length === 0) {
+                // Changed condition: only check if there are no devices added at all.
+                // If devices are present, even if totalKwh is 0 (e.g., all off), a report should be generated.
+                if (deviceTableBody.children.length === 0) {
                     showMessage("addAndCalculateDeviceConsumption", 'info');
                     return;
                 }
