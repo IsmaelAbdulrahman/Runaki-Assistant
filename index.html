@@ -42,6 +42,10 @@
             --highlight-yellow-dark: #fbbf24; /* Brighter yellow for dark background */
             --error-red-dark: #ef4444; /* Keep error red, ensure visibility */
             --result-static-yellow: #fef08a; /* Light yellow for static result text */
+            --button-yellow-bg: #fef08a; /* Light yellow for button background */
+            --button-yellow-border: #facc15; /* Slightly darker yellow for button border */
+            --button-yellow-hover: #fcd34d; /* Yellow for button hover */
+            --button-yellow-active: #fbbf24; /* Darker yellow for button active */
         }
 
         /* Custom styles for better aesthetics and responsiveness */
@@ -134,34 +138,33 @@
             outline: none;
         }
 
-        /* General button styling - removed width:100% */
+        /* General button styling */
         button {
             padding: 0.75rem 1.5rem; /* More padding */
             border-radius: 0.6rem; /* More rounded corners */
-            border: 1px solid var(--neutral-gray-medium); /* Added border for definition */
+            border: 2px solid var(--button-yellow-border); /* Wider border with darker yellow */
             font-size: 1rem; /* Slightly larger font */
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Stronger button shadow */
             white-space: nowrap;
-            color: var(--button-dark-text); /* Default text color for buttons */
+            color: var(--button-dark-text); /* Dark text for readability on light yellow */
             margin: 0.5rem; /* Increased margin for spacing between buttons */
-            background-color: var(--button-light-gray); /* Default light gray background */
-            /* width: 100%; Removed this to allow centering */
+            background-color: var(--button-yellow-bg); /* Light yellow background */
         }
 
         button:hover {
             transform: translateY(-3px); /* More pronounced lift */
             box-shadow: 0 8px 16px rgba(0,0,0,0.2); /* Stronger hover shadow */
             opacity: 0.95;
-            background-color: var(--button-hover-gray); /* Slightly darker gray on hover */
+            background-color: var(--button-yellow-hover); /* Slightly darker yellow on hover */
         }
 
         button:active {
             transform: translateY(0);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            background-color: var(--button-active-gray); /* Even darker gray on active */
+            background-color: var(--button-yellow-active); /* Even darker yellow on active */
         }
 
         .result-grid {
@@ -938,7 +941,7 @@
                     const deviceName = inputs[0].value;
                     const watt = validateNumeric(inputs[1].value);
                     const hours = validateNumeric(inputs[2].value);
-                    const day = validateNumeric(inputs(3).value);
+                    const day = validateNumeric(inputs[3].value);
                     const count = validateNumeric(inputs[4].value);
                     const isFixed = row.querySelector('.device-fixed').checked;
 
