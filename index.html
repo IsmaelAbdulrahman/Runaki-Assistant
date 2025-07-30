@@ -127,13 +127,13 @@
         }
 
         /* Specific button colors (softer palette) */
-        .btn-purple { background-color: #c4b5fd; } /* Lighter purple */
-        .btn-blue { background-color: #93c5fd; } /* Lighter blue */
-        .btn-orange { background-color: #fcd34d; } /* Lighter orange */
-        .btn-green { background-color: #86efac; } /* Lighter green */
-        .btn-red { background-color: #fca5a5; } /* Lighter red */
+        .btn-purple { background-color: #c4b5fd; color: #333f48; } /* Lighter purple, dark text */
+        .btn-blue { background-color: #93c5fd; color: #333f48; } /* Lighter blue, dark text */
+        .btn-orange { background-color: #fcd34d; color: #333f48; } /* Lighter orange, dark text */
+        .btn-green { background-color: #86efac; color: #333f48; } /* Lighter green, dark text */
+        .btn-red { background-color: #fca5a5; color: #333f48; } /* Lighter red, dark text */
         .btn-gray { background-color: #d1d5db; color: #333f48;} /* Lighter gray, dark text */
-        .btn-indigo { background-color: #a5b4fc; } /* Lighter indigo */
+        .btn-indigo { background-color: #a5b4fc; color: #333f48; } /* Lighter indigo, dark text */
 
 
         .result-grid {
@@ -326,7 +326,7 @@
                         <option value="Avg Amperes">Avg Amperes</option>
                         <option value="Given Bill">Given Bill</option>
                     </select>
-                    <input type="number" id="manualInput" value="1891" class="w-28"> <!-- Changed to type="number" -->
+                    <input type="number" id="manualInput" value="1891" class="w-28">
                 </div>
                 <div class="result-grid">
                     <div class="result-item">
@@ -355,9 +355,9 @@
                 <div class="input-group">
                     <button id="calculateMeterButton" class="btn btn-blue">Calculate Bill</button>
                     <label for="meterPrevReading">Prev Reading:</label>
-                    <input type="number" id="meterPrevReading" value="31051" class="w-24"> <!-- Changed to type="number" -->
+                    <input type="number" id="meterPrevReading" value="31051" class="w-24">
                     <label for="meterCurrReading">Curr Reading:</label>
-                    <input type="number" id="meterCurrReading" value="31910" class="w-24"> <!-- Changed to type="number" -->
+                    <input type="number" id="meterCurrReading" value="31910" class="w-24">
                     <label for="daysInput">Days:</label>
                     <input type="number" id="daysInput" value="30" min="1" max="365" class="w-16">
                 </div>
@@ -379,6 +379,7 @@
                         <div class="result-value" id="meterAvgRate">0.00 IQD/kWh</div>
                     </div>
                 </div>
+                <button id="meterReportButton" class="btn btn-blue mt-4 w-full">Generate Report</button> <!-- New button -->
             </div>
 
             <!-- 3. Budget Optimization -->
@@ -391,7 +392,7 @@
                         <option value="Target Amperes">Target Amperes</option>
                         <option value="Target kWh">Target kWh</option>
                     </select>
-                    <input type="number" id="budgetLimitInput" value="100000" class="w-32"> <!-- Changed to type="number" and value -->
+                    <input type="number" id="budgetLimitInput" value="100000" class="w-32">
                 </div>
                 <div class="result-grid">
                     <div class="result-item col-span-full">
@@ -402,7 +403,7 @@
             </div>
             
             <!-- New buttons for showing/hiding sections -->
-            <div class="flex flex-wrap justify-center gap-4 mt-4 p-2 border border-gray-200 rounded-lg bg-gray-50"> <!-- Added padding and border for organization -->
+            <div class="flex flex-wrap justify-center gap-4 mt-4 p-2 border border-gray-200 rounded-lg bg-gray-50">
                 <button id="toggleBudgetOptimizationButton" class="btn btn-indigo">Show Budget Optimization</button>
                 <button id="toggleCurvePlotButton" class="btn btn-indigo">Hide Tariff Curve Plot</button> 
                 <button id="toggleTableButton" class="btn btn-indigo">Show Device Table</button>
@@ -444,6 +445,7 @@
                     <label for="loadFileInput" class="btn btn-orange cursor-pointer">Load Data<input type="file" id="loadFileInput" accept=".json" class="hidden"></label>
                     <button id="clearAllButton" class="btn btn-gray">Clear All</button>
                 </div>
+                <button id="deviceReportButton" class="btn btn-green mt-4 w-full">Generate Report</button> <!-- New button -->
             </div>
 
             <!-- 6. Device Consumption Bar Plot -->
@@ -524,6 +526,7 @@
             const meterAmperesElem = document.getElementById('meterAmperes');
             const meterBillElem = document.getElementById('meterBill');
             const meterAvgRateElem = document.getElementById('meterAvgRate');
+            const meterReportButton = document.getElementById('meterReportButton'); // New reference
 
             const optimizeBudgetButton = document.getElementById('optimizeBudgetButton');
             const optimizationTargetDropdown = document.getElementById('optimizationTargetDropdown');
@@ -543,6 +546,7 @@
             const saveTableButton = document.getElementById('saveTableButton');
             const loadFileInput = document.getElementById('loadFileInput');
             const clearAllButton = document.getElementById('clearAllButton');
+            const deviceReportButton = document.getElementById('deviceReportButton'); // New reference
             
             // New UI element references for toggling visibility
             const toggleBudgetOptimizationButton = document.getElementById('toggleBudgetOptimizationButton'); 
@@ -1303,18 +1307,113 @@
                 sampleDevices.forEach(addTableRow);
             };
 
+            // --- REPORT GENERATION FUNCTIONS ---
+            const generateMeterReport = () => {
+                const prevReading = validateNumeric(meterPrevReading.value);
+                const currReading = validateNumeric(meterCurrReading.value);
+                const daysVal = validateNumeric(daysInput.value) || 30;
+                const category = categoryDropdown.value;
+
+                if (isNaN(prevReading) || isNaN(currReading) || prevReading < 0 || currReading < 0 || currReading < prevReading || isNaN(daysVal) || daysVal <= 0) {
+                    alert("Please ensure valid meter readings and days are entered before generating a report.");
+                    return;
+                }
+
+                const consumption = currReading - prevReading;
+                const totalBill = calculateCostForCategory(consumption, category);
+                const avgAmperes = kwhToAmperes(consumption, daysVal);
+                const avgRate = consumption > 0 ? totalBill / consumption : 0;
+
+                let reportContent = `Detailed Report (Meter Input)\n---------------------------------\n`;
+                reportContent += `Previous Reading: ${formatNumber(prevReading, 0, true)} kWh\n`;
+                reportContent += `Current Reading: ${formatNumber(currReading, 0, true)} kWh\n`;
+                reportContent += `Days: ${formatNumber(daysVal, 0, false, true)}\n`;
+                reportContent += `Consumption: ${formatNumber(consumption, 2)} kWh\n`;
+                reportContent += `Average Amperes: ${formatNumber(avgAmperes, 2)} A\n`;
+                reportContent += `Total Bill: ${formatNumber(totalBill, 0, true)} IQD\n`;
+                reportContent += `Average Rate: ${formatNumber(avgRate, 2)} IQD/kWh\n`;
+                reportContent += `Category: ${category}\n\n`;
+
+                if (category === 'Household') {
+                    const { breakdown } = getRonakiHouseholdTariffDetails(consumption);
+                    reportContent += `Tariff Breakdown:\n${breakdown}`;
+                } else {
+                    const { breakdown } = getRonakiFlatTariffDetails(consumption, totalBill / consumption);
+                    reportContent += `Tariff Breakdown:\n${breakdown}`;
+                }
+                alert(reportContent);
+            };
+
+            const generateDeviceReport = () => {
+                let totalKwh = 0;
+                const deviceDetailsForReport = [];
+                const category = categoryDropdown.value;
+                const daysVal = validateNumeric(daysInput.value) || 30;
+
+                Array.from(deviceTableBody.children).forEach(row => {
+                    const isOn = row.querySelector('.device-on').checked;
+                    const inputs = row.querySelectorAll('input[type="text"], input[type="number"]');
+                    const deviceName = inputs[0].value;
+                    const watt = validateNumeric(inputs[1].value);
+                    const hours = validateNumeric(inputs[2].value);
+                    const day = validateNumeric(inputs[3].value);
+                    const count = validateNumeric(inputs[4].value);
+                    const isFixed = row.querySelector('.device-fixed').checked;
+                    const kwh = (watt / 1000) * hours * day * count;
+                    const iqd = kwh * (totalKwh > 0 ? calculateCostForCategory(totalKwh, category) / totalKwh : 0); // Calculate IQD based on overall average rate
+
+                    totalKwh += kwh; // Sum up for overall calculation
+
+                    deviceDetailsForReport.push({
+                        name: deviceName,
+                        watt: formatNumber(watt, 0, false, true),
+                        hours: formatNumber(hours, 1, false, true),
+                        day: formatNumber(day, 0, false, true),
+                        count: formatNumber(count, 0, false, true),
+                        kwh: formatNumber(kwh, 2),
+                        iqd: formatNumber(iqd, 0, true),
+                        on: isOn ? 'Yes' : 'No',
+                        fixed: isFixed ? 'Yes' : 'No'
+                    });
+                });
+
+                if (totalKwh <= 0 && deviceDetailsForReport.length === 0) {
+                    alert("Please add and calculate device consumption before generating a report.");
+                    return;
+                }
+                
+                // Recalculate total bill and average rate based on the final totalKwh
+                const finalTotalBill = calculateCostForCategory(totalKwh, category);
+                const finalAvgRate = totalKwh > 0 ? finalTotalBill / totalKwh : 0;
+                const finalAvgAmperes = kwhToAmperes(totalKwh, daysVal);
+
+                let reportContent = `Detailed Report (Device Consumption)\n---------------------------------\n`;
+                reportContent += `Total Consumption: ${formatNumber(totalKwh, 2)} kWh\n`;
+                reportContent += `Total Bill: ${formatNumber(finalTotalBill, 0, true)} IQD\n`;
+                reportContent += `Average Amperes: ${formatNumber(finalAvgAmperes, 2)} A\n`;
+                reportContent += `Average Rate: ${formatNumber(finalAvgRate, 2)} IQD/kWh\n`;
+                reportContent += `Category: ${category}\n\n`;
+                reportContent += `Device Breakdown:\n`;
+
+                deviceDetailsForReport.forEach(device => {
+                    reportContent += `- ${device.name}: ${device.watt}W, ${device.hours}h/day, ${device.day} days, ${device.count} units -> ${device.kwh} kWh (${device.iqd} IQD) [On: ${device.on}, Fixed: ${device.fixed}]\n`;
+                });
+
+                alert(reportContent);
+            };
+
             // --- EVENT LISTENERS ---
             manualInputTypeDropdown.addEventListener('change', (e) => {
                 const type = e.target.value;
                 if (type === 'kWh') manualInput.value = '1891';
                 else if (type === 'Avg Amperes') manualInput.value = '12';
-                else if (type === 'Given Bill') manualInput.value = '100000'; // Updated for type="number"
+                else if (type === 'Given Bill') manualInput.value = '100000';
                 performManualCalculation();
             });
 
             calculateManualButton.addEventListener('click', performManualCalculation);
             manualInput.addEventListener('change', performManualCalculation); 
-            manualInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') performManualCalculation(); }); // Added Enter key listener
+            manualInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') performManualCalculation(); });
             categoryDropdown.addEventListener('change', () => {
                 performManualCalculation();
                 calculateDeviceConsumption(); 
@@ -1322,9 +1421,9 @@
 
             calculateMeterButton.addEventListener('click', performMeterCalculation);
             meterPrevReading.addEventListener('change', performMeterCalculation);
-            meterPrevReading.addEventListener('keydown', (e) => { if (e.key === 'Enter') performMeterCalculation(); }); // Added Enter key listener
+            meterPrevReading.addEventListener('keydown', (e) => { if (e.key === 'Enter') performMeterCalculation(); });
             meterCurrReading.addEventListener('change', performMeterCalculation);
-            meterCurrReading.addEventListener('keydown', (e) => { if (e.key === 'Enter') performMeterCalculation(); }); // Added Enter key listener
+            meterCurrReading.addEventListener('keydown', (e) => { if (e.key === 'Enter') performMeterCalculation(); });
             daysInput.addEventListener('change', () => {
                 performManualCalculation(); 
                 performMeterCalculation(); 
@@ -1334,7 +1433,7 @@
                 performManualCalculation();
                 performMeterCalculation();
                 calculateDeviceConsumption();
-            }}); // Added Enter key listener
+            }});
 
             tariffSlider.addEventListener('input', (e) => {
                 const kwhFromSlider = parseFloat(e.target.value);
@@ -1354,9 +1453,12 @@
                 const bill = validateNumeric(manualBillElem.textContent);
                 const category = categoryDropdown.value;
                 if (kwh <= 0) { alert("Please perform a calculation first."); return; }
-                const { breakdown } = getRonakiHouseholdTariffDetails(kwh, category); 
+                const { breakdown } = getRonakiHouseholdTariffDetails(kwh); 
                 alert(`Detailed Report (Manual Input)\n---------------------------------\nConsumption: ${manualKwhElem.textContent}\nAverage Amperes: ${manualAmperesElem.textContent}\nTotal Bill: ${manualBillElem.textContent}\nAverage Rate: ${manualAvgRateElem.textContent}\nCategory: ${category}\n\nTariff Breakdown:\n${breakdown}`);
             });
+
+            meterReportButton.addEventListener('click', generateMeterReport); // Event listener for new button
+            deviceReportButton.addEventListener('click', generateDeviceReport); // Event listener for new button
 
             addRowButton.addEventListener('click', () => {
                 addTableRow();
@@ -1428,13 +1530,13 @@
             // Budget Optimization
             optimizationTargetDropdown.addEventListener('change', () => {
                 const target = optimizationTargetDropdown.value;
-                if (target === 'Target Cost') budgetLimitInput.value = '100000'; // Updated for type="number"
+                if (target === 'Target Cost') budgetLimitInput.value = '100000';
                 else if (target === 'Target Amperes') budgetLimitInput.value = '12';
                 else if (target === 'Target kWh') budgetLimitInput.value = '1891';
                 budgetResultLabel.textContent = 'Result: Not Optimized';
             });
             optimizeBudgetButton.addEventListener('click', optimizeForBudget);
-            budgetLimitInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') optimizeForBudget(); }); // Added Enter key listener
+            budgetLimitInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') optimizeForBudget(); });
 
 
             // Toggle Budget Optimization Section
