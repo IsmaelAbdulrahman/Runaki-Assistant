@@ -59,7 +59,7 @@
         }
 
         h1 {
-            color: var(--primary-blue-darker); /* Night mode heading color */
+            color: white; /* Changed to white as requested */
             font-weight: 800;
             margin-bottom: 2.5rem; /* Increased margin */
             text-align: center;
@@ -405,6 +405,30 @@
         footer {
             color: var(--text-medium-light); /* Night mode footer text */
         }
+
+        /* Message Box Styling */
+        #appMessage {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1100;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            color: white; /* Default text color for messages */
+        }
+
+        #appMessage.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #appMessage.info { background-color: #3b82f6; } /* Blue for info */
+        #appMessage.success { background-color: #22c55e; } /* Green for success */
+        #appMessage.error { background-color: #ef4444; } /* Red for error */
     </style>
 </head>
 <body>
@@ -524,8 +548,8 @@
                 <div class="flex flex-wrap justify-center gap-4 mt-6">
                     <button id="addRowButton" class="btn">Add Row</button>
                     <button id="deleteRowButton" class="btn">Delete Selected</button>
-                    <button id="saveTableButton" class="btn">Save Data</button>
-                    <label for="loadFileInput" class="btn cursor-pointer">Load Data<input type="file" id="loadFileInput" accept=".json" class="hidden"></label>
+                    <button id="saveTableButton" class="btn">Save Data (CSV)</button>
+                    <label for="loadFileInput" class="btn cursor-pointer">Load Data (CSV)<input type="file" id="loadFileInput" accept=".csv" class="hidden"></label>
                     <button id="clearAllButton" class="btn">Clear All</button>
                 </div>
                 <button id="deviceReportButton" class="btn w-full mt-6">Generate Report</button>
@@ -566,6 +590,9 @@
             <pre id="tariffDetailsModalContent"></pre>
         </div>
     </div>
+
+    <!-- Custom Message Box -->
+    <div id="appMessage" class=""></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -623,6 +650,9 @@
             const tariffDetailsModalTitle = document.getElementById('tariffDetailsModalTitle');
             const tariffDetailsModalContent = document.getElementById('tariffDetailsModalContent');
 
+            // Message box element
+            const appMessage = document.getElementById('appMessage');
+
             let selectedTableRow = null; 
 
             // --- UTILITY FUNCTIONS ---
@@ -660,6 +690,16 @@
                 if (!days || days <= 0) return 0.0;
                 const hoursTotal = HOURS_PER_DAY * days;
                 return (amperes * VOLTAGE * hoursTotal) / 1000;
+            };
+
+            // --- MESSAGE DISPLAY FUNCTION ---
+            const showMessage = (message, type = 'info') => {
+                appMessage.textContent = message;
+                appMessage.className = ``; // Clear existing classes
+                appMessage.classList.add(type, 'show');
+                setTimeout(() => {
+                    appMessage.classList.remove('show');
+                }, 3000); // Message disappears after 3 seconds
             };
 
             // --- TARIFF CALCULATION LOGIC (KURDISTAN RUNAKI SYSTEM) ---
@@ -743,7 +783,7 @@
             const performManualCalculation = () => {
                 let inputValue = validateNumeric(manualInput.value);
                 if (isNaN(inputValue) || inputValue < 0) {
-                    alert("Please enter a valid numeric value for consumption.");
+                    showMessage("Please enter a valid numeric value for consumption.", 'error');
                     updateResultDisplay(0, 0, 0, 0, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem);
                     return;
                 }
@@ -799,17 +839,17 @@
                 const category = categoryDropdown.value;
 
                 if (isNaN(prevReading) || isNaN(currReading) || prevReading < 0 || currReading < 0) {
-                    alert("Please enter valid numeric values for meter readings.");
+                    showMessage("Please enter valid numeric values for meter readings.", 'error');
                     updateResultDisplay(0, 0, 0, 0, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem);
                     return;
                 }
                 if (currReading < prevReading) {
-                    alert("Current reading cannot be less than previous reading.");
+                    showMessage("Current reading cannot be less than previous reading.", 'error');
                     updateResultDisplay(0, 0, 0, 0, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem);
                     return;
                 }
                 if (isNaN(daysVal) || daysVal <= 0) {
-                    alert("Please enter a positive integer for days.");
+                    showMessage("Please enter a positive integer for days.", 'error');
                     updateResultDisplay(0, 0, 0, 0, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem);
                     return;
                 }
@@ -865,7 +905,7 @@
             const optimizeForBudget = () => {
                 let targetValue = validateNumeric(budgetLimitInput.value);
                 if (isNaN(targetValue) || targetValue < 0) {
-                    alert("Please enter a valid, non-negative numeric value for the target.");
+                    showMessage("Please enter a valid, non-negative numeric value for the target.", 'error');
                     budgetResultLabel.textContent = 'Invalid Target';
                     return;
                 }
@@ -924,7 +964,7 @@
                     (optimizationTargetDropdown.value === 'Target Amperes' && currentAmperes <= targetValue) ||
                     (optimizationTargetDropdown.value === 'Target kWh' && currentTotalKwh <= targetValue)) {
                     budgetResultLabel.textContent = 'Result: Within Target!';
-                    alert('Your current status is already within the specified target!');
+                    showMessage('Your current status is already within the specified target!', 'info');
                     return;
                 }
 
@@ -975,10 +1015,10 @@
                 if (changesMade) {
                     budgetResultLabel.textContent = 'Result: Optimized!';
                     calculateDeviceConsumption(); 
-                    alert(`Optimization completed successfully!\n${summaryMessage}`);
+                    showMessage(`Optimization completed successfully!`, 'success');
                 } else {
                     budgetResultLabel.textContent = 'Result: Unreachable';
-                    alert('Could not reach the target by only reducing hours of variable devices.\nConsider reducing usage days, number of devices, or increasing your target.');
+                    showMessage('Could not reach the target by only reducing hours of variable devices.', 'error');
                 }
             };
 
@@ -1038,8 +1078,9 @@
                 const kwh = validateNumeric(manualKwhElem.textContent);
                 const bill = validateNumeric(manualBillElem.textContent);
                 const category = categoryDropdown.value;
-                if (kwh <= 0) { alert("Please perform a calculation first."); return; }
+                if (kwh <= 0) { showMessage("Please perform a calculation first.", 'info'); return; }
                 const { breakdown } = getRonakiHouseholdTariffDetails(kwh); 
+                // Using alert for report as it's a detailed summary, not a transient message
                 alert(`Detailed Report (Manual Input)\n---------------------------------\nConsumption: ${manualKwhElem.textContent}\nAverage Amperes: ${manualAmperesElem.textContent}\nTotal Bill: ${manualBillElem.textContent}\nAverage Rate: ${manualAvgRateElem.textContent}\nCategory: ${category}\n\nTariff Breakdown:\n${breakdown}`);
             };
 
@@ -1050,7 +1091,7 @@
                 const category = categoryDropdown.value;
 
                 if (isNaN(prevReading) || isNaN(currReading) || prevReading < 0 || currReading < 0 || currReading < prevReading || isNaN(daysVal) || daysVal <= 0) {
-                    alert("Please ensure valid meter readings and days are entered before generating a report.");
+                    showMessage("Please ensure valid meter readings and days are entered before generating a report.", 'error');
                     return;
                 }
 
@@ -1114,7 +1155,7 @@
                 });
 
                 if (totalKwh <= 0 && deviceDetailsForReport.length === 0) {
-                    alert("Please add and calculate device consumption before generating a report.");
+                    showMessage("Please add and calculate device consumption before generating a report.", 'info');
                     return;
                 }
                 
@@ -1138,6 +1179,105 @@
                 });
 
                 alert(reportContent);
+            };
+
+            // --- CSV HANDLING FUNCTIONS ---
+            const exportTableToCsv = () => {
+                const table = document.getElementById('deviceTable');
+                let csv = [];
+
+                // Get headers
+                let headers = [];
+                table.querySelectorAll('th').forEach(th => {
+                    headers.push(th.innerText);
+                });
+                csv.push(headers.join(','));
+
+                // Get rows
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    let rowData = [];
+                    row.querySelectorAll('td').forEach((td, index) => {
+                        let cellValue;
+                        if (index < 5) { // Input fields
+                            cellValue = td.querySelector('input').value;
+                        } else if (index >= 7) { // Checkboxes
+                            cellValue = td.querySelector('input').checked ? 'TRUE' : 'FALSE';
+                        } else { // Output cells
+                            cellValue = td.innerText.replace(/,/g, ''); // Remove commas for numeric values
+                        }
+                        // Escape commas and double quotes for CSV
+                        if (cellValue.includes(',') || cellValue.includes('"')) {
+                            cellValue = `"${cellValue.replace(/"/g, '""')}"`;
+                        }
+                        rowData.push(cellValue);
+                    });
+                    csv.push(rowData.join(','));
+                });
+
+                const csvString = csv.join('\n');
+                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'devices_runaki.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showMessage("Device data saved to CSV successfully!", 'success');
+            };
+
+            const importTableFromCsv = (csvString) => {
+                const lines = csvString.split('\n').filter(line => line.trim() !== '');
+                if (lines.length < 1) {
+                    showMessage("CSV file is empty or corrupted.", 'error');
+                    return;
+                }
+
+                // Assuming the first line is headers, we skip it for data parsing
+                const dataRows = lines.slice(1); 
+                
+                deviceTableBody.innerHTML = ''; // Clear existing rows
+
+                dataRows.forEach(line => {
+                    // Simple CSV parsing: split by comma, but handle quoted fields
+                    const rowValues = [];
+                    let inQuote = false;
+                    let currentField = '';
+                    for (let i = 0; i < line.length; i++) {
+                        const char = line[i];
+                        if (char === '"' && (i === 0 || line[i-1] === ',' || inQuote)) {
+                            if (inQuote && line[i+1] === '"') { // Handle escaped double quote ""
+                                currentField += '"';
+                                i++;
+                            } else {
+                                inQuote = !inQuote;
+                            }
+                        } else if (char === ',' && !inQuote) {
+                            rowValues.push(currentField);
+                            currentField = '';
+                        } else {
+                            currentField += char;
+                        }
+                    }
+                    rowValues.push(currentField); // Add the last field
+
+                    // Ensure we have enough columns (at least 9 for device data)
+                    if (rowValues.length < 9) {
+                        console.warn("Skipping malformed CSV row:", line);
+                        return;
+                    }
+
+                    addTableRow({
+                        name: rowValues[0],
+                        watt: rowValues[1],
+                        hours: rowValues[2],
+                        day: rowValues[3],
+                        count: rowValues[4],
+                        on: rowValues[7].toUpperCase() === 'TRUE',
+                        fixed: rowValues[8].toUpperCase() === 'TRUE',
+                    });
+                });
+                calculateDeviceConsumption();
+                showMessage("Device data loaded from CSV successfully!", 'success');
             };
 
 
@@ -1194,38 +1334,16 @@
                     selectedTableRow = null; 
                     calculateDeviceConsumption();
                 } else {
-                    alert('Please select a row to delete.');
+                    showMessage('Please select a row to delete.', 'info');
                 }
             });
             clearAllButton.addEventListener('click', () => {
                 deviceTableBody.innerHTML = '';
                 startupPopulateDeviceTable();
                 calculateDeviceConsumption();
-                alert("All device data has been cleared and reset to default.");
+                showMessage("All device data has been cleared and reset to default.", 'info');
             });
-            saveTableButton.addEventListener('click', () => {
-                const data = [];
-                Array.from(deviceTableBody.children).forEach(row => {
-                    const inputs = row.querySelectorAll('input[type="text"], input[type="number"]');
-                    data.push({
-                        name: inputs[0].value,
-                        watt: inputs[1].value,
-                        hours: inputs[2].value,
-                        day: inputs[3].value,
-                        count: inputs[4].value,
-                        on: row.querySelector('.device-on').checked,
-                        fixed: row.querySelector('.device-fixed').checked,
-                    });
-                });
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-                const downloadAnchorNode = document.createElement('a');
-                downloadAnchorNode.setAttribute("href", dataStr);
-                downloadAnchorNode.setAttribute("download", "devices_runaki.json");
-                document.body.appendChild(downloadAnchorNode);
-                downloadAnchorNode.click();
-                downloadAnchorNode.remove();
-                alert("Device data saved successfully!");
-            });
+            saveTableButton.addEventListener('click', exportTableToCsv);
 
             loadFileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
@@ -1234,17 +1352,9 @@
                 const reader = new FileReader();
                 reader.onload = (readerEvent) => {
                     try {
-                        const loadedData = JSON.parse(readerEvent.target.result);
-                        if (Array.isArray(loadedData) && loadedData.every(item => typeof item === 'object' && 'name' in item && 'watt' in item)) {
-                            deviceTableBody.innerHTML = ''; 
-                            loadedData.forEach(addTableRow);
-                            calculateDeviceConsumption();
-                            alert("Device data loaded successfully!");
-                        } else {
-                            throw new Error("Invalid data format in file.");
-                        }
+                        importTableFromCsv(readerEvent.target.result);
                     } catch (error) {
-                        alert(`Error loading data: ${error.message}. Please ensure it's a valid JSON file.`);
+                        showMessage(`Error loading data: ${error.message}. Please ensure it's a valid CSV file.`, 'error');
                         console.error("Error loading data:", error);
                     }
                 };
