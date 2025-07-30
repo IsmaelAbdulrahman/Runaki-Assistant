@@ -1685,7 +1685,7 @@
                             title: {
                                 display: true,
                                 text: 'Household Tariff Rates (IQD/kWh)',
-                                color: 'var(--text-light)',
+                                color: 'white', // Changed to white
                                 font: { size: 16 }
                             },
                             tooltip: {
@@ -1698,7 +1698,7 @@
                             datalabels: { // Add datalabels plugin configuration
                                 anchor: 'end',
                                 align: 'top',
-                                color: 'var(--text-light)',
+                                color: 'white', // Changed to white
                                 font: {
                                     weight: 'bold'
                                 },
@@ -1710,14 +1710,18 @@
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                title: { display: true, text: 'Rate (IQD/kWh)', color: 'var(--text-medium-light)' },
-                                ticks: { color: 'var(--text-light)' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                                title: { display: true, text: 'Rate (IQD/kWh)', color: 'white' }, // Changed to white
+                                ticks: { color: 'white' }, // Changed to white
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
                             },
                             x: {
-                                title: { display: true, text: 'Consumption Tiers', color: 'var(--text-medium-light)' },
-                                ticks: { color: 'var(--text-light)', autoSkip: false, maxRotation: 45, minRotation: 45 },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                                title: { display: true, text: 'Consumption Tiers', color: 'white' }, // Changed to white
+                                ticks: { color: 'white', autoSkip: false, maxRotation: 45, minRotation: 45 }, // Changed to white
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
                             }
                         }
                     },
@@ -1758,7 +1762,7 @@
                             title: {
                                 display: true,
                                 text: 'Other Categories Tariff Rates (IQD/kWh)',
-                                color: 'var(--text-light)',
+                                color: 'white', // Changed to white
                                 font: { size: 16 }
                             },
                             tooltip: {
@@ -1771,7 +1775,7 @@
                             datalabels: { // Add datalabels plugin configuration
                                 anchor: 'end',
                                 align: 'top',
-                                color: 'var(--text-light)',
+                                color: 'white', // Changed to white
                                 font: {
                                     weight: 'bold'
                                 },
@@ -1783,14 +1787,18 @@
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                title: { display: true, text: 'Rate (IQD/kWh)', color: 'var(--text-medium-light)' },
-                                ticks: { color: 'var(--text-light)' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                                title: { display: true, text: 'Rate (IQD/kWh)', color: 'white' }, // Changed to white
+                                ticks: { color: 'white' }, // Changed to white
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
                             },
                             x: {
-                                title: { display: true, text: 'Category', color: 'var(--text-medium-light)' },
-                                ticks: { color: 'var(--text-light)', autoSkip: false, maxRotation: 45, minRotation: 45 },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                                title: { display: true, text: 'Category', color: 'white' }, // Changed to white
+                                ticks: { color: 'white', autoSkip: false, maxRotation: 45, minRotation: 45 }, // Changed to white
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
                             }
                         }
                     },
