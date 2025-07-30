@@ -189,18 +189,22 @@
             font-weight: 800;
             color: var(--error-red-dark); /* Consistent strong red for emphasis in night mode */
             font-size: 1.25rem; /* Larger font for values */
-            transition: background-color 0.2s ease-in-out; /* Smooth transition for flash */
+            transition: color 0.2s ease-in-out; /* Smooth transition for color flash */
         }
 
         /* Flashing animation for result values */
         @keyframes flashEffect {
-            0% { background-color: transparent; }
-            50% { background-color: var(--highlight-yellow-dark); } /* Flash brighter yellow in night mode */
-            100% { background-color: transparent; }
+            0% { color: var(--error-red-dark); } /* Start with normal color */
+            16.6% { color: var(--highlight-yellow-dark); } /* Flash yellow */
+            33.3% { color: var(--error-red-dark); } /* Back to normal */
+            50% { color: var(--highlight-yellow-dark); } /* Flash yellow again */
+            66.6% { color: var(--error-red-dark); } /* Back to normal */
+            83.3% { color: var(--highlight-yellow-dark); } /* Flash yellow one last time */
+            100% { color: var(--error-red-dark); } /* End with normal color */
         }
 
         .flash-animation {
-            animation: flashEffect 0.6s ease-out; /* Apply animation */
+            animation: flashEffect 1.8s ease-out; /* 3 flashes over 1.8 seconds */
         }
 
         /* Chart container styling (Not used in this version, but kept for reference) */
