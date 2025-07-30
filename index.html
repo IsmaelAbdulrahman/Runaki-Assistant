@@ -6,7 +6,7 @@
     <title>Runaki Assistant App</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN for plotting -->
+    <!-- Chart.js CDN for plotting (kept for potential future use, but not actively used in this version) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
     <style>
         /* Define a custom color palette using CSS variables for consistency */
@@ -28,15 +28,28 @@
             --button-hover-gray: #d1d1d1;
             --button-active-gray: #c0c0c0;
             --button-dark-text: #333f48;
+
+            /* Night mode specific colors */
+            --background-dark: #1a202c; /* Deep dark background */
+            --card-dark: #2d3748; /* Slightly lighter dark for cards */
+            --text-light: #e2e8f0; /* Light gray for main text */
+            --text-medium-light: #a0aec0; /* Medium light gray for labels */
+            --input-dark-bg: #4a5568; /* Darker input background */
+            --input-dark-border: #6b7280; /* Darker input border */
+            --result-item-dark-bg: #3c4a5c; /* Darker result item background */
+            --result-item-dark-border: #5a6a7c; /* Darker result item border */
+            --primary-blue-darker: #2563eb; /* A slightly darker blue for accents on dark background */
+            --highlight-yellow-dark: #fbbf24; /* Brighter yellow for dark background */
+            --error-red-dark: #ef4444; /* Keep error red, ensure visibility */
         }
 
         /* Custom styles for better aesthetics and responsiveness */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--background-light);
+            background-color: var(--background-dark); /* Night mode background */
             margin: 0;
             padding: 2rem; /* Increased padding */
-            color: var(--neutral-gray-dark);
+            color: var(--text-light); /* Night mode text color */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -46,7 +59,7 @@
         }
 
         h1 {
-            color: var(--primary-blue);
+            color: var(--primary-blue-darker); /* Night mode heading color */
             font-weight: 800;
             margin-bottom: 2.5rem; /* Increased margin */
             text-align: center;
@@ -55,7 +68,7 @@
         }
 
         h2 {
-            color: var(--neutral-gray-dark);
+            color: var(--text-light); /* Night mode heading color */
             font-weight: 700;
             margin-bottom: 1.25rem; /* Increased margin */
             text-align: left;
@@ -68,10 +81,10 @@
             gap: 2.5rem; /* Increased gap */
             width: 100%;
             max-width: 90rem; /* Wider max width for full functionality */
-            background-color: var(--card-background);
+            background-color: var(--card-dark); /* Night mode card background */
             padding: 2.5rem; /* Increased padding */
             border-radius: 1.25rem; /* More rounded corners */
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12); /* Stronger, diffused shadow */
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25); /* Stronger, diffused shadow for dark mode */
         }
 
         @media (min-width: 1024px) {
@@ -81,8 +94,8 @@
         }
 
         .section-card {
-            background-color: var(--card-background);
-            border: 1px solid var(--neutral-gray-light);
+            background-color: var(--card-dark); /* Night mode card background */
+            border: 1px solid var(--input-dark-border); /* Night mode border */
             border-radius: 1rem; /* More rounded corners */
             padding: 2rem; /* Increased padding */
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* Softer shadow */
@@ -98,7 +111,7 @@
 
         label {
             font-weight: 600;
-            color: var(--neutral-gray-medium);
+            color: var(--text-medium-light); /* Night mode label color */
             flex-shrink: 0; /* Prevent label from shrinking */
         }
 
@@ -106,12 +119,12 @@
         input[type="number"],
         select {
             padding: 0.75rem 1rem; /* More padding */
-            border: 1px solid var(--neutral-gray-light);
+            border: 1px solid var(--input-dark-border); /* Night mode border */
             border-radius: 0.6rem; /* More rounded corners */
             font-size: 1rem; /* Slightly larger font */
             text-align: center;
-            background-color: #fcfdff; /* Very light input background */
-            color: var(--neutral-gray-dark);
+            background-color: var(--input-dark-bg); /* Night mode input background */
+            color: var(--text-light); /* Night mode input text color */
             flex-grow: 1;
             min-width: 8rem; /* Slightly larger min-width */
             transition: all 0.2s ease-in-out;
@@ -121,8 +134,8 @@
         input[type="text"]:focus,
         input[type="number"]:focus,
         select:focus {
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25); /* Soft blue glow on focus */
+            border-color: var(--primary-blue-darker); /* Night mode focus border */
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4); /* Soft blue glow on focus for night mode */
             outline: none;
         }
 
@@ -164,8 +177,8 @@
         }
 
         .result-item {
-            background-color: #e0f2fe; /* Lighter blue for result items */
-            border: 1px solid #bfdbfe;
+            background-color: var(--result-item-dark-bg); /* Night mode result item background */
+            border: 1px solid var(--result-item-dark-border); /* Night mode result item border */
             border-radius: 0.75rem;
             padding: 1.2rem; /* More padding */
             text-align: center;
@@ -173,14 +186,14 @@
         }
 
         .result-label {
-            color: #4b5563; /* Slightly darker gray for result labels */
+            color: var(--text-medium-light); /* Night mode result label color */
             margin-bottom: 0.4rem;
             font-weight: 500;
         }
 
         .result-value {
             font-weight: 800;
-            color: var(--error-red); /* Consistent strong red for emphasis */
+            color: var(--error-red-dark); /* Consistent strong red for emphasis in night mode */
             font-size: 1.25rem; /* Larger font for values */
             transition: background-color 0.2s ease-in-out; /* Smooth transition for flash */
         }
@@ -188,7 +201,7 @@
         /* Flashing animation for result values */
         @keyframes flashEffect {
             0% { background-color: transparent; }
-            50% { background-color: var(--highlight-yellow); } /* Flash yellow */
+            50% { background-color: var(--highlight-yellow-dark); } /* Flash brighter yellow in night mode */
             100% { background-color: transparent; }
         }
 
@@ -201,7 +214,7 @@
             width: 100%;
             height: 500px; /* Increased height for charts */
             margin-top: 2rem; /* Increased margin */
-            background-color: var(--card-background);
+            background-color: var(--card-dark); /* Night mode chart background */
             border-radius: 1rem;
             padding: 1.5rem; /* Increased padding */
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
@@ -262,10 +275,10 @@
         .device-table-container {
             overflow-x: auto;
             max-height: 500px; /* Slightly taller table */
-            border: 1px solid var(--neutral-gray-light);
+            border: 1px solid var(--input-dark-border); /* Night mode border */
             border-radius: 1rem;
             margin-bottom: 2rem; /* Increased margin */
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2); /* Stronger shadow for dark mode */
         }
 
         .device-table {
@@ -277,38 +290,38 @@
         .device-table th, .device-table td {
             padding: 1rem 0.8rem; /* More padding */
             text-align: center;
-            border-bottom: 1px solid #e0e7ee; /* Lighter border */
+            border-bottom: 1px solid var(--input-dark-border); /* Night mode border */
             font-size: 0.95rem; /* Slightly larger font */
         }
 
         .device-table th {
-            background-color: #f8fafd; /* Lighter header background */
+            background-color: var(--input-dark-bg); /* Night mode header background */
             font-weight: 700;
             position: sticky;
             top: 0;
             z-index: 10;
-            color: var(--neutral-gray-dark);
+            color: var(--text-light); /* Night mode header text */
         }
 
         .device-table tbody tr:hover {
-            background-color: #f0f7ff; /* Subtle hover effect */
+            background-color: #3a475c; /* Darker hover effect for table rows */
         }
 
         .device-table tbody tr.selected-row {
-            background-color: #dbeafe; /* Highlight selected row */
-            box-shadow: inset 0 0 0 3px var(--primary-blue); /* Blue border on selected row */
+            background-color: #3b82f640; /* Light blue highlight on dark background */
+            box-shadow: inset 0 0 0 3px var(--primary-blue-darker); /* Blue border on selected row */
         }
 
         .device-table input[type="text"],
         .device-table input[type="number"] {
             width: 100%;
             padding: 0.5rem;
-            border: 1px solid #cdd2d7;
+            border: 1px solid var(--input-dark-border); /* Night mode border */
             border-radius: 0.4rem;
             text-align: center;
             font-size: 0.9rem;
-            background-color: #fcfdff;
-            color: var(--neutral-gray-dark);
+            background-color: var(--input-dark-bg); /* Night mode input background */
+            color: var(--text-light); /* Night mode input text */
         }
 
         .device-table input[type="checkbox"] {
@@ -316,13 +329,13 @@
             height: 1.2rem;
             cursor: pointer;
             border-radius: 0.3rem;
-            accent-color: var(--primary-blue);
+            accent-color: var(--primary-blue-darker); /* Night mode checkbox accent */
         }
 
         .device-table .output-cell {
-            background-color: #e0f2fe; /* Light blue for output values */
+            background-color: #2a3a4c; /* Darker blue for output values */
             font-weight: 600;
-            color: var(--primary-blue); /* A subtle blue for output values */
+            color: var(--primary-blue-darker); /* A subtle blue for output values */
         }
 
         /* Responsive adjustments for table inputs */
@@ -332,6 +345,68 @@
                 width: 100%;
             }
         }
+
+        /* Custom Modal for Tariff Details */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--card-dark); /* Night mode modal background */
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            color: var(--text-light); /* Night mode modal text */
+            position: relative;
+        }
+
+        .modal-close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light); /* Night mode close button color */
+            cursor: pointer;
+        }
+        .modal-close-button:hover {
+            color: var(--primary-blue-darker); /* Night mode close button hover */
+        }
+
+        .modal-content h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-blue-darker); /* Night mode modal heading color */
+            margin-bottom: 1rem;
+        }
+
+        .modal-content pre {
+            background-color: #1a202c; /* Deeper dark for code/preformatted text */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: #a0aec0; /* Lighter text for code */
+        }
+
+        /* Footer */
+        footer {
+            color: var(--text-medium-light); /* Night mode footer text */
+        }
     </style>
 </head>
 <body>
@@ -340,7 +415,7 @@
 
     <div class="main-container">
         <!-- Left Column - Calculations -->
-        <div class="flex flex-col w-full lg:w-1/2 space-y-8"> <!-- Increased space-y -->
+        <div class="flex flex-col w-full lg:w-1/2 space-y-8">
 
             <!-- 1. Manual Calculation -->
             <div class="section-card">
@@ -441,9 +516,8 @@
             <!-- New buttons for showing/hiding sections -->
             <div class="flex flex-wrap justify-center gap-4 mt-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
                 <button id="toggleBudgetOptimizationButton" class="btn w-full">Show Budget Optimization</button>
-                <button id="toggleCurvePlotButton" class="btn w-full">Show Tariff Curve Plot</button>
                 <button id="toggleTableButton" class="btn w-full">Show Device Table</button>
-                <button id="toggleBarPlotsButton" class="btn w-full">Show Bar Plots</button>
+                <button id="showTariffDetailsButton" class="btn w-full">Show Tariff Details</button> <!-- New button -->
             </div>
 
         </div>
@@ -484,37 +558,6 @@
                 <button id="deviceReportButton" class="btn w-full mt-6">Generate Report</button>
             </div>
 
-            <!-- 6. Device Consumption Bar Plot -->
-            <div class="section-card" id="deviceBarPlotContainer" style="display: none;">
-                <h2 class="text-xl">6. Device Consumption Bar Plot</h2>
-                <div class="chart-container">
-                    <canvas id="devicePlot"></canvas>
-                </div>
-            </div>
-
-            <!-- 7. Tariff Rate Bar Plot -->
-            <div class="section-card" id="tariffBarPlotContainer" style="display: none;">
-                <h2 class="text-xl">7. Tariff Rate Bar Plot</h2>
-                <div class="chart-container">
-                    <canvas id="tariffBarPlot"></canvas>
-                </div>
-            </div>
-
-            <!-- 4. Dynamic Tariff Curves Plot (Hidden by default) -->
-            <div class="section-card flex flex-col items-center" id="tariffCurvePlotContainer" style="display: none;">
-                <h2 class="text-xl">4. Dynamic Tariff Curves</h2>
-                <div class="chart-container">
-                    <canvas id="tariffPlot"></canvas>
-                </div>
-                <input type="range" id="tariffSlider" min="0" max="2000" value="0" step="1" class="range-slider">
-                <div class="mt-4 text-center text-base p-3 bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm">
-                    <p class="font-semibold text-yellow-800" id="tariffPlotKwh">0.00 kWh</p>
-                    <p class="font-semibold text-yellow-800" id="tariffPlotBill">0 IQD</p>
-                    <p class="text-yellow-700" id="tariffPlotAmperes">0.00 A</p>
-                    <p class="text-yellow-700" id="tariffPlotAvgRate">0.00 IQD/kWh</p>
-                </div>
-            </div>
-
         </div>
     </div>
 
@@ -522,23 +565,17 @@
         <p>Created by Dr. Ismael Abdulrahman</p>
     </footer>
 
+    <!-- Custom Modal for Tariff Details -->
+    <div id="tariffDetailsModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-button" id="closeTariffDetailsModal">&times;</button>
+            <h3 id="tariffDetailsModalTitle">Tariff Details</h3>
+            <pre id="tariffDetailsModalContent"></pre>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- CHART INITIALIZATION ---
-            let devicePlot, tariffBarPlot, tariffPlot;
-            // Updated chartBaseColors for a more professional look
-            const chartBaseColors = [
-                '#3b82f6', // Primary Blue
-                '#f97316', // Accent Orange
-                '#22c55e', // Secondary Green
-                '#8b5cf6', // Accent Purple
-                '#ef4444', // Error Red
-                '#14b8a6', // Teal
-                '#6b7280'  // Medium Gray
-            ];
-            const highlightColor = '#facc15'; // Yellow for highlight
-            const highlightBorder = '#000000'; // Black border for highlight
-
             // --- GLOBAL CONSTANTS ---
             const VOLTAGE = 220;
             const HOURS_PER_DAY = 24;
@@ -571,13 +608,6 @@
             const budgetLimitInput = document.getElementById('budgetLimitInput');
             const budgetResultLabel = document.getElementById('budgetResultLabel');
 
-            const tariffPlotCanvas = document.getElementById('tariffPlot');
-            const tariffSlider = document.getElementById('tariffSlider');
-            const tariffPlotKwhElem = document.getElementById('tariffPlotKwh');
-            const tariffPlotBillElem = document.getElementById('tariffPlotBill');
-            const tariffPlotAmperesElem = document.getElementById('tariffPlotAmperes');
-            const tariffPlotAvgRateElem = document.getElementById('tariffPlotAvgRate');
-
             const deviceTableBody = document.querySelector("#deviceTable tbody");
             const addRowButton = document.getElementById('addRowButton');
             const deleteRowButton = document.getElementById('deleteRowButton');
@@ -588,15 +618,17 @@
             
             // New UI element references for toggling visibility
             const toggleBudgetOptimizationButton = document.getElementById('toggleBudgetOptimizationButton'); 
-            const toggleCurvePlotButton = document.getElementById('toggleCurvePlotButton');
             const toggleTableButton = document.getElementById('toggleTableButton');
-            const toggleBarPlotsButton = document.getElementById('toggleBarPlotsButton'); 
+            const showTariffDetailsButton = document.getElementById('showTariffDetailsButton'); // New button reference
 
             const budgetOptimizationSection = document.getElementById('budgetOptimizationSection'); 
-            const tariffCurvePlotContainer = document.getElementById('tariffCurvePlotContainer');
             const deviceTableSection = document.getElementById('deviceTableSection');
-            const deviceBarPlotContainer = document.getElementById('deviceBarPlotContainer');
-            const tariffBarPlotContainer = document.getElementById('tariffBarPlotContainer');
+
+            // Modal elements
+            const tariffDetailsModal = document.getElementById('tariffDetailsModal');
+            const closeTariffDetailsModal = document.getElementById('closeTariffDetailsModal');
+            const tariffDetailsModalTitle = document.getElementById('tariffDetailsModalTitle');
+            const tariffDetailsModalContent = document.getElementById('tariffDetailsModalContent');
 
             let selectedTableRow = null; 
 
@@ -698,267 +730,6 @@
                 }
             };
 
-            const getRonakiHouseholdTierIndex = (kwhPoint) => {
-                const tiers = [400, 800, 1200, 1600];
-                if (kwhPoint <= 0) return 0;
-                for (let i = 0; i < tiers.length; i++) {
-                    if (kwhPoint <= tiers[i]) {
-                        return i;
-                    }
-                }
-                return tiers.length;
-            };
-
-            // --- PLOTTING FUNCTIONS ---
-
-            // 1. Device Plot
-            const plotDeviceConsumption = (deviceData = []) => {
-                const ctx = document.getElementById('devicePlot').getContext('2d');
-                if (devicePlot) devicePlot.destroy();
-
-                const labels = deviceData.map(d => d.name);
-                const kwhValues = deviceData.map(d => d.kwh);
-                // Use chartBaseColors with 70% opacity
-                const backgroundColors = deviceData.map((_, i) => chartBaseColors[i % chartBaseColors.length] + 'B3'); 
-                const borderColors = deviceData.map((_, i) => chartBaseColors[i % chartBaseColors.length]);
-
-                devicePlot = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Consumption (kWh)',
-                            data: kwhValues,
-                            backgroundColor: backgroundColors,
-                            borderColor: borderColors,
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        indexAxis: 'y', // Horizontal bars
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        let label = context.dataset.label || '';
-                                        if (label) {
-                                            label += ': ';
-                                        }
-                                        const kwh = context.parsed.x;
-                                        const iqd = deviceData[context.dataIndex].iqd; 
-                                        return `${label}${formatNumber(kwh, 2)} kWh (${formatNumber(iqd, 0, true)} IQD)`;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                title: { display: true, text: 'Consumption (kWh)', font: { size: 14, family: 'Inter' } },
-                                beginAtZero: true,
-                                ticks: { font: { family: 'Inter' } }
-                            },
-                            y: {
-                                ticks: { font: { size: 12, family: 'Inter' } }
-                            }
-                        }
-                    }
-                });
-            };
-
-            // 2. Tariff Bar Plot
-            const plotTariffBarChart = (highlightKwh = 0, highlightCategory = 'Household') => {
-                const ctx = document.getElementById('tariffBarPlot').getContext('2d');
-                if (tariffBarPlot) tariffBarPlot.destroy();
-
-                const labels = ['1-400', '401-800', '801-1200', '1201-1600', '1601+', 'Commercial', 'Agriculture', 'Industrial', 'Large Industry', 'State'];
-                const rates = [72, 108, 175, 265, 350, 185, 60, 160, 125, 160];
-
-                const backgroundColors = rates.map((_, i) => {
-                    let color = '';
-                    if (i < 5) color = chartBaseColors[0]; // Household
-                    else if (i === 5) color = chartBaseColors[1]; // Commercial
-                    else if (i === 6) color = chartBaseColors[2]; // Agriculture
-                    else if (i === 7) color = chartBaseColors[3]; // Industrial
-                    else if (i === 8) color = chartBaseColors[4]; // Large Industry
-                    else if (i === 9) color = chartBaseColors[5]; // State
-                    return color + 'B3'; // 70% opacity
-                });
-
-                const borderColors = rates.map((_, i) => {
-                    let color = '';
-                    if (i < 5) color = chartBaseColors[0];
-                    else if (i === 5) color = chartBaseColors[1];
-                    else if (i === 6) color = chartBaseColors[2];
-                    else if (i === 7) color = chartBaseColors[3];
-                    else if (i === 8) color = chartBaseColors[4];
-                    else if (i === 9) color = chartBaseColors[5];
-                    return color;
-                });
-
-                // Apply highlight
-                const highlightIndex = getTariffTierIndex(highlightKwh, highlightCategory);
-                if (highlightIndex !== -1) {
-                    backgroundColors[highlightIndex] = highlightColor; 
-                    borderColors[highlightIndex] = highlightBorder; 
-                }
-
-                tariffBarPlot = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'IQD / kWh',
-                            data: rates,
-                            backgroundColor: backgroundColors,
-                            borderColor: borderColors,
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: {
-                                title: { display: true, text: 'IQD / kWh', font: { size: 14, family: 'Inter' } },
-                                beginAtZero: true,
-                                ticks: { font: { family: 'Inter' } }
-                            },
-                            x: {
-                                ticks: { font: { size: 12, family: 'Inter' } }
-                            }
-                        }
-                    }
-                });
-            };
-
-            // Helper for Tariff Bar Plot to get index for highlighting
-            const getTariffTierIndex = (kwh, category) => {
-                if (category === 'Household') {
-                    const tiers = [400, 800, 1200, 1600];
-                    if (kwh <= 400) return 0;
-                    if (kwh <= 800) return 1;
-                    if (kwh <= 1200) return 2;
-                    if (kwh <= 1600) return 3;
-                    return 4; // 1601+ kWh
-                } else if (category === 'Commercial') {
-                    return 5;
-                } else if (category === 'Agriculture') {
-                    return 6;
-                } else if (category === 'Industrial') {
-                    return 7;
-                } else if (category === 'Large Industry') {
-                    return 8;
-                } else if (category === 'State') {
-                    return 9;
-                }
-                return -1;
-            };
-
-
-            // 3. Main Tariff Curve Plot
-            const plotTariffCurves = (maxKwh = 2000, currentKwh = 0, currentBill = 0, currentCategory = 'Household') => {
-                const ctx = tariffPlotCanvas.getContext('2d');
-                if (tariffPlot) tariffPlot.destroy();
-
-                const categories = ['Household', 'Commercial', 'Agriculture', 'Industrial', 'Large Industry', 'State'];
-                const datasets = [];
-
-                categories.forEach((cat, index) => {
-                    const dataPoints = [];
-                    for (let kwh = 0; kwh <= maxKwh; kwh += maxKwh / 200) {
-                        dataPoints.push({ x: kwh, y: calculateCostForCategory(kwh, cat) / 1000 }); // kIQD
-                    }
-                    datasets.push({
-                        label: cat,
-                        data: dataPoints,
-                        borderColor: chartBaseColors[index % chartBaseColors.length],
-                        backgroundColor: chartBaseColors[index % chartBaseColors.length] + '1A', // 10% opacity
-                        fill: false,
-                        tension: 0.1,
-                        pointRadius: 0,
-                        borderWidth: 2
-                    });
-                });
-
-                // Add calculated result point
-                if (currentKwh > 0 && currentBill > 0) {
-                    datasets.push({
-                        label: 'Calculated Result',
-                        data: [{ x: currentKwh, y: currentBill / 1000 }],
-                        borderColor: '#4a90e2', // Stronger blue for highlight point
-                        backgroundColor: '#4a90e2',
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
-                        showLine: false,
-                        type: 'scatter' 
-                    });
-                }
-
-                tariffPlot = new Chart(ctx, {
-                    type: 'line',
-                    data: { datasets: datasets },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                type: 'linear',
-                                position: 'bottom',
-                                title: { display: true, text: 'Consumption (kWh)', font: { size: 14, family: 'Inter' } },
-                                min: 0,
-                                max: maxKwh,
-                                ticks: {
-                                    callback: function(value) { return formatNumber(value, 0); },
-                                    font: { family: 'Inter' }
-                                }
-                            },
-                            y: {
-                                title: { display: true, text: 'Cost (kIQD)', font: { size: 14, family: 'Inter' } },
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function(value) { return formatNumber(value, 0); },
-                                    font: { family: 'Inter' }
-                                }
-                            },
-                            amperes: { 
-                                type: 'linear',
-                                position: 'top',
-                                title: { display: true, text: 'Average Amperes (A)', font: { size: 14, family: 'Inter' } },
-                                min: 0,
-                                max: kwhToAmperes(maxKwh, parseFloat(daysInput.value) || 30),
-                                ticks: {
-                                    callback: function(value) { return formatNumber(value, 0) + ' A'; },
-                                    font: { family: 'Inter' }
-                                },
-                                grid: {
-                                    drawOnChartArea: false, 
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: { 
-                                position: 'bottom', // Moved legend to bottom
-                                labels: { 
-                                    font: { size: 10, family: 'Inter' }, // Smaller font size
-                                    boxWidth: 20, // Smaller color box
-                                    padding: 10 // Reduced padding between legend items
-                                } 
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    title: (tooltipItems) => `Consumption: ${formatNumber(tooltipItems[0].parsed.x, 2)} kWh`,
-                                    label: (tooltipItem) => `Cost: ${formatNumber(tooltipItem.parsed.y * 1000, 0, true)} IQD`
-                                }
-                            }
-                        }
-                    }
-                });
-            };
-
             // --- UI UPDATE FUNCTIONS ---
 
             const updateResultDisplay = (kwh, amperes, bill, avgRate, kwhElem, amperesElem, billElem, avgRateElem) => {
@@ -973,18 +744,6 @@
                 amperesElem.textContent = `${formatNumber(amperes, 2)} A`;
                 billElem.textContent = `${formatNumber(bill, 0, true)} IQD`;
                 avgRateElem.textContent = `${formatNumber(avgRate, 2)} IQD/kWh`;
-            };
-
-            const updateTariffPlotResultDisplay = (kwh, amperes, bill, avgRate) => {
-                tariffPlotKwhElem.textContent = `${formatNumber(kwh, 2)} kWh`;
-                tariffPlotBillElem.textContent = `${formatNumber(bill, 0, true)} IQD`;
-                tariffPlotAmperesElem.textContent = `${formatNumber(amperes, 2)} A`;
-                tariffPlotAvgRateElem.textContent = `${formatNumber(avgRate, 2)} IQD/kWh`;
-            };
-
-            const updateTariffSliderBackground = (value, max) => {
-                const percentage = (value / max) * 100;
-                tariffSlider.style.setProperty('--slider-fill', `${percentage}%`);
             };
 
             // --- MAIN CALCULATION HANDLER ---
@@ -1038,24 +797,6 @@
                 const avgRate = calculatedKwh > 0 ? totalBill / calculatedKwh : 0;
 
                 updateResultDisplay(calculatedKwh, calculatedAmperes, totalBill, avgRate, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem);
-                // Update tariff plots and slider if they are visible
-                if (tariffCurvePlotContainer.style.display === 'block') {
-                    updateTariffPlotResultDisplay(calculatedKwh, calculatedAmperes, totalBill, avgRate);
-                    let newPlotMaxKwh = parseFloat(tariffSlider.max);
-                    if (calculatedKwh > newPlotMaxKwh) {
-                        newPlotMaxKwh = category === 'Household' ? Math.ceil(calculatedKwh / 400) * 400 : Math.ceil(calculatedKwh / 1000) * 1000;
-                        tariffSlider.max = newPlotMaxKwh;
-                    } else if (calculatedKwh <= 2000 && newPlotMaxKwh > 2000) {
-                        newPlotMaxKwh = 2000;
-                        tariffSlider.max = newPlotMaxKwh;
-                    }
-                    plotTariffCurves(newPlotMaxKwh, calculatedKwh, totalBill, category);
-                    tariffSlider.value = Math.round(calculatedKwh);
-                    updateTariffSliderBackground(tariffSlider.value, tariffSlider.max);
-                }
-                if (tariffBarPlotContainer.style.display === 'block') {
-                    plotTariffBarChart(calculatedKwh, category);
-                }
             };
 
             const performMeterCalculation = () => {
@@ -1086,24 +827,6 @@
                 const avgRate = consumption > 0 ? totalBill / consumption : 0;
 
                 updateResultDisplay(consumption, avgAmperes, totalBill, avgRate, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem);
-                // Update tariff plots and slider if they are visible
-                if (tariffCurvePlotContainer.style.display === 'block') {
-                    updateTariffPlotResultDisplay(consumption, avgAmperes, totalBill, avgRate);
-                    let newPlotMaxKwh = parseFloat(tariffSlider.max);
-                    if (consumption > newPlotMaxKwh) {
-                        newPlotMaxKwh = category === 'Household' ? Math.ceil(consumption / 400) * 400 : Math.ceil(consumption / 1000) * 1000;
-                        tariffSlider.max = newPlotMaxKwh;
-                    } else if (consumption <= 2000 && newPlotMaxKwh > 2000) {
-                        newPlotMaxKwh = 2000;
-                        tariffSlider.max = newPlotMaxKwh;
-                    }
-                    plotTariffCurves(newPlotMaxKwh, consumption, totalBill, category);
-                    tariffSlider.value = Math.round(consumption);
-                    updateTariffSliderBackground(tariffSlider.value, tariffSlider.max);
-                }
-                if (tariffBarPlotContainer.style.display === 'block') {
-                    plotTariffBarChart(consumption, category);
-                }
             };
 
             const calculateDeviceConsumption = () => {
@@ -1144,26 +867,6 @@
                     device.row.querySelector('.output-iqd').textContent = formatNumber(iqd, 0, true);
                     device.iqd = iqd; 
                 });
-
-                const amperes = kwhToAmperes(totalKwh, daysVal);
-
-                updateTariffPlotResultDisplay(totalKwh, amperes, totalBill, avgRate);
-
-                let newPlotMaxKwh = parseFloat(tariffSlider.max);
-                if (totalKwh > newPlotMaxKwh) {
-                    newPlotMaxKwh = category === 'Household' ? Math.ceil(totalKwh / 400) * 400 : Math.ceil(totalKwh / 1000) * 1000;
-                    tariffSlider.max = newPlotMaxKwh;
-                } else if (totalKwh <= 2000 && newPlotMaxKwh > 2000) {
-                    newPlotMaxKwh = 2000;
-                    tariffSlider.max = newPlotMaxKwh;
-                }
-                plotTariffCurves(newPlotMaxKwh, totalKwh, totalBill, category);
-                plotTariffBarChart(totalKwh, category);
-
-                tariffSlider.value = Math.round(totalKwh);
-                updateTariffSliderBackground(tariffSlider.value, tariffSlider.max);
-
-                plotDeviceConsumption(deviceDetails); 
             };
 
             const optimizeForBudget = () => {
@@ -1322,19 +1025,6 @@
                 }
                 selectedTableRow = row;
                 selectedTableRow.classList.add('selected-row');
-
-                if (devicePlot && deviceBarPlotContainer.style.display === 'block') {
-                    const dataset = devicePlot.data.datasets[0];
-                    const newBorderColors = Array(dataset.data.length).fill(dataset.borderColor[0]);
-                    const newBorderWidths = Array(dataset.data.length).fill(1);
-
-                    newBorderColors[index] = highlightBorder;
-                    newBorderWidths[index] = 2.5;
-
-                    dataset.borderColor = newBorderColors;
-                    dataset.borderWidth = newBorderWidths;
-                    devicePlot.update('none');
-                }
             };
 
             const startupPopulateDeviceTable = () => {
@@ -1497,18 +1187,6 @@
                 }
             }});
 
-            tariffSlider.addEventListener('input', (e) => {
-                const kwhFromSlider = parseFloat(e.target.value);
-                const totalBill = calculateCostForCategory(kwhFromSlider, categoryDropdown.value);
-                const daysVal = validateNumeric(daysInput.value) || 30;
-                const avgAmperes = kwhToAmperes(kwhFromSlider, daysVal);
-                const avgRate = kwhFromSlider > 0 ? totalBill / kwhFromSlider : 0;
-
-                updateTariffPlotResultDisplay(kwhFromSlider, avgAmperes, totalBill, avgRate);
-                plotTariffCurves(parseFloat(tariffSlider.max), kwhFromSlider, totalBill, categoryDropdown.value);
-                updateTariffSliderBackground(kwhFromSlider, parseFloat(tariffSlider.max));
-            });
-
             manualReportButton.addEventListener('click', generateManualReport);
             meterReportButton.addEventListener('click', generateMeterReport);
             deviceReportButton.addEventListener('click', generateDeviceReport); // Event listener for new button
@@ -1603,18 +1281,6 @@
                 }
             });
 
-            // Toggle Curve Plot Button
-            toggleCurvePlotButton.addEventListener('click', () => {
-                const isVisible = tariffCurvePlotContainer.style.display === 'block';
-                tariffCurvePlotContainer.style.display = isVisible ? 'none' : 'block';
-                toggleCurvePlotButton.textContent = isVisible ? 'Show Tariff Curve Plot' : 'Hide Tariff Curve Plot';
-                if (!isVisible) {
-                    // Re-plot if becoming visible
-                    plotTariffCurves(parseFloat(tariffSlider.max), parseFloat(manualKwhElem.textContent), parseFloat(manualBillElem.textContent.replace(/[^0-9.-]+/g,"")), categoryDropdown.value);
-                    updateTariffSliderBackground(parseFloat(tariffSlider.value), parseFloat(tariffSlider.max));
-                }
-            });
-
             // Toggle Device Table Button
             toggleTableButton.addEventListener('click', () => {
                 const isVisible = deviceTableSection.style.display === 'block';
@@ -1625,26 +1291,57 @@
                 }
             });
 
-            // Toggle Bar Plots Button
-            toggleBarPlotsButton.addEventListener('click', () => {
-                const isVisible = deviceBarPlotContainer.style.display === 'block';
-                deviceBarPlotContainer.style.display = isVisible ? 'none' : 'block';
-                tariffBarPlotContainer.style.display = isVisible ? 'none' : 'block';
-                toggleBarPlotsButton.textContent = isVisible ? 'Show Bar Plots' : 'Hide Bar Plots';
-                if (!isVisible) {
-                    calculateDeviceConsumption(); 
-                    plotTariffBarChart(parseFloat(manualKwhElem.textContent), categoryDropdown.value); 
+            // Show Tariff Details Button
+            showTariffDetailsButton.addEventListener('click', () => {
+                const currentCategory = categoryDropdown.value;
+                let details = '';
+
+                if (currentCategory === 'Household') {
+                    details = `Household Tariff Rates:\n` +
+                              `  - 1-400 kWh: 72 IQD/kWh\n` +
+                              `  - 401-800 kWh: 108 IQD/kWh\n` +
+                              `  - 801-1200 kWh: 175 IQD/kWh\n` +
+                              `  - 1201-1600 kWh: 265 IQD/kWh\n` +
+                              `  - 1601+ kWh: 350 IQD/kWh`;
+                } else if (currentCategory === 'Commercial') {
+                    details = `Commercial Tariff Rate:\n` +
+                              `  - All kWh: 185 IQD/kWh`;
+                } else if (currentCategory === 'Agriculture') {
+                    details = `Agriculture Tariff Rate:\n` +
+                              `  - All kWh: 60 IQD/kWh`;
+                } else if (currentCategory === 'Industrial') {
+                    details = `Industrial Tariff Rate:\n` +
+                              `  - All kWh: 160 IQD/kWh`;
+                } else if (currentCategory === 'Large Industry') {
+                    details = `Large Industry Tariff Rate:\n` +
+                              `  - All kWh: 125 IQD/kWh`;
+                } else if (currentCategory === 'State') {
+                    details = `State Tariff Rate:\n` +
+                              `  - All kWh: 160 IQD/kWh`;
+                }
+
+                tariffDetailsModalTitle.textContent = `${currentCategory} Tariff Details`;
+                tariffDetailsModalContent.textContent = details;
+                tariffDetailsModal.style.display = 'flex'; // Show the modal
+            });
+
+            closeTariffDetailsModal.addEventListener('click', () => {
+                tariffDetailsModal.style.display = 'none'; // Hide the modal
+            });
+
+            // Close modal if clicked outside content
+            tariffDetailsModal.addEventListener('click', (e) => {
+                if (e.target === tariffDetailsModal) {
+                    tariffDetailsModal.style.display = 'none';
                 }
             });
+
 
             // --- INITIALIZATION CALLS ---
             startupPopulateDeviceTable(); // Populate table on load
             calculateDeviceConsumption(); // Calculate initial device consumption
             performManualCalculation(); // Perform initial manual calculation
             performMeterCalculation(); // Perform initial meter calculation
-            plotTariffBarChart(); // Plot initial tariff bar chart
-            plotTariffCurves(); // Plot initial tariff curves
-            updateTariffSliderBackground(parseFloat(tariffSlider.value), parseFloat(tariffSlider.max)); // Update slider background
         });
     </script>
 </body>
