@@ -1081,7 +1081,7 @@
                     addAndCalculateDeviceConsumption: "تکایە ئامێر زیاد بکە و بەکارهێنانەکەی بژمێرە پێش دروستکردنی ڕاپۆرت.",
                     csvEmpty: "فایلی CSV بەتاڵە یان تێکچووە.",
                     deviceDataSaved: "داتای ئامێر بە سەرکەوتوویی پاشەکەوت کرا بۆ CSV!",
-                    deviceDataLoaded: "داتای ئامێر بە سەرکەوتوویی بارکرا لە CSV!",
+                    deviceDataLoaded: "تم تحميل بيانات الجهاز من CSV بنجاح!",
                     errorLoadingData: "هەڵە لە بارکردنی داتا: {error}. تکایە دڵنیا بە لەوەی فایلی CSV دروستە.",
                     selectRowToDelete: "تکایە ڕیزێک هەڵبژێرە بۆ سڕینەوە.",
                     allDeviceDataCleared: "هەموو داتای ئامێر پاککرایەوە و گەڕێنرایەوە بۆ باری بنەڕەتی.",
@@ -1341,14 +1341,24 @@
                     const num = parseFloat(value);
                     if (isNaN(num)) return String(value);
                     const lang = languageSelect.value;
-                    const locale = lang === 'ar' ? 'ar-IQ' : 'en-US';
+                    // Use 'ar-IQ' for Arabic, 'en-US' for English and Kurdish (as Kurdish typically uses Western numerals for numbers)
+                    const locale = lang === 'ar' ? 'ar-IQ' : 'en-US'; 
 
-                    if (isCurrency) return Math.round(num).toLocaleString(locale);
-                    if (removeTrailingZeroDecimal && num === parseInt(num)) return parseInt(num).toLocaleString(locale);
-                    return num.toLocaleString(locale, {
+                    const options = {
                         minimumFractionDigits: decimalPlaces,
                         maximumFractionDigits: decimalPlaces,
-                    });
+                        useGrouping: false // Disable thousands separators (commas)
+                    };
+
+                    if (isCurrency) {
+                        // For currency, we want no decimals, and no grouping
+                        return Math.round(num).toLocaleString(locale, { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                    }
+                    if (removeTrailingZeroDecimal && num === parseInt(num)) {
+                        // For integers that should be displayed without decimals, and no grouping
+                        return parseInt(num).toLocaleString(locale, { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                    }
+                    return num.toLocaleString(locale, options);
                 } catch (e) {
                     console.error("Error formatting number:", e);
                     return String(value);
