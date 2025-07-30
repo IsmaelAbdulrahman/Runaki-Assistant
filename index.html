@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ronaki Electricity Bill Calculator & Energy Analyzer for Kurdistan Region</title>
+    <title>Runaki Assistant App</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN for plotting -->
@@ -12,10 +12,10 @@
         /* Custom styles for better aesthetics and responsiveness */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8; /* Light blue-gray background */
+            background-color: #e6f0f7; /* Lighter blue-gray background */
             margin: 0;
-            padding: 1rem;
-            color: #334155; /* Darker text for readability */
+            padding: 1.5rem;
+            color: #2c3e50; /* Darker text for readability */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -25,29 +25,31 @@
         }
 
         h1 {
-            color: #1e3a8a; /* Darker blue for headings */
-            font-weight: 700;
-            margin-bottom: 1.5rem;
+            color: #2980b9; /* Stronger blue for main heading */
+            font-weight: 800; /* Extra bold */
+            margin-bottom: 2rem;
             text-align: center;
+            font-size: 2.5rem; /* Larger font size */
         }
 
         h2 {
-            color: #1f2937; /* Even darker for subheadings */
-            font-weight: 600;
-            margin-bottom: 0.75rem;
+            color: #34495e; /* Darker gray for subheadings */
+            font-weight: 700;
+            margin-bottom: 1rem;
             text-align: left;
+            font-size: 1.5rem; /* Slightly larger for section titles */
         }
 
         .main-container {
             display: flex;
             flex-direction: column; /* Default to column for mobile */
-            gap: 1.5rem;
+            gap: 2rem; /* Increased gap */
             width: 100%;
-            max-width: 80rem; /* Max width for desktop */
-            background-color: white;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            max-width: 85rem; /* Slightly wider max width */
+            background-color: #ffffff;
+            padding: 2rem; /* Increased padding */
+            border-radius: 1rem; /* More rounded corners */
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.08); /* Stronger shadow */
         }
 
         @media (min-width: 1024px) { /* Large screens (lg) */
@@ -57,216 +59,249 @@
         }
 
         .section-card {
-            background-color: #f8fafc; /* Lighter background for cards */
-            border: 1px solid #e2e8f0; /* Light border */
-            border-radius: 0.5rem;
-            padding: 1rem;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            background-color: #fcfdfe; /* Very light background for cards */
+            border: 1px solid #dbe9f5; /* Lighter, subtle border */
+            border-radius: 0.75rem; /* More rounded corners */
+            padding: 1.5rem; /* Increased padding */
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08); /* Softer shadow */
         }
 
         .input-group {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
+            gap: 1rem; /* Increased gap */
+            margin-bottom: 1.5rem;
         }
 
         label {
-            font-weight: 500;
-            color: #475569; /* Medium gray for labels */
+            font-weight: 600;
+            color: #5b6f84; /* Medium gray for labels */
         }
 
         input[type="text"],
         input[type="number"],
         select {
-            padding: 0.5rem 0.75rem;
-            border: 1px solid #cbd5e1; /* Light gray border */
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
+            padding: 0.6rem 0.9rem; /* Slightly more padding */
+            border: 1px solid #aebfd0; /* More defined border */
+            border-radius: 0.5rem; /* More rounded corners */
+            font-size: 0.9rem;
             text-align: center;
-            background-color: #ffffff;
-            color: #1e293b;
-            flex-grow: 1; /* Allow inputs to grow */
-            min-width: 6rem; /* Minimum width for inputs */
+            background-color: #f8fbfd; /* Very light input background */
+            color: #2c3e50;
+            flex-grow: 1;
+            min-width: 7rem; /* Slightly larger min-width */
+            transition: all 0.2s ease-in-out;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #3498db; /* Blue focus border */
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); /* Soft blue glow on focus */
+            outline: none;
         }
 
         button {
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
+            padding: 0.6rem 1.2rem; /* More padding */
+            border-radius: 0.5rem; /* More rounded corners */
             border: none;
-            font-size: 0.875rem;
-            font-weight: 600;
+            font-size: 0.9rem;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            white-space: nowrap; /* Prevent text wrapping on buttons */
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1); /* Stronger button shadow */
+            white-space: nowrap;
+            background-image: linear-gradient(to bottom, var(--btn-bg-light), var(--btn-bg-dark));
+            color: white; /* Default text color for buttons */
         }
 
         button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px); /* More pronounced lift */
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15); /* Stronger hover shadow */
+            opacity: 0.9;
         }
 
         button:active {
             transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
         }
 
-        .btn-purple { background-color: #e9d5ff; color: #7e2f8e; border: 1px solid #c084fc; }
-        .btn-blue { background-color: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
-        .btn-orange { background-color: #ffedd5; color: #c2410c; border: 1px solid #fdba74; }
-        .btn-green { background-color: #dcfce7; color: #16a34a; border: 1px solid #86efac; }
-        .btn-red { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
-        .btn-gray { background-color: #e2e8f0; color: #475569; border: 1px solid #cbd5e1; }
-        .btn-indigo { background-color: #4f46e5; color: white; border: 1px solid #6366f1; }
+        /* Specific button colors with gradients */
+        .btn-purple { --btn-bg-light: #9b59b6; --btn-bg-dark: #8e44ad; } /* Darker purple */
+        .btn-blue { --btn-bg-light: #3498db; --btn-bg-dark: #2980b9; } /* Deeper blue */
+        .btn-orange { --btn-bg-light: #e67e22; --btn-bg-dark: #d35400; } /* Richer orange */
+        .btn-green { --btn-bg-light: #2ecc71; --btn-bg-dark: #27ae60; } /* Vibrant green */
+        .btn-red { --btn-bg-light: #e74c3c; --btn-bg-dark: #c0392b; } /* Stronger red */
+        .btn-gray { --btn-bg-light: #bdc3c7; --btn-bg-dark: #95a5a6; color: #34495e;} /* Muted gray */
+        .btn-indigo { --btn-bg-light: #667eea; --btn-bg-dark: #5a67d8; } /* Deeper indigo */
+
 
         .result-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); /* Responsive grid for results */
-            gap: 0.5rem;
-            font-size: 0.875rem;
+            grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); /* Slightly larger min-width for results */
+            gap: 0.75rem; /* Increased gap */
+            font-size: 0.9rem;
         }
 
         .result-item {
-            background-color: #f1f5f9; /* Light gray for result items */
-            border: 1px solid #e2e8f0;
-            border-radius: 0.375rem;
-            padding: 0.75rem;
+            background-color: #eaf3fa; /* Lighter blue for result items */
+            border: 1px solid #cce7f5;
+            border-radius: 0.5rem;
+            padding: 0.9rem; /* More padding */
             text-align: center;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* Inner shadow for depth */
         }
 
         .result-label {
-            color: #64748b; /* Gray for result labels */
-            margin-bottom: 0.25rem;
+            color: #607d8b; /* Slightly darker gray for result labels */
+            margin-bottom: 0.3rem;
         }
 
         .result-value {
-            font-weight: 700;
-            color: #b91c1c; /* Red for emphasis */
+            font-weight: 800; /* Extra bold */
+            color: #e74c3c; /* Consistent strong red for emphasis */
+            font-size: 1.1rem; /* Slightly larger font for values */
         }
 
         /* Chart container styling */
         .chart-container {
             width: 100%;
-            height: 300px; /* Fixed height for charts */
-            margin-top: 1rem;
+            height: 350px; /* Slightly taller charts */
+            margin-top: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08);
         }
 
         /* Slider styling */
         .range-slider {
             width: 100%;
-            height: 0.5rem;
-            background-color: #a7f3d0; /* Light green for slider track */
-            border-radius: 0.25rem;
+            height: 0.6rem; /* Thicker slider */
+            background-color: #a7f3d0;
+            border-radius: 0.3rem;
             appearance: none;
-            cursor: pointer;
-            margin-top: 1rem;
+            cursor: grab; /* Indicates draggable */
+            margin-top: 1.5rem;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
 
         .range-slider::-webkit-slider-thumb {
             appearance: none;
-            width: 1.25rem;
-            height: 1.25rem;
-            background: #10b981; /* Green thumb */
+            width: 1.5rem; /* Larger thumb */
+            height: 1.5rem; /* Larger thumb */
+            background: #10b981;
             border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            border: 3px solid white; /* Thicker white border */
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3); /* Stronger thumb shadow */
             transition: background 0.15s ease-in-out;
+            cursor: grab;
+        }
+        .range-slider::-webkit-slider-thumb:active {
+            cursor: grabbing;
         }
 
         .range-slider::-moz-range-thumb {
-            width: 1.25rem;
-            height: 1.25rem;
+            width: 1.5rem;
+            height: 1.5rem;
             background: #10b981;
             border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            border: 3px solid white;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
             transition: background 0.15s ease-in-out;
+            cursor: grab;
+        }
+        .range-slider::-moz-range-thumb:active {
+            cursor: grabbing;
         }
 
         .range-slider::-webkit-slider-runnable-track {
             background: linear-gradient(to right, #a7f3d0 0%, #a7f3d0 var(--slider-fill, 0%), #fff var(--slider-fill, 0%), #fff 100%);
-            border-radius: 0.25rem;
+            border-radius: 0.3rem;
         }
 
         .range-slider::-moz-range-track {
             background: linear-gradient(to right, #a7f3d0 0%, #a7f3d0 var(--slider-fill, 0%), #fff var(--slider-fill, 0%), #fff 100%);
-            border-radius: 0.25rem;
+            border-radius: 0.3rem;
         }
 
         /* Device Table Styling */
         .device-table-container {
             overflow-x: auto;
-            max-height: 400px; /* Limit table height for scrolling */
-            border: 1px solid #e2e8f0;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
+            max-height: 450px; /* Slightly taller table */
+            border: 1px solid #dbe9f5;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08);
         }
 
         .device-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 600px; /* Ensure table doesn't get too narrow on small screens */
+            min-width: 700px; /* Ensure table doesn't get too narrow on small screens */
         }
 
         .device-table th, .device-table td {
-            padding: 0.75rem 0.5rem;
+            padding: 0.9rem 0.7rem; /* More padding */
             text-align: center;
-            border-bottom: 1px solid #e2e8f0;
-            font-size: 0.875rem;
+            border-bottom: 1px solid #e0eaf3; /* Lighter border */
+            font-size: 0.9rem;
         }
 
         .device-table th {
-            background-color: #f1f5f9;
-            font-weight: 600;
+            background-color: #f1f7fc; /* Lighter header background */
+            font-weight: 700;
             position: sticky;
             top: 0;
             z-index: 10;
         }
 
         .device-table tbody tr:hover {
-            background-color: #f8fafc;
+            background-color: #f8fbfd; /* Subtle hover effect */
         }
 
         .device-table tbody tr.selected-row {
             background-color: #e0f2fe; /* Highlight selected row */
+            box-shadow: inset 0 0 0 2px #3498db; /* Blue border on selected row */
         }
 
         .device-table input[type="text"],
         .device-table input[type="number"] {
             width: 100%;
-            padding: 0.3rem;
-            border: 1px solid #cbd5e1;
-            border-radius: 0.25rem;
+            padding: 0.4rem;
+            border: 1px solid #c0d0e0;
+            border-radius: 0.3rem;
             text-align: center;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
         }
 
         .device-table input[type="checkbox"] {
-            width: 1rem;
-            height: 1rem;
+            width: 1.1rem; /* Slightly larger checkbox */
+            height: 1.1rem;
             cursor: pointer;
+            border-radius: 0.25rem;
+            accent-color: #2980b9; /* Blue accent for checkbox */
         }
 
         .device-table .output-cell {
-            background-color: #f8fafc;
-            font-weight: 500;
-            color: #334155;
+            background-color: #fdfefe;
+            font-weight: 600;
+            color: #3f51b5; /* A subtle blue for output values */
         }
 
         /* Responsive adjustments for table inputs */
         @media (max-width: 768px) {
             .device-table input[type="text"],
             .device-table input[type="number"] {
-                width: 100%; /* Full width for inputs on smaller screens */
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
 
-    <h1 class="text-3xl lg:text-4xl">Ronaki Electricity Bill Calculator & Energy Analyzer for Kurdistan Region of Iraq</h1>
+    <h1 class="text-3xl lg:text-4xl">Runaki Assistant App</h1>
 
     <div class="main-container">
         <!-- Left Column - Calculations -->
@@ -494,8 +529,6 @@
             const budgetLimitInput = document.getElementById('budgetLimitInput');
             const budgetResultLabel = document.getElementById('budgetResultLabel');
 
-            // Removed: totalKwhValue, avgAmperesValue, totalBillValue, avgRateValue for Overall Summary
-
             const tariffPlotCanvas = document.getElementById('tariffPlot');
             const tariffSlider = document.getElementById('tariffSlider');
             const tariffPlotKwhElem = document.getElementById('tariffPlotKwh');
@@ -510,17 +543,16 @@
             const loadFileInput = document.getElementById('loadFileInput');
             const clearAllButton = document.getElementById('clearAllButton');
             
-            // New UI element references for toggling visibility
             const toggleCurvePlotButton = document.getElementById('toggleCurvePlotButton');
             const toggleTableButton = document.getElementById('toggleTableButton');
-            const toggleBarPlotsButton = document.getElementById('toggleBarPlotsButton'); // Renamed from togglePlotsButton
+            const toggleBarPlotsButton = document.getElementById('toggleBarPlotsButton'); 
 
             const tariffCurvePlotContainer = document.getElementById('tariffCurvePlotContainer');
             const deviceTableSection = document.getElementById('deviceTableSection');
             const deviceBarPlotContainer = document.getElementById('deviceBarPlotContainer');
             const tariffBarPlotContainer = document.getElementById('tariffBarPlotContainer');
 
-            let selectedTableRow = null; // To keep track of the selected row in the device table
+            let selectedTableRow = null; 
 
             // --- UTILITY FUNCTIONS ---
             const formatNumber = (value, decimalPlaces = 2, isCurrency = false, removeTrailingZeroDecimal = false) => {
@@ -633,13 +665,13 @@
 
             // Base colors for plots
             const chartBaseColors = [
-                '#0072BD', // Blue (Household)
-                '#D95319', // Orange (Commercial)
-                '#EDB120', // Yellow (Agriculture)
-                '#7E2F8E', // Purple (Industrial)
-                '#77AC30', // Green (Large Industry)
-                '#4DBEEE', // Light Blue/Cyan (State)
-                '#A2142F'  // Reddish (Fallback)
+                '#3498db', // Blue (Household) - Adjusted
+                '#e67e22', // Orange (Commercial) - Adjusted
+                '#f1c40f', // Yellow (Agriculture) - Adjusted
+                '#9b59b6', // Purple (Industrial) - Adjusted
+                '#2ecc71', // Green (Large Industry) - Adjusted
+                '#34495e', // Dark Gray (State) - Adjusted
+                '#e74c3c'  // Reddish (Fallback) - Adjusted
             ];
 
             // --- PLOTTING FUNCTIONS ---
@@ -651,7 +683,7 @@
 
                 const labels = deviceData.map(d => d.name);
                 const kwhValues = deviceData.map(d => d.kwh);
-                const backgroundColors = deviceData.map((_, i) => chartBaseColors[i % chartBaseColors.length].replace('1)', '0.7)'));
+                const backgroundColors = deviceData.map((_, i) => chartBaseColors[i % chartBaseColors.length] + 'B3'); // 70% opacity
                 const borderColors = deviceData.map((_, i) => chartBaseColors[i % chartBaseColors.length]);
 
                 devicePlot = new Chart(ctx, {
@@ -680,7 +712,7 @@
                                             label += ': ';
                                         }
                                         const kwh = context.parsed.x;
-                                        const iqd = deviceData[context.dataIndex].iqd; // Assuming iqd is passed in deviceData
+                                        const iqd = deviceData[context.dataIndex].iqd; 
                                         return `${label}${formatNumber(kwh, 2)} kWh (${formatNumber(iqd, 0, true)} IQD)`;
                                     }
                                 }
@@ -688,26 +720,12 @@
                         },
                         scales: {
                             x: {
-                                title: { display: true, text: 'Consumption (kWh)', font: { size: 14 } },
-                                beginAtZero: true
+                                title: { display: true, text: 'Consumption (kWh)', font: { size: 14, family: 'Inter' } },
+                                beginAtZero: true,
+                                ticks: { font: { family: 'Inter' } }
                             },
                             y: {
-                                ticks: {
-                                    font: { size: 12 }
-                                }
-                            }
-                        },
-                        onClick: (evt, elements) => {
-                            if (elements.length > 0) {
-                                const index = elements[0].index;
-                                const selectedDeviceName = devicePlot.data.labels[index];
-                                const rows = Array.from(deviceTableBody.children);
-                                rows.forEach((row, rowIndex) => {
-                                    const deviceNameInRow = row.querySelector('input[type="text"]').value;
-                                    if (deviceNameInRow === selectedDeviceName) {
-                                        handleTableRowClick(row, rowIndex);
-                                    }
-                                });
+                                ticks: { font: { size: 12, family: 'Inter' } }
                             }
                         }
                     }
@@ -730,7 +748,7 @@
                     else if (i === 7) color = chartBaseColors[3]; // Industrial
                     else if (i === 8) color = chartBaseColors[4]; // Large Industry
                     else if (i === 9) color = chartBaseColors[5]; // State
-                    return color.replace('1)', '0.7)'); // Make it slightly transparent
+                    return color + 'B3'; // 70% opacity
                 });
 
                 const borderColors = rates.map((_, i) => {
@@ -747,8 +765,8 @@
                 // Apply highlight
                 const highlightIndex = getTariffTierIndex(highlightKwh, highlightCategory);
                 if (highlightIndex !== -1) {
-                    backgroundColors[highlightIndex] = highlightColor; // Yellow highlight
-                    borderColors[highlightIndex] = highlightBorder; // Black border
+                    backgroundColors[highlightIndex] = highlightColor; 
+                    borderColors[highlightIndex] = highlightBorder; 
                 }
 
                 tariffBarPlot = new Chart(ctx, {
@@ -769,13 +787,12 @@
                         plugins: { legend: { display: false } },
                         scales: {
                             y: {
-                                title: { display: true, text: 'IQD / kWh', font: { size: 14 } },
-                                beginAtZero: true
+                                title: { display: true, text: 'IQD / kWh', font: { size: 14, family: 'Inter' } },
+                                beginAtZero: true,
+                                ticks: { font: { family: 'Inter' } }
                             },
                             x: {
-                                ticks: {
-                                    font: { size: 12 }
-                                }
+                                ticks: { font: { size: 12, family: 'Inter' } }
                             }
                         }
                     }
@@ -823,7 +840,7 @@
                         label: cat,
                         data: dataPoints,
                         borderColor: chartBaseColors[index % chartBaseColors.length],
-                        backgroundColor: chartBaseColors[index % chartBaseColors.length].replace('1)', '0.1)'),
+                        backgroundColor: chartBaseColors[index % chartBaseColors.length] + '1A', // 10% opacity
                         fill: false,
                         tension: 0.1,
                         pointRadius: 0,
@@ -836,12 +853,12 @@
                     datasets.push({
                         label: 'Calculated Result',
                         data: [{ x: currentKwh, y: currentBill / 1000 }],
-                        borderColor: 'blue',
-                        backgroundColor: 'blue',
+                        borderColor: '#2980b9', // Stronger blue for highlight point
+                        backgroundColor: '#2980b9',
                         pointRadius: 6,
                         pointHoverRadius: 8,
                         showLine: false,
-                        type: 'scatter' // Use scatter for single point
+                        type: 'scatter' 
                     });
                 }
 
@@ -855,39 +872,39 @@
                             x: {
                                 type: 'linear',
                                 position: 'bottom',
-                                title: { display: true, text: 'Consumption (kWh)', font: { size: 14 } },
+                                title: { display: true, text: 'Consumption (kWh)', font: { size: 14, family: 'Inter' } },
                                 min: 0,
                                 max: maxKwh,
                                 ticks: {
                                     callback: function(value) { return formatNumber(value, 0); },
-                                    font: { size: 12 }
+                                    font: { family: 'Inter' }
                                 }
                             },
                             y: {
-                                title: { display: true, text: 'Cost (kIQD)', font: { size: 14 } },
+                                title: { display: true, text: 'Cost (kIQD)', font: { size: 14, family: 'Inter' } },
                                 beginAtZero: true,
                                 ticks: {
                                     callback: function(value) { return formatNumber(value, 0); },
-                                    font: { size: 12 }
+                                    font: { family: 'Inter' }
                                 }
                             },
-                            amperes: { // Second X-axis for Amperes
+                            amperes: { 
                                 type: 'linear',
                                 position: 'top',
-                                title: { display: true, text: 'Average Amperes (A)', font: { size: 14 } },
+                                title: { display: true, text: 'Average Amperes (A)', font: { size: 14, family: 'Inter' } },
                                 min: 0,
                                 max: kwhToAmperes(maxKwh, parseFloat(daysInput.value) || 30),
                                 ticks: {
                                     callback: function(value) { return formatNumber(value, 0) + ' A'; },
-                                    font: { size: 12 }
+                                    font: { family: 'Inter' }
                                 },
                                 grid: {
-                                    drawOnChartArea: false, // Only draw grid lines for the primary x-axis
+                                    drawOnChartArea: false, 
                                 }
                             }
                         },
                         plugins: {
-                            legend: { position: 'top', labels: { font: { size: 12 } } },
+                            legend: { position: 'top', labels: { font: { size: 12, family: 'Inter' } } },
                             tooltip: {
                                 callbacks: {
                                     title: (tooltipItems) => `Consumption: ${formatNumber(tooltipItems[0].parsed.x, 2)} kWh`,
@@ -907,8 +924,6 @@
                 billElem.textContent = `${formatNumber(bill, 0, true)} IQD`;
                 avgRateElem.textContent = `${formatNumber(avgRate, 2)} IQD/kWh`;
             };
-
-            // Removed: updateOverallSummary function
 
             const updateTariffPlotResultDisplay = (kwh, amperes, bill, avgRate) => {
                 tariffPlotKwhElem.textContent = `${formatNumber(kwh, 2)} kWh`;
@@ -950,11 +965,11 @@
                 } else if (manualInputTypeDropdown.value === 'Given Bill') {
                     const targetBill = inputValue;
                     let lowKwh = 0;
-                    let highKwh = 50000; // Max reasonable kWh for search
+                    let highKwh = 50000; 
                     let foundKwh = 0;
                     const tolerance = 1.0;
 
-                    for (let i = 0; i < 100; i++) { // Binary search for 100 iterations
+                    for (let i = 0; i < 100; i++) { 
                         const midKwh = (lowKwh + highKwh) / 2;
                         const calculatedBillAtMid = calculateCostForCategory(midKwh, category);
 
@@ -969,7 +984,7 @@
                     }
                     calculatedKwh = foundKwh;
                     calculatedAmperes = kwhToAmperes(calculatedKwh, daysVal);
-                    totalBill = targetBill; // Use the target bill as the final bill
+                    totalBill = targetBill; 
                 }
 
                 const avgRate = calculatedKwh > 0 ? totalBill / calculatedKwh : 0;
@@ -1070,22 +1085,20 @@
                     const kwh = (watt / 1000) * hours * day * count;
                     kwhOutputCell.textContent = formatNumber(kwh, 2);
                     totalKwh += kwh;
-                    deviceDetails.push({ name: deviceName, kwh: kwh, row: row }); // Store row reference for later IQD update
+                    deviceDetails.push({ name: deviceName, kwh: kwh, row: row }); 
                 });
 
                 const totalBill = calculateCostForCategory(totalKwh, category);
                 const avgRate = totalKwh > 0 ? totalBill / totalKwh : 0;
 
-                // Update IQD for each device after total average rate is known
                 deviceDetails.forEach(device => {
                     const iqd = device.kwh * avgRate;
                     device.row.querySelector('.output-iqd').textContent = formatNumber(iqd, 0, true);
-                    device.iqd = iqd; // Add iqd to deviceDetails for plotting tooltip
+                    device.iqd = iqd; 
                 });
 
                 const amperes = kwhToAmperes(totalKwh, daysVal);
 
-                // Removed: updateOverallSummary(totalKwh, amperes, totalBill, avgRate);
                 updateTariffPlotResultDisplay(totalKwh, amperes, totalBill, avgRate);
 
                 let newPlotMaxKwh = parseFloat(tariffSlider.max);
@@ -1102,7 +1115,7 @@
                 tariffSlider.value = Math.round(totalKwh);
                 updateTariffSliderBackground(tariffSlider.value, tariffSlider.max);
 
-                plotDeviceConsumption(deviceDetails); // Pass deviceDetails with IQD for tooltip
+                plotDeviceConsumption(deviceDetails); 
             };
 
             const optimizeForBudget = () => {
@@ -1142,7 +1155,7 @@
                             name: deviceName,
                             initialKwh: currentKwhDevice,
                             watt, hours, day, count,
-                            row: row // Store reference to the actual DOM row
+                            row: row 
                         });
                     }
                 });
@@ -1155,7 +1168,7 @@
                     if (currentBill > 0) {
                         targetKwhForOptimization = (targetValue / currentBill) * currentTotalKwh;
                     } else {
-                        targetKwhForOptimization = targetValue / 100; // Arbitrary small value if current bill is zero
+                        targetKwhForOptimization = targetValue / 100; 
                     }
                 } else if (optimizationTargetDropdown.value === 'Target Amperes') {
                     targetKwhForOptimization = amperesToKwh(targetValue, daysVal);
@@ -1171,7 +1184,6 @@
                     return;
                 }
 
-                // Sort variable devices by initial kWh (descending) to prioritize larger consumers
                 variableDevicesData.sort((a, b) => b.initialKwh - a.initialKwh);
 
                 let optimizedConsumptionKwh = currentTotalKwh;
@@ -1179,16 +1191,15 @@
                 let summaryMessage = "Summary of Changes:\n";
 
                 for (const device of variableDevicesData) {
-                    if (optimizedConsumptionKwh <= targetKwhForOptimization) break; // Target reached
+                    if (optimizedConsumptionKwh <= targetKwhForOptimization) break; 
 
                     const kwhPerHour = (device.watt / 1000) * device.day * device.count;
                     if (kwhPerHour <= 0) continue;
 
                     let currentDeviceHours = validateNumeric(device.row.querySelector('input[type="number"]').value);
 
-                    // Iterate to reduce hours one by one until target is met or hours are 0
                     while (currentDeviceHours > 0) {
-                        const testHours = Math.max(0, currentDeviceHours - 1); // Try reducing by 1 hour
+                        const testHours = Math.max(0, currentDeviceHours - 1); 
                         const kwhReducedByHour = (currentDeviceHours - testHours) * kwhPerHour;
                         const potentialNewTotalConsumption = optimizedConsumptionKwh - kwhReducedByHour;
 
@@ -1202,24 +1213,24 @@
                             canReduceFurther = true;
                         }
 
-                        if (canReduceFurther || testHours === 0) { // If target met or hours hit zero
+                        if (canReduceFurther || testHours === 0) { 
                             const hoursReduced = currentDeviceHours - testHours;
                             if (hoursReduced > 0) {
-                                device.row.querySelector('input[type="number"]').value = formatNumber(testHours, 1, false, true); // Update hours in table
+                                device.row.querySelector('input[type="number"]').value = formatNumber(testHours, 1, false, true); 
                                 optimizedConsumptionKwh = potentialNewTotalConsumption;
                                 summaryMessage += `- Reduced '${device.name}' hours by ${formatNumber(hoursReduced, 0)} to ${formatNumber(testHours, 0)}.\n`;
                                 changesMade = true;
                             }
-                            break; // Stop reducing this device
+                            break; 
                         } else {
-                            currentDeviceHours = testHours; // Continue reducing this device
+                            currentDeviceHours = testHours; 
                         }
                     }
                 }
 
                 if (changesMade) {
                     budgetResultLabel.textContent = 'Result: Optimized!';
-                    calculateDeviceConsumption(); // Recalculate and update all displays
+                    calculateDeviceConsumption(); 
                     alert(`Optimization completed successfully!\n${summaryMessage}`);
                 } else {
                     budgetResultLabel.textContent = 'Result: Unreachable';
@@ -1246,17 +1257,15 @@
                     <td><input type="checkbox" class="device-fixed" ${data.fixed ? 'checked' : ''}></td>
                 `;
 
-                // Event listeners for inputs and checkboxes
                 row.querySelector('.device-on').addEventListener('change', () => calculateDeviceConsumption());
                 row.querySelector('.device-fixed').addEventListener('change', () => calculateDeviceConsumption());
                 row.querySelectorAll('.device-input').forEach(input => {
                     input.addEventListener('change', () => calculateDeviceConsumption());
                 });
 
-                // Row click for selection
                 row.addEventListener('click', () => handleTableRowClick(row, Array.from(deviceTableBody.children).indexOf(row)));
 
-                if (!data.on) row.classList.add('inactive'); // Apply inactive class if device is off
+                if (!data.on) row.classList.add('inactive'); 
             };
 
             const handleTableRowClick = (row, index) => {
@@ -1266,7 +1275,6 @@
                 selectedTableRow = row;
                 selectedTableRow.classList.add('selected-row');
 
-                // Highlight corresponding bar in the device plot
                 if (devicePlot) {
                     const dataset = devicePlot.data.datasets[0];
                     const newBorderColors = Array(dataset.data.length).fill(dataset.borderColor[0]);
@@ -1304,19 +1312,19 @@
             });
 
             calculateManualButton.addEventListener('click', performManualCalculation);
-            manualInput.addEventListener('change', performManualCalculation); // Recalculate on input change
+            manualInput.addEventListener('change', performManualCalculation); 
             categoryDropdown.addEventListener('change', () => {
                 performManualCalculation();
-                calculateDeviceConsumption(); // Also update device consumption as category affects it
+                calculateDeviceConsumption(); 
             });
 
             calculateMeterButton.addEventListener('click', performMeterCalculation);
             meterPrevReading.addEventListener('change', performMeterCalculation);
             meterCurrReading.addEventListener('change', performMeterCalculation);
             daysInput.addEventListener('change', () => {
-                performManualCalculation(); // Update manual calc with new days
-                performMeterCalculation(); // Update meter calc with new days
-                calculateDeviceConsumption(); // Update device calc with new days
+                performManualCalculation(); 
+                performMeterCalculation(); 
+                calculateDeviceConsumption(); 
             });
 
             tariffSlider.addEventListener('input', (e) => {
@@ -1337,11 +1345,10 @@
                 const bill = validateNumeric(manualBillElem.textContent);
                 const category = categoryDropdown.value;
                 if (kwh <= 0) { alert("Please perform a calculation first."); return; }
-                const { breakdown } = getRonakiHouseholdTariffDetails(kwh, category); // Assuming household for breakdown detail
+                const { breakdown } = getRonakiHouseholdTariffDetails(kwh, category); 
                 alert(`Detailed Report (Manual Input)\n---------------------------------\nConsumption: ${manualKwhElem.textContent}\nAverage Amperes: ${manualAmperesElem.textContent}\nTotal Bill: ${manualBillElem.textContent}\nAverage Rate: ${manualAvgRateElem.textContent}\nCategory: ${category}\n\nTariff Breakdown:\n${breakdown}`);
             });
 
-            // Device Table Buttons
             addRowButton.addEventListener('click', () => {
                 addTableRow();
                 calculateDeviceConsumption();
@@ -1349,7 +1356,7 @@
             deleteRowButton.addEventListener('click', () => {
                 if (selectedTableRow) {
                     selectedTableRow.remove();
-                    selectedTableRow = null; // Clear selection
+                    selectedTableRow = null; 
                     calculateDeviceConsumption();
                 } else {
                     alert('Please select a row to delete.');
@@ -1394,7 +1401,7 @@
                     try {
                         const loadedData = JSON.parse(readerEvent.target.result);
                         if (Array.isArray(loadedData) && loadedData.every(item => typeof item === 'object' && 'name' in item && 'watt' in item)) {
-                            deviceTableBody.innerHTML = ''; // Clear existing rows
+                            deviceTableBody.innerHTML = ''; 
                             loadedData.forEach(addTableRow);
                             calculateDeviceConsumption();
                             alert("Device data loaded successfully!");
@@ -1409,7 +1416,6 @@
                 reader.readAsText(file);
             });
 
-            // Budget Optimization
             optimizationTargetDropdown.addEventListener('change', () => {
                 const target = optimizationTargetDropdown.value;
                 if (target === 'Target Cost') budgetLimitInput.value = '100,000';
@@ -1419,46 +1425,41 @@
             });
             optimizeBudgetButton.addEventListener('click', optimizeForBudget);
 
-            // Toggle Curve Plot Button
             toggleCurvePlotButton.addEventListener('click', () => {
                 const isVisible = tariffCurvePlotContainer.style.display === 'block';
                 tariffCurvePlotContainer.style.display = isVisible ? 'none' : 'block';
                 toggleCurvePlotButton.textContent = isVisible ? 'Show Tariff Curve Plot' : 'Hide Tariff Curve Plot';
                 if (!isVisible) {
-                    // Re-plot when shown to ensure correct sizing
                     plotTariffCurves(parseFloat(tariffSlider.max), parseFloat(tariffPlotKwhElem.textContent), parseFloat(tariffPlotBillElem.textContent.replace(/[^0-9.-]+/g,"")), categoryDropdown.value);
                 }
             });
 
-            // Toggle Device Table Button
             toggleTableButton.addEventListener('click', () => {
                 const isVisible = deviceTableSection.style.display === 'block';
                 deviceTableSection.style.display = isVisible ? 'none' : 'block';
                 toggleTableButton.textContent = isVisible ? 'Show Device Table' : 'Hide Device Table';
                 if (!isVisible) {
-                    calculateDeviceConsumption(); // Recalculate and update when table is shown
+                    calculateDeviceConsumption(); 
                 }
             });
 
-            // Toggle Bar Plots Button (renamed)
             toggleBarPlotsButton.addEventListener('click', () => {
                 const isVisible = deviceBarPlotContainer.style.display === 'block';
                 deviceBarPlotContainer.style.display = isVisible ? 'none' : 'block';
                 tariffBarPlotContainer.style.display = isVisible ? 'none' : 'block';
                 toggleBarPlotsButton.textContent = isVisible ? 'Show Bar Plots' : 'Hide Bar Plots';
-                // Re-render charts when they become visible to ensure correct sizing
                 if (!isVisible) {
-                    calculateDeviceConsumption(); // Re-plot device chart
-                    plotTariffBarChart(parseFloat(tariffPlotKwhElem.textContent), categoryDropdown.value); // Re-plot tariff bar chart
+                    calculateDeviceConsumption(); 
+                    plotTariffBarChart(parseFloat(tariffPlotKwhElem.textContent), categoryDropdown.value); 
                 }
             });
 
             // --- INITIALIZATION CALLS ---
             startupPopulateDeviceTable();
-            calculateDeviceConsumption(); // Initial calculation for devices and overall summary
-            performManualCalculation(); // Initial calculation for manual section
-            plotTariffBarChart(); // Initial plot for tariff bar chart
-            plotTariffCurves(); // Initial plot for tariff curves
+            calculateDeviceConsumption(); 
+            performManualCalculation(); 
+            plotTariffBarChart(); 
+            plotTariffCurves(); 
             updateTariffSliderBackground(parseFloat(tariffSlider.value), parseFloat(tariffSlider.max));
         });
     </script>
