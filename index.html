@@ -12,10 +12,10 @@
         /* Custom styles for better aesthetics and responsiveness */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa; /* Very light gray background */
+            background-color: #f0f4f7; /* Very light blue-gray background */
             margin: 0;
             padding: 1.5rem;
-            color: #343a40; /* Dark charcoal text for readability */
+            color: #333f48; /* Darker text for readability */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -25,7 +25,7 @@
         }
 
         h1 {
-            color: #0056b3; /* Deep blue for main heading */
+            color: #4a90e2; /* Softer, professional blue for main heading */
             font-weight: 800; /* Extra bold */
             margin-bottom: 2rem;
             text-align: center;
@@ -33,7 +33,7 @@
         }
 
         h2 {
-            color: #212529; /* Even darker charcoal for subheadings */
+            color: #333f48; /* Darker gray for subheadings */
             font-weight: 700;
             margin-bottom: 1rem;
             text-align: left;
@@ -60,7 +60,7 @@
 
         .section-card {
             background-color: #ffffff; /* Pure white background for cards */
-            border: 1px solid #e9ecef; /* Very light, subtle border */
+            border: 1px solid #e0e4e7; /* Very light, subtle border */
             border-radius: 0.75rem; /* More rounded corners */
             padding: 1.5rem; /* Increased padding */
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08); /* Softer shadow */
@@ -76,19 +76,19 @@
 
         label {
             font-weight: 600;
-            color: #495057; /* Medium gray for labels */
+            color: #5b6f84; /* Medium gray for labels */
         }
 
         input[type="text"],
         input[type="number"],
         select {
             padding: 0.6rem 0.9rem; /* Slightly more padding */
-            border: 1px solid #ced4da; /* More defined border */
+            border: 1px solid #cdd2d7; /* More defined border */
             border-radius: 0.5rem; /* More rounded corners */
             font-size: 0.9rem;
             text-align: center;
-            background-color: #f8f9fa; /* Very light input background */
-            color: #212529;
+            background-color: #f8fbfd; /* Very light input background */
+            color: #333f48;
             flex-grow: 1;
             min-width: 7rem; /* Slightly larger min-width */
             transition: all 0.2s ease-in-out;
@@ -97,8 +97,8 @@
         input[type="text"]:focus,
         input[type="number"]:focus,
         select:focus {
-            border-color: #007bff; /* Blue focus border */
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Soft blue glow on focus */
+            border-color: #4a90e2; /* Blue focus border */
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25); /* Soft blue glow on focus */
             outline: none;
         }
 
@@ -126,14 +126,14 @@
             box-shadow: 0 3px 6px rgba(0,0,0,0.1);
         }
 
-        /* Specific button colors */
-        .btn-purple { background-color: #6f42c1; } /* Darker purple */
-        .btn-blue { background-color: #007bff; } /* Deeper blue */
-        .btn-orange { background-color: #fd7e14; } /* Richer orange */
-        .btn-green { background-color: #28a745; } /* Vibrant green */
-        .btn-red { background-color: #dc3545; } /* Stronger red */
-        .btn-gray { background-color: #6c757d; color: white;} /* Muted gray, white text */
-        .btn-indigo { background-color: #6610f2; } /* Deeper indigo */
+        /* Specific button colors (softer palette) */
+        .btn-purple { background-color: #9013fe; } /* Muted purple */
+        .btn-blue { background-color: #4a90e2; } /* Softer blue */
+        .btn-orange { background-color: #f5a623; } /* Warm orange/yellow */
+        .btn-green { background-color: #7ed321; } /* Fresh green */
+        .btn-red { background-color: #d0021b; } /* Clean red */
+        .btn-gray { background-color: #8898aa; color: white;} /* Muted gray, white text */
+        .btn-indigo { background-color: #503795; } /* Deeper, calmer indigo */
 
 
         .result-grid {
@@ -144,8 +144,8 @@
         }
 
         .result-item {
-            background-color: #e9f5ff; /* Lighter blue for result items */
-            border: 1px solid #cce5ff;
+            background-color: #eaf3fa; /* Lighter blue for result items */
+            border: 1px solid #cce7f5;
             border-radius: 0.5rem;
             padding: 0.9rem; /* More padding */
             text-align: center;
@@ -159,7 +159,7 @@
 
         .result-value {
             font-weight: 800; /* Extra bold */
-            color: #dc3545; /* Consistent strong red for emphasis */
+            color: #d0021b; /* Consistent strong red for emphasis */
             font-size: 1.1rem; /* Slightly larger font for values */
         }
 
@@ -229,7 +229,7 @@
         .device-table-container {
             overflow-x: auto;
             max-height: 450px; /* Slightly taller table */
-            border: 1px solid #e9ecef;
+            border: 1px solid #e0e4e7;
             border-radius: 0.75rem;
             margin-bottom: 1.5rem;
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08);
@@ -262,14 +262,14 @@
 
         .device-table tbody tr.selected-row {
             background-color: #e0f2fe; /* Highlight selected row */
-            box-shadow: inset 0 0 0 2px #007bff; /* Blue border on selected row */
+            box-shadow: inset 0 0 0 2px #4a90e2; /* Blue border on selected row */
         }
 
         .device-table input[type="text"],
         .device-table input[type="number"] {
             width: 100%;
             padding: 0.4rem;
-            border: 1px solid #ced4da;
+            border: 1px solid #cdd2d7;
             border-radius: 0.3rem;
             text-align: center;
             font-size: 0.85rem;
@@ -280,13 +280,13 @@
             height: 1.1rem;
             cursor: pointer;
             border-radius: 0.25rem;
-            accent-color: #007bff; /* Blue accent for checkbox */
+            accent-color: #4a90e2; /* Blue accent for checkbox */
         }
 
         .device-table .output-cell {
-            background-color: #e0f2fe; /* Light blue for output values */
+            background-color: #eaf3fa; /* Light blue for output values */
             font-weight: 600;
-            color: #007bff; /* A subtle blue for output values */
+            color: #4a90e2; /* A subtle blue for output values */
         }
 
         /* Responsive adjustments for table inputs */
@@ -488,13 +488,13 @@
             let devicePlot, tariffBarPlot, tariffPlot;
             // Updated chartBaseColors for a more professional look
             const chartBaseColors = [
-                '#007bff', // Primary Blue
-                '#fd7e14', // Orange
-                '#ffc107', // Yellow
-                '#6f42c1', // Purple
-                '#28a745', // Green
-                '#6c757d', // Muted Gray
-                '#dc3545'  // Red
+                '#4a90e2', // Primary Blue (softer)
+                '#f5a623', // Orange/Yellow (warm)
+                '#7ed321', // Green (fresh)
+                '#9013fe', // Purple (muted)
+                '#503795', // Indigo (deeper)
+                '#d0021b', // Red (clean)
+                '#8898aa'  // Muted Gray (fallback)
             ];
             const highlightColor = '#FFFF00'; // Yellow for highlight (can be adjusted if needed)
             const highlightBorder = '#000000'; // Black border for highlight
@@ -545,12 +545,12 @@
             const clearAllButton = document.getElementById('clearAllButton');
             
             // New UI element references for toggling visibility
-            const toggleBudgetOptimizationButton = document.getElementById('toggleBudgetOptimizationButton'); // New button
+            const toggleBudgetOptimizationButton = document.getElementById('toggleBudgetOptimizationButton'); 
             const toggleCurvePlotButton = document.getElementById('toggleCurvePlotButton');
             const toggleTableButton = document.getElementById('toggleTableButton');
             const toggleBarPlotsButton = document.getElementById('toggleBarPlotsButton'); 
 
-            const budgetOptimizationSection = document.getElementById('budgetOptimizationSection'); // New section reference
+            const budgetOptimizationSection = document.getElementById('budgetOptimizationSection'); 
             const tariffCurvePlotContainer = document.getElementById('tariffCurvePlotContainer');
             const deviceTableSection = document.getElementById('deviceTableSection');
             const deviceBarPlotContainer = document.getElementById('deviceBarPlotContainer');
@@ -847,8 +847,8 @@
                     datasets.push({
                         label: 'Calculated Result',
                         data: [{ x: currentKwh, y: currentBill / 1000 }],
-                        borderColor: '#007bff', // Stronger blue for highlight point
-                        backgroundColor: '#007bff',
+                        borderColor: '#4a90e2', // Stronger blue for highlight point
+                        backgroundColor: '#4a90e2',
                         pointRadius: 6,
                         pointHoverRadius: 8,
                         showLine: false,
@@ -898,7 +898,14 @@
                             }
                         },
                         plugins: {
-                            legend: { position: 'top', labels: { font: { size: 12, family: 'Inter' } } },
+                            legend: { 
+                                position: 'bottom', // Moved legend to bottom
+                                labels: { 
+                                    font: { size: 10, family: 'Inter' }, // Smaller font size
+                                    boxWidth: 20, // Smaller color box
+                                    padding: 10 // Reduced padding between legend items
+                                } 
+                            },
                             tooltip: {
                                 callbacks: {
                                     title: (tooltipItems) => `Consumption: ${formatNumber(tooltipItems[0].parsed.x, 2)} kWh`,
