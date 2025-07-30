@@ -841,7 +841,36 @@
                     unitKWH: "kWh",
                     unitA: "A",
                     yes: "Yes",
-                    no: "No"
+                    no: "No",
+                    // Device Names
+                    deviceNames: {
+                        ledTv: "LED TV",
+                        refrigerator: "Refrigerator",
+                        washingMachine: "Washing Machine",
+                        ledLighting: "LED Lighting",
+                        freezer: "Freezer",
+                        waterPump: "Water Pump",
+                        waterHeater: "Water Heater",
+                        airCooler: "Air Cooler",
+                        fan: "Fan",
+                        dishwasher: "Dishwasher",
+                        waterDispenser: "Water Dispenser",
+                        splitAc1Ton: "Split AC (1 ton)",
+                        splitAc1_5Ton: "Split AC (1.5 ton)",
+                        splitAc2Ton: "Split AC (2 ton)",
+                        towerAc: "Tower AC",
+                        electricHeater: "Electric Heater",
+                        iron: "Iron",
+                        microwave: "Microwave",
+                        electricKettle: "Electric Kettle",
+                        hairDryer: "Hair Dryer",
+                        vacuumCleaner: "Vacuum Cleaner",
+                        electricOven: "Electric Oven",
+                        phoneCharger: "Phone Charger",
+                        desktopPc: "Desktop PC",
+                        pcMonitor: "PC Monitor",
+                        newDevice: "New Device"
+                    }
                 },
                 ar: {
                     appTitle: "مساعد فواتير روناكي",
@@ -955,7 +984,36 @@
                     unitKWH: "كيلوواط ساعة",
                     unitA: "أمبير",
                     yes: "نعم",
-                    no: "لا"
+                    no: "لا",
+                    // Device Names
+                    deviceNames: {
+                        ledTv: "تلفزيون LED",
+                        refrigerator: "ثلاجة",
+                        washingMachine: "غسالة",
+                        ledLighting: "إضاءة LED",
+                        freezer: "فريزر",
+                        waterPump: "مضخة مياه",
+                        waterHeater: "سخان مياه",
+                        airCooler: "مبرد هواء",
+                        fan: "مروحة",
+                        dishwasher: "غسالة صحون",
+                        waterDispenser: "موزع مياه",
+                        splitAc1Ton: "مكيف سبليت (1 طن)",
+                        splitAc1_5Ton: "مكيف سبليت (1.5 طن)",
+                        splitAc2Ton: "مكيف سبليت (2 طن)",
+                        towerAc: "مكيف برج",
+                        electricHeater: "سخان كهربائي",
+                        iron: "مكواة",
+                        microwave: "ميكروويف",
+                        electricKettle: "غلاية كهربائية",
+                        hairDryer: "مجفف شعر",
+                        vacuumCleaner: "مكنسة كهربائية",
+                        electricOven: "فرن كهربائي",
+                        phoneCharger: "شاحن هاتف",
+                        desktopPc: "كمبيوتر مكتبي",
+                        pcMonitor: "شاشة كمبيوتر",
+                        newDevice: "جهاز جديد"
+                    }
                 },
                 ku: {
                     appTitle: "یارمەتیدەری بیل ڕوناکی",
@@ -1069,7 +1127,36 @@
                     unitKWH: "کیلۆوات کاتژمێر",
                     unitA: "ئەمپێر",
                     yes: "بەڵێ",
-                    no: "نەخێر"
+                    no: "نەخێر",
+                    // Device Names
+                    deviceNames: {
+                        ledTv: "تەلەفزیۆنی LED",
+                        refrigerator: "ساردکەرەوە",
+                        washingMachine: "جلشۆر",
+                        ledLighting: "ڕووناککەرەوەی LED",
+                        freezer: "فریزەر",
+                        waterPump: "پەمپی ئاو",
+                        waterHeater: "گەرمکەرەوەی ئاو",
+                        airCooler: "فێنککەرەوەی هەوا",
+                        fan: "پانکە",
+                        dishwasher: "قاپشۆر",
+                        waterDispenser: "دابەشکردنی ئاو",
+                        splitAc1Ton: "ئەی سی سپلیت (1 تۆن)",
+                        splitAc1_5Ton: "ئەی سی سپلیت (1.5 تۆن)",
+                        splitAc2Ton: "ئەی سی سپلیت (2 تۆن)",
+                        towerAc: "ئەی سی تاوەر",
+                        electricHeater: "گەرمکەرەوەی کارەبایی",
+                        iron: "ئوتوو",
+                        microwave: "مایکرۆوەیڤ",
+                        electricKettle: "گۆزەڵەی کارەبایی",
+                        hairDryer: "وشککەرەوەی قژ",
+                        vacuumCleaner: "پاککەرەوەی کارەبایی",
+                        electricOven: "فڕنی کارەبایی",
+                        phoneCharger: "شاحنی مۆبایل",
+                        desktopPc: "کۆمپیوتەری مێز",
+                        pcMonitor: "شاشەی کۆمپیوتەر",
+                        newDevice: "ئامێری نوێ"
+                    }
                 }
             };
 
@@ -1102,6 +1189,15 @@
                             option.textContent = translations[lang][key];
                         }
                     });
+                });
+
+                // Update device table names
+                Array.from(deviceTableBody.children).forEach(row => {
+                    const nameInput = row.querySelector('.device-input[type="text"]');
+                    const nameKey = nameInput.getAttribute('data-name-key');
+                    if (nameKey && translations[lang].deviceNames[nameKey]) {
+                        nameInput.value = translations[lang].deviceNames[nameKey];
+                    }
                 });
 
                 // Update input placeholders if needed (none currently in your HTML, but good practice)
@@ -1259,9 +1355,30 @@
                 }
             };
 
+            const convertArabicNumeralsToWestern = (input) => {
+                if (typeof input !== 'string') return input;
+                const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+                const westernNumerals = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+                let output = input;
+                for (let i = 0; i < arabicNumerals.length; i++) {
+                    output = output.replace(new RegExp(arabicNumerals[i], 'g'), westernNumerals[i]);
+                }
+                return output;
+            };
+
             const validateNumeric = (textInput) => {
                 if (typeof textInput !== 'string') textInput = String(textInput);
-                const cleanInput = textInput.replace(/,/g, '');
+
+                // Convert Arabic numerals to Western numerals first
+                let cleanInput = convertArabicNumeralsToWestern(textInput);
+
+                // Replace Arabic thousands separator (٬) and decimal separator (٫)
+                cleanInput = cleanInput.replace(/٬/g, '').replace(/٫/g, '.'); // Arabic thousands comma, Arabic decimal point
+
+                // Replace English thousands comma (,)
+                cleanInput = cleanInput.replace(/,/g, '');
+
                 if (!cleanInput.trim()) return 0.0;
                 const value = parseFloat(cleanInput);
                 return isNaN(value) ? 0.0 : value;
@@ -1326,7 +1443,7 @@
                     if (consumptionInThisSlab > 0) {
                         const costInThisSlab = consumptionInThisSlab * slabRate;
                         totalCost += costInThisSlab;
-                        breakdown.push(`  - ${translations[lang].slab} ${i + 1} (${slabName}): ${formatNumber(consumptionInThisSlab, 2)} ${translations[lang].unitKWH} @ ${formatNumber(slabRate, 2)} ${translations[lang].unitIQD}/${translations[lang].unitKWH} = ${formatNumber(costInThisSlab, 0, true)} ${translations[lang].unitIQD}`);
+                        breakdown.push(`  - ${translations[lang].slab} ${i + 1} (${slabName}): ${formatNumber(consumptionInThisSlab, 2)} ${translations[lang].unitKWH} @ ${formatNumber(slabRate, 2)} ${translations[lang].iqdPerKwh} = ${formatNumber(costInThisSlab, 0, true)} ${translations[lang].unitIQD}`);
                     }
                     remainingKwh -= consumptionInThisSlab;
                     previousSlabLimit = slabLimit;
@@ -1337,7 +1454,7 @@
             const getRonakiFlatTariffDetails = (kWh, rate) => {
                 const lang = languageSelect.value;
                 const totalCost = kWh * rate;
-                const breakdown = `  - ${translations[lang].consumption}: ${formatNumber(kWh, 2)} ${translations[lang].unitKWH} @ ${formatNumber(rate, 2)} ${translations[lang].unitIQD}/${translations[lang].unitKWH} = ${formatNumber(totalCost, 0, true)} ${translations[lang].unitIQD}`;
+                const breakdown = `  - ${translations[lang].consumption}: ${formatNumber(kWh, 2)} ${translations[lang].unitKWH} @ ${formatNumber(rate, 2)} ${translations[lang].iqdPerKwh} = ${formatNumber(totalCost, 0, true)} ${translations[lang].unitIQD}`;
                 return { totalCost, breakdown };
             };
 
@@ -1392,7 +1509,7 @@
                 billElem.textContent = `${formatNumber(bill, 0, true)} ${translations[lang].unitIQD}`; // Bill first
                 kwhElem.textContent = `${formatNumber(kwh, 2)} ${translations[lang].unitKWH}`;
                 amperesElem.textContent = `${formatNumber(amperes, 2)} ${translations[lang].unitA}`;
-                avgRateElem.textContent = `${formatNumber(avgRate, 2)} ${translations[lang].unitIQD}/${translations[lang].unitKWH}`;
+                avgRateElem.textContent = `${formatNumber(avgRate, 2)} ${translations[lang].iqdPerKwh}`;
             };
 
             // --- MAIN CALCULATION HANDLER ---
@@ -1644,13 +1761,17 @@
 
             // --- DEVICE TABLE LOGIC ---
             const addTableRow = (deviceData = {}) => {
-                const row = deviceTableBody.insertRow();
+                const lang = languageSelect.value;
+                const defaultNameKey = deviceData.nameKey || 'newDevice';
                 const data = {
-                    name: 'New Device', watt: '100', hours: '8', day: '30', count: '1', on: true, fixed: false, ...deviceData
+                    nameKey: defaultNameKey,
+                    name: translations[lang].deviceNames[defaultNameKey], 
+                    watt: '100', hours: '8', day: '30', count: '1', on: true, fixed: false, ...deviceData
                 };
 
+                const row = deviceTableBody.insertRow();
                 row.innerHTML = `
-                    <td><input type="text" value="${data.name}" class="device-input"></td>
+                    <td><input type="text" value="${data.name}" class="device-input" data-name-key="${data.nameKey}"></td>
                     <td><input type="number" value="${data.watt}" class="device-input"></td>
                     <td><input type="number" value="${data.hours}" class="device-input" min="0" max="24"></td>
                     <td><input type="number" value="${data.day}" class="device-input" min="0" max="31"></td>
@@ -1664,6 +1785,10 @@
                 row.querySelector('.device-on').addEventListener('change', () => calculateDeviceConsumption());
                 row.querySelector('.device-fixed').addEventListener('change', () => calculateDeviceConsumption());
                 row.querySelectorAll('.device-input').forEach(input => {
+                    // Store the nameKey on the input itself for translation updates
+                    if (input.type === 'text') {
+                        input.setAttribute('data-name-key', data.nameKey);
+                    }
                     input.addEventListener('change', () => calculateDeviceConsumption());
                 });
 
@@ -1682,44 +1807,36 @@
 
             const startupPopulateDeviceTable = () => {
                 const sampleDevices = [
-                    ['LED TV', '100', '8', '30', '1', true, false],
-                    ['Refrigerator', '175', '24', '30', '1', true, true],
-                    ['Washing Machine', '2000', '2', '4', '1', true, false],
-                    ['LED Lighting', '12', '12', '30', '20', true, false],
-                    ['Freezer', '150', '24', '30', '1', true, true],
-                    ['Water Pump', '500', '1', '30', '1', true, false],
-                    ['Water Heater', '2500', '1', '15', '1', false, false],
-                    ['Air Cooler', '250', '18', '30', '1', true, false],
-                    ['Fan', '75', '18', '30', '1', true, false],
-                    ['Dishwasher', '1800', '2', '15', '1', true, false],
-                    ['Water Dispenser', '175', '2', '15', '1', true, false],
-                    ['Split AC (1 ton)', '1000', '4', '30', '1', true, false],
-                    ['Split AC (1.5 ton)', '1500', '4', '30', '1', false, false],
-                    ['Split AC (2 ton)', '2000', '4', '30', '1', false, false],
-                    ['Tower AC', '3000', '4', '30', '1', false, false],
-                    ['Electric Heater', '2000', '6', '20', '1', false, false],
-                    ['Iron', '1500', '1', '8', '1', false, false],
-                    ['Microwave', '1000', '0.5', '15', '1', false, false],
-                    ['Electric Kettle', '1800', '0.2', '30', '1', false, false],
-                    ['Hair Dryer', '1600', '0.2', '10', '1', false, false],
-                    ['Vacuum Cleaner', '1400', '0.5', '4', '1', false, false],
-                    ['Electric Oven', '2500', '1', '10', '1', false, false],
-                    ['Phone Charger', '10', '8', '30', '2', false, true],
-                    ['Desktop PC', '150', '6', '30', '1', true, false],
-                    ['PC Monitor', '40', '6', '30', '1', false, false],
+                    { nameKey: 'ledTv', watt: '100', hours: '8', day: '30', count: '1', on: true, fixed: false },
+                    { nameKey: 'refrigerator', watt: '175', hours: '24', day: '30', count: '1', on: true, fixed: true },
+                    { nameKey: 'washingMachine', watt: '2000', hours: '2', day: '4', count: '1', on: true, fixed: false },
+                    { nameKey: 'ledLighting', watt: '12', hours: '12', day: '30', count: '20', on: true, fixed: false },
+                    { nameKey: 'freezer', watt: '150', hours: '24', day: '30', count: '1', on: true, fixed: true },
+                    { nameKey: 'waterPump', watt: '500', hours: '1', day: '30', count: '1', on: true, fixed: false },
+                    { nameKey: 'waterHeater', watt: '2500', hours: '1', day: '15', count: '1', on: false, fixed: false },
+                    { nameKey: 'airCooler', watt: '250', hours: '18', day: '30', count: '1', on: true, fixed: false },
+                    { nameKey: 'fan', watt: '75', hours: '18', day: '30', count: '1', on: true, fixed: false },
+                    { nameKey: 'dishwasher', watt: '1800', hours: '2', day: '15', count: '1', on: true, fixed: false },
+                    { nameKey: 'waterDispenser', watt: '175', hours: '2', day: '15', count: '1', on: true, fixed: false },
+                    { nameKey: 'splitAc1Ton', watt: '1000', hours: '4', day: '30', count: '1', on: true, fixed: false },
+                    { nameKey: 'splitAc1_5Ton', watt: '1500', hours: '4', day: '30', count: '1', on: false, fixed: false },
+                    { nameKey: 'splitAc2Ton', watt: '2000', hours: '4', day: '30', count: '1', on: false, fixed: false },
+                    { nameKey: 'towerAc', watt: '3000', hours: '4', day: '30', count: '1', on: false, fixed: false },
+                    { nameKey: 'electricHeater', watt: '2000', hours: '6', day: '20', count: '1', on: false, fixed: false },
+                    { nameKey: 'iron', watt: '1500', hours: '1', day: '8', count: '1', on: false, fixed: false },
+                    { nameKey: 'microwave', watt: '1000', hours: '0.5', day: '15', count: '1', on: false, fixed: false },
+                    { nameKey: 'electricKettle', watt: '1800', hours: '0.2', day: '30', count: '1', on: false, fixed: false },
+                    { nameKey: 'hairDryer', watt: '1600', hours: '0.2', day: '10', count: '1', on: false, fixed: false },
+                    { nameKey: 'vacuumCleaner', watt: '1400', hours: '0.5', day: '4', count: '1', on: false, fixed: false },
+                    { nameKey: 'electricOven', watt: '2500', hours: '1', day: '10', count: '1', on: false, fixed: false },
+                    { nameKey: 'phoneCharger', watt: '10', hours: '8', day: '30', count: '2', on: false, fixed: true },
+                    { nameKey: 'desktopPc', watt: '150', hours: '6', day: '30', count: '1', on: true, fixed: false },
+                    { nameKey: 'pcMonitor', watt: '40', hours: '6', day: '30', count: '1', on: false, fixed: false },
                 ];
                 
                 deviceTableBody.innerHTML = ''; // Clear existing rows before populating
-                sampleDevices.forEach(deviceArray => {
-                    addTableRow({
-                        name: deviceArray[0],
-                        watt: deviceArray[1],
-                        hours: deviceArray[2],
-                        day: deviceArray[3],
-                        count: deviceArray[4],
-                        on: deviceArray[5],
-                        fixed: deviceArray[6],
-                    });
+                sampleDevices.forEach(device => {
+                    addTableRow(device);
                 });
             };
 
@@ -1730,11 +1847,10 @@
                 const kwh = validateNumeric(manualKwhElem.textContent.replace(translations[lang].unitKWH, '').trim());
                 const bill = validateNumeric(manualBillElem.textContent.replace(translations[lang].unitIQD, '').trim());
                 const amperes = validateNumeric(manualAmperesElem.textContent.replace(translations[lang].unitA, '').trim());
-                const avgRate = validateNumeric(manualAvgRateElem.textContent.replace(`${translations[lang].unitIQD}/${translations[lang].unitKWH}`, '').trim());
+                const avgRate = validateNumeric(manualAvgRateElem.textContent.replace(translations[lang].iqdPerKwh, '').trim());
                 const category = categoryDropdown.value;
 
-                // Remove the strict check for kwh <= 0, as a 0 kWh result can be valid for a report
-                // if (kwh <= 0) { showMessage("performCalculationFirst", 'info'); return; }
+                // Removed the strict check for kwh <= 0, as a 0 kWh result can be valid for a report
                 const { breakdown } = getRonakiHouseholdTariffDetails(kwh); 
 
                 let reportHtml = `
@@ -1743,7 +1859,7 @@
                     <p><span class="report-item-label">${translations[lang].billLabel}:</span> <span class="report-item-value">${formatNumber(bill, 0, true)} ${translations[lang].unitIQD}</span></p>
                     <p><span class="report-item-label">${translations[lang].consumptionLabel}:</span> <span class="report-item-value">${formatNumber(kwh, 2)} ${translations[lang].unitKWH}</span></p>
                     <p><span class="report-item-label">${translations[lang].avgAmperesLabel}:</span> <span class="report-item-value">${formatNumber(amperes, 2)} ${translations[lang].unitA}</span></p>
-                    <p><span class="report-item-label">${translations[lang].avgRateLabel}:</span> <span class="report-item-value">${formatNumber(avgRate, 2)} ${translations[lang].unitIQD}/${translations[lang].unitKWH}</span></p>
+                    <p><span class="report-item-label">${translations[lang].avgRateLabel}:</span> <span class="report-item-value">${formatNumber(avgRate, 2)} ${translations[lang].iqdPerKwh}</span></p>
                 `;
                 if (category === 'Household') {
                     reportHtml += `<div class="report-section-title">${translations[lang].tariffBreakdown}</div><pre>${breakdown}</pre>`;
@@ -1767,13 +1883,8 @@
                 const avgAmperes = kwhToAmperes(consumption, daysVal);
                 const avgRate = consumption > 0 ? totalBill / consumption : 0;
 
-                // Remove the strict validation here, as performMeterCalculation already handles it
+                // Removed the strict validation here, as performMeterCalculation already handles it
                 // and sets display values to 0 if invalid. If 0 is a result, it's valid.
-                // if (isNaN(prevReading) || isNaN(currReading) || prevReading < 0 || currReading < 0 || currReading < prevReading || isNaN(daysVal) || daysVal <= 0) {
-                //     showMessage("ensureValidMeterReadings", 'error');
-                //     return;
-                // }
-
                 let reportHtml = `
                     <div class="report-section-title">${translations[lang].meterCalculationSummary}</div>
                     <p><span class="report-item-label">${translations[lang].category}:</span> <span class="report-item-value">${translations[lang][category.toLowerCase() + 'Option'] || category}</span></p>
@@ -1783,7 +1894,7 @@
                     <p><span class="report-item-label">${translations[lang].billLabel}:</span> <span class="report-item-value">${formatNumber(totalBill, 0, true)} ${translations[lang].unitIQD}</span></p>
                     <p><span class="report-item-label">${translations[lang].consumptionLabel}:</span> <span class="report-item-value">${formatNumber(consumption, 2)} ${translations[lang].unitKWH}</span></p>
                     <p><span class="report-item-label">${translations[lang].avgAmperesLabel}:</span> <span class="report-item-value">${formatNumber(avgAmperes, 2)} ${translations[lang].unitA}</span></p>
-                    <p><span class="report-item-label">${translations[lang].avgRateLabel}:</span> <span class="report-item-value">${formatNumber(avgRate, 2)} ${translations[lang].unitIQD}/${translations[lang].unitKWH}</span></p>
+                    <p><span class="report-item-label">${translations[lang].avgRateLabel}:</span> <span class="report-item-value">${formatNumber(avgRate, 2)} ${translations[lang].iqdPerKwh}</span></p>
                 `;
                 if (category === 'Household') {
                     const { breakdown } = getRonakiHouseholdTariffDetails(consumption);
@@ -1849,7 +1960,7 @@
                     <p><span class="report-item-label">${translations[lang].totalBill}:</span> <span class="report-item-value">${formatNumber(finalTotalBill, 0, true)} ${translations[lang].unitIQD}</span></p>
                     <p><span class="report-item-label">${translations[lang].totalConsumption}:</span> <span class="report-item-value">${formatNumber(totalKwh, 2)} ${translations[lang].unitKWH}</span></p>
                     <p><span class="report-item-label">${translations[lang].averageAmperes}:</span> <span class="report-item-value">${formatNumber(finalAvgAmperes, 2)} ${translations[lang].unitA}</span></p>
-                    <p><span class="report-item-label">${translations[lang].averageRate}:</span> <span class="report-item-value">${formatNumber(finalAvgRate, 2)} ${translations[lang].unitIQD}/${translations[lang].unitKWH}</span></p>
+                    <p><span class="report-item-label">${translations[lang].averageRate}:</span> <span class="report-item-value">${formatNumber(finalAvgRate, 2)} ${translations[lang].iqdPerKwh}</span></p>
 
                     <div class="report-section-title">${translations[lang].deviceBreakdown}</div>
                     <table class="report-table">
@@ -1914,7 +2025,9 @@
                     let rowData = [];
                     row.querySelectorAll('td').forEach((td, index) => {
                         let cellValue;
-                        if (index < 5) { // Input fields
+                        if (index === 0) { // Device Name input
+                            cellValue = td.querySelector('input').getAttribute('data-name-key'); // Store the key, not the translated value
+                        } else if (index < 5) { // Other input fields
                             cellValue = td.querySelector('input').value;
                         } else if (index >= 7) { // Checkboxes
                             cellValue = td.querySelector('input').checked ? 'TRUE' : 'FALSE';
@@ -1922,8 +2035,8 @@
                             cellValue = td.innerText.replace(/,/g, ''); // Remove commas for numeric values
                         }
                         // Escape commas and double quotes for CSV
-                        if (cellValue.includes(',') || cellValue.includes('"')) {
-                            cellValue = `"${cellValue.replace(/"/g, '""')}"`;
+                        if (String(cellValue).includes(',') || String(cellValue).includes('"')) {
+                            cellValue = `"${String(cellValue).replace(/"/g, '""')}"`;
                         }
                         rowData.push(cellValue);
                     });
@@ -1983,7 +2096,7 @@
                     }
 
                     addTableRow({
-                        name: rowValues[0],
+                        nameKey: rowValues[0], // Load the nameKey
                         watt: rowValues[1],
                         hours: rowValues[2],
                         day: rowValues[3],
