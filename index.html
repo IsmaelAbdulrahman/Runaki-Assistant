@@ -127,13 +127,13 @@
         }
 
         /* Specific button colors (softer palette) */
-        .btn-purple { background-color: #a78bfa; } /* Softer purple */
-        .btn-blue { background-color: #60a5fa; } /* Lighter, more vibrant blue */
-        .btn-orange { background-color: #fbbf24; } /* Softer orange */
-        .btn-green { background-color: #4ade80; } /* Lighter green */
-        .btn-red { background-color: #ef4444; } /* Slightly softer red */
-        .btn-gray { background-color: #9ca3af; color: white;} /* Muted gray, white text */
-        .btn-indigo { background-color: #818cf8; } /* Lighter indigo */
+        .btn-purple { background-color: #c4b5fd; } /* Lighter purple */
+        .btn-blue { background-color: #93c5fd; } /* Lighter blue */
+        .btn-orange { background-color: #fcd34d; } /* Lighter orange */
+        .btn-green { background-color: #86efac; } /* Lighter green */
+        .btn-red { background-color: #fca5a5; } /* Lighter red */
+        .btn-gray { background-color: #d1d5db; color: #333f48;} /* Lighter gray, dark text */
+        .btn-indigo { background-color: #a5b4fc; } /* Lighter indigo */
 
 
         .result-grid {
@@ -166,7 +166,7 @@
         /* Chart container styling */
         .chart-container {
             width: 100%;
-            height: 350px; /* Slightly taller charts */
+            height: 450px; /* Increased height for charts */
             margin-top: 1.5rem;
             background-color: #ffffff;
             border-radius: 0.75rem;
@@ -326,7 +326,7 @@
                         <option value="Avg Amperes">Avg Amperes</option>
                         <option value="Given Bill">Given Bill</option>
                     </select>
-                    <input type="text" id="manualInput" value="1891" class="w-28">
+                    <input type="number" id="manualInput" value="1891" class="w-28"> <!-- Changed to type="number" -->
                 </div>
                 <div class="result-grid">
                     <div class="result-item">
@@ -355,9 +355,9 @@
                 <div class="input-group">
                     <button id="calculateMeterButton" class="btn btn-blue">Calculate Bill</button>
                     <label for="meterPrevReading">Prev Reading:</label>
-                    <input type="text" id="meterPrevReading" value="31051" class="w-24">
+                    <input type="number" id="meterPrevReading" value="31051" class="w-24"> <!-- Changed to type="number" -->
                     <label for="meterCurrReading">Curr Reading:</label>
-                    <input type="text" id="meterCurrReading" value="31910" class="w-24">
+                    <input type="number" id="meterCurrReading" value="31910" class="w-24"> <!-- Changed to type="number" -->
                     <label for="daysInput">Days:</label>
                     <input type="number" id="daysInput" value="30" min="1" max="365" class="w-16">
                 </div>
@@ -391,7 +391,7 @@
                         <option value="Target Amperes">Target Amperes</option>
                         <option value="Target kWh">Target kWh</option>
                     </select>
-                    <input type="text" id="budgetLimitInput" value="100,000" class="w-32">
+                    <input type="number" id="budgetLimitInput" value="100000" class="w-32"> <!-- Changed to type="number" and value -->
                 </div>
                 <div class="result-grid">
                     <div class="result-item col-span-full">
@@ -402,9 +402,9 @@
             </div>
             
             <!-- New buttons for showing/hiding sections -->
-            <div class="flex flex-wrap justify-center gap-4 mt-4"> <!-- Increased gap to gap-4 -->
+            <div class="flex flex-wrap justify-center gap-4 mt-4 p-2 border border-gray-200 rounded-lg bg-gray-50"> <!-- Added padding and border for organization -->
                 <button id="toggleBudgetOptimizationButton" class="btn btn-indigo">Show Budget Optimization</button>
-                <button id="toggleCurvePlotButton" class="btn btn-indigo">Hide Tariff Curve Plot</button> <!-- Updated initial text -->
+                <button id="toggleCurvePlotButton" class="btn btn-indigo">Hide Tariff Curve Plot</button> 
                 <button id="toggleTableButton" class="btn btn-indigo">Show Device Table</button>
                 <button id="toggleBarPlotsButton" class="btn btn-indigo">Show Bar Plots</button>
             </div>
@@ -462,8 +462,8 @@
                 </div>
             </div>
 
-            <!-- 4. Dynamic Tariff Curves Plot (Moved to end) -->
-            <div class="section-card flex flex-col items-center" id="tariffCurvePlotContainer" style="display: block;"> <!-- Changed to display: block -->
+            <!-- 4. Dynamic Tariff Curves Plot (Moved to end and visible by default) -->
+            <div class="section-card flex flex-col items-center" id="tariffCurvePlotContainer" style="display: block;"> 
                 <h2 class="text-xl">4. Dynamic Tariff Curves</h2>
                 <div class="chart-container">
                     <canvas id="tariffPlot"></canvas>
@@ -1308,12 +1308,13 @@
                 const type = e.target.value;
                 if (type === 'kWh') manualInput.value = '1891';
                 else if (type === 'Avg Amperes') manualInput.value = '12';
-                else if (type === 'Given Bill') manualInput.value = '100,000';
+                else if (type === 'Given Bill') manualInput.value = '100000'; // Updated for type="number"
                 performManualCalculation();
             });
 
             calculateManualButton.addEventListener('click', performManualCalculation);
             manualInput.addEventListener('change', performManualCalculation); 
+            manualInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') performManualCalculation(); }); // Added Enter key listener
             categoryDropdown.addEventListener('change', () => {
                 performManualCalculation();
                 calculateDeviceConsumption(); 
@@ -1321,12 +1322,19 @@
 
             calculateMeterButton.addEventListener('click', performMeterCalculation);
             meterPrevReading.addEventListener('change', performMeterCalculation);
+            meterPrevReading.addEventListener('keydown', (e) => { if (e.key === 'Enter') performMeterCalculation(); }); // Added Enter key listener
             meterCurrReading.addEventListener('change', performMeterCalculation);
+            meterCurrReading.addEventListener('keydown', (e) => { if (e.key === 'Enter') performMeterCalculation(); }); // Added Enter key listener
             daysInput.addEventListener('change', () => {
                 performManualCalculation(); 
                 performMeterCalculation(); 
                 calculateDeviceConsumption(); 
             });
+            daysInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') {
+                performManualCalculation();
+                performMeterCalculation();
+                calculateDeviceConsumption();
+            }}); // Added Enter key listener
 
             tariffSlider.addEventListener('input', (e) => {
                 const kwhFromSlider = parseFloat(e.target.value);
@@ -1420,12 +1428,14 @@
             // Budget Optimization
             optimizationTargetDropdown.addEventListener('change', () => {
                 const target = optimizationTargetDropdown.value;
-                if (target === 'Target Cost') budgetLimitInput.value = '100,000';
+                if (target === 'Target Cost') budgetLimitInput.value = '100000'; // Updated for type="number"
                 else if (target === 'Target Amperes') budgetLimitInput.value = '12';
                 else if (target === 'Target kWh') budgetLimitInput.value = '1891';
                 budgetResultLabel.textContent = 'Result: Not Optimized';
             });
             optimizeBudgetButton.addEventListener('click', optimizeForBudget);
+            budgetLimitInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') optimizeForBudget(); }); // Added Enter key listener
+
 
             // Toggle Budget Optimization Section
             toggleBudgetOptimizationButton.addEventListener('click', () => {
