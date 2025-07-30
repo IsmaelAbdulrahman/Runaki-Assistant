@@ -142,7 +142,7 @@
         button {
             padding: 0.75rem 1.5rem; /* More padding */
             border-radius: 0.6rem; /* More rounded corners */
-            border: 2px solid var(--button-yellow-border); /* Wider border with darker yellow */
+            border: 2px solid var(--result-static-yellow); /* Wider border with light yellow */
             font-size: 1rem; /* Slightly larger font */
             font-weight: 700;
             cursor: pointer;
@@ -524,12 +524,12 @@
             </div>
             
             <!-- New buttons for showing/hiding sections -->
-            <div class="flex flex-wrap justify-center gap-4 mt-6 p-4 border border-gray-700 rounded-lg max-w-lg mx-auto" style="background-color: var(--card-dark);">
-                <button id="toggleManualCalculationButton" class="btn w-full sm:w-auto">Hide Manual Calculation</button>
-                <button id="toggleMeterCalculationButton" class="btn w-full sm:w-auto">Show By Meter Calculation</button>
-                <button id="toggleTableButton" class="btn w-full sm:w-auto">Show Device Table</button>
-                <button id="toggleBudgetOptimizationButton" class="btn w-full sm:w-auto">Show Budget Optimization</button>
-                <button id="showTariffDetailsButton" class="btn w-full sm:w-auto">Show Tariff Details</button>
+            <div class="flex flex-col justify-center gap-2 mt-6 p-4 border border-gray-700 rounded-lg max-w-lg mx-auto" style="background-color: var(--card-dark);">
+                <button id="toggleManualCalculationButton" class="btn w-full">Hide Manual Calculation</button>
+                <button id="toggleMeterCalculationButton" class="btn w-full">Show By Meter Calculation</button>
+                <button id="toggleTableButton" class="btn w-full">Show Device Table</button>
+                <button id="toggleBudgetOptimizationButton" class="btn w-full">Show Budget Optimization</button>
+                <button id="showTariffDetailsButton" class="btn w-full">Show Tariff Details</button>
             </div>
 
             <!-- 5. Device Consumption Table -->
