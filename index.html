@@ -91,10 +91,11 @@
         
         /* Language selector styling */
         .language-selector {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            z-index: 100;
+            margin-top: 1rem; /* Space from the content above */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         h1 {
@@ -447,6 +448,13 @@
         /* Footer */
         footer {
             color: var(--text-medium-light); /* Night mode footer text */
+            margin-top: 8rem; /* Increased margin-top for footer */
+            text-align: center;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         /* Message Box Styling */
@@ -529,14 +537,6 @@
     </style>
 </head>
 <body>
-
-    <div class="language-selector">
-        <select id="languageSelect" class="p-2 border rounded-md bg-gray-700 text-white">
-            <option value="en">English</option>
-            <option value="ar">العربية (Arabic)</option>
-            <option value="ku">کوردی سۆرانی (Kurdish Sorani)</option>
-        </select>
-    </div>
 
     <h1 class="text-3xl lg:text-4xl" data-lang-key="mainTitle">Runaki Bill Assistant</h1>
 
@@ -687,6 +687,13 @@
 
     <footer class="mt-8 text-center text-neutral-gray-medium text-sm">
         <p data-lang-key="footerText">Created by Dr. Ismael Abdulrahman</p>
+        <div class="language-selector">
+            <select id="languageSelect" class="p-2 border rounded-md bg-gray-700 text-white">
+                <option value="en">English</option>
+                <option value="ar">العربية (Arabic)</option>
+                <option value="ku">کوردی سۆرانی (Kurdish Sorani)</option>
+            </select>
+        </div>
     </footer>
 
     <!-- Custom Modal for Tariff Details -->
@@ -829,6 +836,12 @@
                     iqdPerKwh: "IQD/kWh",
                     categoryText: "Category",
                     slab: "Slab",
+                    // Units
+                    unitIQD: "IQD",
+                    unitKWH: "kWh",
+                    unitA: "A",
+                    yes: "Yes",
+                    no: "No"
                 },
                 ar: {
                     appTitle: "مساعد فواتير روناكي",
@@ -937,6 +950,12 @@
                     consumption: "الاستهلاك",
                     iqdPerKwh: "دينار عراقي/كيلوواط ساعة",
                     slab: "شريحة",
+                    // Units
+                    unitIQD: "دينار عراقي",
+                    unitKWH: "كيلوواط ساعة",
+                    unitA: "أمبير",
+                    yes: "نعم",
+                    no: "لا"
                 },
                 ku: {
                     appTitle: "یارمەتیدەری بیل ڕوناکی",
@@ -1045,6 +1064,12 @@
                     consumption: "بەکارهێنان",
                     iqdPerKwh: "د.ع/کیلۆوات کاتژمێر",
                     slab: "شریحه",
+                    // Units
+                    unitIQD: "د.ع",
+                    unitKWH: "کیلۆوات کاتژمێر",
+                    unitA: "ئەمپێر",
+                    yes: "بەڵێ",
+                    no: "نەخێر"
                 }
             };
 
@@ -1086,14 +1111,22 @@
                 // Update report modal content if it's open (re-generate it)
                 if (reportModal.style.display === 'flex') {
                     const currentReportTitle = reportModalTitle.textContent;
-                    if (currentReportTitle === translations.en.manualCalculationReport || currentReportTitle === translations.ar.manualCalculationReport || currentReportTitle === translations.ku.manualCalculationReport) {
+                    // Check against all possible translated titles to determine which report to regenerate
+                    if (currentReportTitle === translations.en.manualCalculationSummary ||
+                        currentReportTitle === translations.ar.manualCalculationSummary ||
+                        currentReportTitle === translations.ku.manualCalculationSummary) {
                         generateManualReport();
-                    } else if (currentReportTitle === translations.en.meterCalculationReport || currentReportTitle === translations.ar.meterCalculationReport || currentReportTitle === translations.ku.meterCalculationReport) {
+                    } else if (currentReportTitle === translations.en.meterCalculationSummary ||
+                               currentReportTitle === translations.ar.meterCalculationSummary ||
+                               currentReportTitle === translations.ku.meterCalculationSummary) {
                         generateMeterReport();
-                    } else if (currentReportTitle === translations.en.deviceConsumptionReport || currentReportTitle === translations.ar.deviceConsumptionReport || currentReportTitle === translations.ku.deviceConsumptionReport) {
+                    } else if (currentReportTitle === translations.en.overallConsumptionSummary ||
+                               currentReportTitle === translations.ar.overallConsumptionSummary ||
+                               currentReportTitle === translations.ku.overallConsumptionSummary) {
                         generateDeviceReport();
                     }
                 }
+
 
                 // Update tariff modal content if it's open (re-generate it)
                 if (tariffDetailsModal.style.display === 'flex') {
@@ -1211,9 +1244,12 @@
                 try {
                     const num = parseFloat(value);
                     if (isNaN(num)) return String(value);
-                    if (isCurrency) return Math.round(num).toLocaleString(languageSelect.value === 'ar' ? 'ar-IQ' : 'en-US');
-                    if (removeTrailingZeroDecimal && num === parseInt(num)) return parseInt(num).toLocaleString(languageSelect.value === 'ar' ? 'ar-IQ' : 'en-US');
-                    return num.toLocaleString(languageSelect.value === 'ar' ? 'ar-IQ' : 'en-US', {
+                    const lang = languageSelect.value;
+                    const locale = lang === 'ar' ? 'ar-IQ' : 'en-US';
+
+                    if (isCurrency) return Math.round(num).toLocaleString(locale);
+                    if (removeTrailingZeroDecimal && num === parseInt(num)) return parseInt(num).toLocaleString(locale);
+                    return num.toLocaleString(locale, {
                         minimumFractionDigits: decimalPlaces,
                         maximumFractionDigits: decimalPlaces,
                     });
@@ -1290,7 +1326,7 @@
                     if (consumptionInThisSlab > 0) {
                         const costInThisSlab = consumptionInThisSlab * slabRate;
                         totalCost += costInThisSlab;
-                        breakdown.push(`  - ${translations[lang].slab} ${i + 1} (${slabName}): ${formatNumber(consumptionInThisSlab, 2)} kWh @ ${formatNumber(slabRate, 2)} ${translations[lang].iqdPerKwh} = ${formatNumber(costInThisSlab, 0, true)} IQD`);
+                        breakdown.push(`  - ${translations[lang].slab} ${i + 1} (${slabName}): ${formatNumber(consumptionInThisSlab, 2)} ${translations[lang].unitKWH} @ ${formatNumber(slabRate, 2)} ${translations[lang].unitIQD}/${translations[lang].unitKWH} = ${formatNumber(costInThisSlab, 0, true)} ${translations[lang].unitIQD}`);
                     }
                     remainingKwh -= consumptionInThisSlab;
                     previousSlabLimit = slabLimit;
@@ -1301,7 +1337,7 @@
             const getRonakiFlatTariffDetails = (kWh, rate) => {
                 const lang = languageSelect.value;
                 const totalCost = kWh * rate;
-                const breakdown = `  - ${translations[lang].consumption}: ${formatNumber(kWh, 2)} kWh @ ${formatNumber(rate, 2)} ${translations[lang].iqdPerKwh} = ${formatNumber(totalCost, 0, true)} IQD`;
+                const breakdown = `  - ${translations[lang].consumption}: ${formatNumber(kWh, 2)} ${translations[lang].unitKWH} @ ${formatNumber(rate, 2)} ${translations[lang].unitIQD}/${translations[lang].unitKWH} = ${formatNumber(totalCost, 0, true)} ${translations[lang].unitIQD}`;
                 return { totalCost, breakdown };
             };
 
@@ -1352,11 +1388,11 @@
                     void elem.offsetWidth; // Trigger reflow to restart animation
                     elem.classList.add('flash-animation'); // Add animation
                 });
-
-                billElem.textContent = `${formatNumber(bill, 0, true)} IQD`; // Bill first
-                kwhElem.textContent = `${formatNumber(kwh, 2)} kWh`;
-                amperesElem.textContent = `${formatNumber(amperes, 2)} A`;
-                avgRateElem.textContent = `${formatNumber(avgRate, 2)} IQD/kWh`;
+                const lang = languageSelect.value;
+                billElem.textContent = `${formatNumber(bill, 0, true)} ${translations[lang].unitIQD}`; // Bill first
+                kwhElem.textContent = `${formatNumber(kwh, 2)} ${translations[lang].unitKWH}`;
+                amperesElem.textContent = `${formatNumber(amperes, 2)} ${translations[lang].unitA}`;
+                avgRateElem.textContent = `${formatNumber(avgRate, 2)} ${translations[lang].unitIQD}/${translations[lang].unitKWH}`;
             };
 
             // --- MAIN CALCULATION HANDLER ---
@@ -1447,6 +1483,7 @@
                 const deviceDetails = [];
                 const category = categoryDropdown.value;
                 const daysVal = validateNumeric(daysInput.value) || 30;
+                const lang = languageSelect.value;
 
                 Array.from(deviceTableBody.children).forEach(row => {
                     const isOn = row.querySelector('.device-on').checked;
@@ -1701,10 +1738,10 @@
                 let reportHtml = `
                     <div class="report-section-title">${translations[lang].manualCalculationSummary}</div>
                     <p><span class="report-item-label">${translations[lang].category}:</span> <span class="report-item-value">${translations[lang][category.toLowerCase() + 'Option'] || category}</span></p>
-                    <p><span class="report-item-label">${translations[lang].billLabel}:</span> <span class="report-item-value">${formatNumber(bill, 0, true)} IQD</span></p>
-                    <p><span class="report-item-label">${translations[lang].consumptionLabel}:</span> <span class="report-item-value">${formatNumber(kwh, 2)} kWh</span></p>
-                    <p><span class="report-item-label">${translations[lang].avgAmperesLabel}:</span> <span class="report-item-value">${formatNumber(amperes, 2)} A</span></p>
-                    <p><span class="report-item-label">${translations[lang].avgRateLabel}:</span> <span class="report-item-value">${formatNumber(avgRate, 2)} IQD/kWh</span></p>
+                    <p><span class="report-item-label">${translations[lang].billLabel}:</span> <span class="report-item-value">${formatNumber(bill, 0, true)} ${translations[lang].unitIQD}</span></p>
+                    <p><span class="report-item-label">${translations[lang].consumptionLabel}:</span> <span class="report-item-value">${formatNumber(kwh, 2)} ${translations[lang].unitKWH}</span></p>
+                    <p><span class="report-item-label">${translations[lang].avgAmperesLabel}:</span> <span class="report-item-value">${formatNumber(amperes, 2)} ${translations[lang].unitA}</span></p>
+                    <p><span class="report-item-label">${translations[lang].avgRateLabel}:</span> <span class="report-item-value">${formatNumber(avgRate, 2)} ${translations[lang].unitIQD}/${translations[lang].unitKWH}</span></p>
                 `;
                 if (category === 'Household') {
                     reportHtml += `<div class="report-section-title">${translations[lang].tariffBreakdown}</div><pre>${breakdown}</pre>`;
@@ -1736,13 +1773,13 @@
                 let reportHtml = `
                     <div class="report-section-title">${translations[lang].meterCalculationSummary}</div>
                     <p><span class="report-item-label">${translations[lang].category}:</span> <span class="report-item-value">${translations[lang][category.toLowerCase() + 'Option'] || category}</span></p>
-                    <p><span class="report-item-label">${translations[lang].previousReading}:</span> <span class="report-item-value">${formatNumber(prevReading, 0, true)} kWh</span></p>
-                    <p><span class="report-item-label">${translations[lang].currentReading}:</span> <span class="report-item-value">${formatNumber(currReading, 0, true)} kWh</span></p>
+                    <p><span class="report-item-label">${translations[lang].previousReading}:</span> <span class="report-item-value">${formatNumber(prevReading, 0, true)} ${translations[lang].unitKWH}</span></p>
+                    <p><span class="report-item-label">${translations[lang].currentReading}:</span> <span class="report-item-value">${formatNumber(currReading, 0, true)} ${translations[lang].unitKWH}</span></p>
                     <p><span class="report-item-label">${translations[lang].days}:</span> <span class="report-item-value">${formatNumber(daysVal, 0, false, true)}</span></p>
-                    <p><span class="report-item-label">${translations[lang].billLabel}:</span> <span class="report-item-value">${formatNumber(totalBill, 0, true)} IQD</span></p>
-                    <p><span class="report-item-label">${translations[lang].consumptionLabel}:</span> <span class="report-item-value">${formatNumber(consumption, 2)} kWh</span></p>
-                    <p><span class="report-item-label">${translations[lang].avgAmperesLabel}:</span> <span class="report-item-value">${formatNumber(avgAmperes, 2)} A</span></p>
-                    <p><span class="report-item-label">${translations[lang].avgRateLabel}:</span> <span class="report-item-value">${formatNumber(avgRate, 2)} IQD/kWh</span></p>
+                    <p><span class="report-item-label">${translations[lang].billLabel}:</span> <span class="report-item-value">${formatNumber(totalBill, 0, true)} ${translations[lang].unitIQD}</span></p>
+                    <p><span class="report-item-label">${translations[lang].consumptionLabel}:</span> <span class="report-item-value">${formatNumber(consumption, 2)} ${translations[lang].unitKWH}</span></p>
+                    <p><span class="report-item-label">${translations[lang].avgAmperesLabel}:</span> <span class="report-item-value">${formatNumber(avgAmperes, 2)} ${translations[lang].unitA}</span></p>
+                    <p><span class="report-item-label">${translations[lang].avgRateLabel}:</span> <span class="report-item-value">${formatNumber(avgRate, 2)} ${translations[lang].unitIQD}/${translations[lang].unitKWH}</span></p>
                 `;
                 if (category === 'Household') {
                     const { breakdown } = getRonakiHouseholdTariffDetails(consumption);
@@ -1803,10 +1840,10 @@
                 let reportHtml = `
                     <div class="report-section-title">${translations[lang].overallConsumptionSummary}</div>
                     <p><span class="report-item-label">${translations[lang].category}:</span> <span class="report-item-value">${translations[lang][category.toLowerCase() + 'Option'] || category}</span></p>
-                    <p><span class="report-item-label">${translations[lang].totalBill}:</span> <span class="report-item-value">${formatNumber(finalTotalBill, 0, true)} IQD</span></p>
-                    <p><span class="report-item-label">${translations[lang].totalConsumption}:</span> <span class="report-item-value">${formatNumber(totalKwh, 2)} kWh</span></p>
-                    <p><span class="report-item-label">${translations[lang].averageAmperes}:</span> <span class="report-item-value">${formatNumber(finalAvgAmperes, 2)} A</span></p>
-                    <p><span class="report-item-label">${translations[lang].averageRate}:</span> <span class="report-item-value">${formatNumber(finalAvgRate, 2)} IQD/kWh</span></p>
+                    <p><span class="report-item-label">${translations[lang].totalBill}:</span> <span class="report-item-value">${formatNumber(finalTotalBill, 0, true)} ${translations[lang].unitIQD}</span></p>
+                    <p><span class="report-item-label">${translations[lang].totalConsumption}:</span> <span class="report-item-value">${formatNumber(totalKwh, 2)} ${translations[lang].unitKWH}</span></p>
+                    <p><span class="report-item-label">${translations[lang].averageAmperes}:</span> <span class="report-item-value">${formatNumber(finalAvgAmperes, 2)} ${translations[lang].unitA}</span></p>
+                    <p><span class="report-item-label">${translations[lang].averageRate}:</span> <span class="report-item-value">${formatNumber(finalAvgRate, 2)} ${translations[lang].unitIQD}/${translations[lang].unitKWH}</span></p>
 
                     <div class="report-section-title">${translations[lang].deviceBreakdown}</div>
                     <table class="report-table">
@@ -2072,7 +2109,7 @@
                 manualCalculationSection.style.display = 'block';
                 meterCalculationSection.style.display = 'none';
                 toggleManualCalculationButton.textContent = translations[languageSelect.value].hideManualCalculation;
-                toggleMeterCalculationButton.textContent = translations[languageSelect.value].showMeterCalculation;
+                toggleMeterCalculationButton.textContent = translations[languageSelect.value].showManualCalculation;
             });
 
             // Toggle Meter Calculation Section
