@@ -184,7 +184,7 @@
             transition: all 0.2s ease-in-out;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Stronger button shadow */
             white-space: nowrap;
-            color: var(--secondary-green); /* Changed to highlight green */
+            color: var(--button-dark-text); /* Dark text for light grey button */
             margin: 0.5rem; /* Increased margin for spacing between buttons */
             background-color: var(--button-light-gray); /* Light grey background */
         }
@@ -687,7 +687,6 @@
 
     <footer class="mt-8 text-center text-neutral-gray-medium text-sm">
         <p data-lang-key="footerText">Created by Dr. Ismael Abdulrahman</p>
-        <p>ismael.abdulrahman@epu.edu.iq</p>
         <div class="language-selector">
             <select id="languageSelect" class="p-2 border rounded-md bg-gray-700 text-white">
                 <option value="en">English</option>
@@ -1342,7 +1341,7 @@
                     const num = parseFloat(value);
                     if (isNaN(num)) return String(value);
                     const lang = languageSelect.value;
-                    // Use 'ar-IQ' for Arabic, 'en-US' for English and Kurdish (as Kurdish typically uses Western numerals for numbers) 
+                    // Use 'ar-IQ' for Arabic, 'en-US' for English and Kurdish (as Kurdish typically uses Western numerals for numbers)
                     const locale = lang === 'ar' ? 'ar-IQ' : 'en-US'; 
 
                     const options = {
@@ -2217,7 +2216,7 @@
             toggleBudgetOptimizationButton.addEventListener('click', () => {
                 const isVisible = budgetOptimizationSection.style.display === 'block';
                 budgetOptimizationSection.style.display = isVisible ? 'none' : 'block';
-                toggleBudgetOptimizationButton.textContent = isVisible ? translations[languageSelect.value].hideBudgetOptimization : translations[languageSelect.value].showBudgetOptimization;
+                toggleBudgetOptimizationButton.textContent = isVisible ? translations[languageSelect.value].showBudgetOptimization : translations[languageSelect.value].hideBudgetOptimization;
                 if (!isVisible) {
                     // If showing, ensure initial calculation is run
                     optimizeForBudget();
@@ -2228,7 +2227,7 @@
             toggleTableButton.addEventListener('click', () => {
                 const isVisible = deviceTableSection.style.display === 'block';
                 deviceTableSection.style.display = isVisible ? 'none' : 'block';
-                toggleTableButton.textContent = isVisible ? translations[languageSelect.value].hideDeviceTable : translations[languageSelect.value].showDeviceTable;
+                toggleTableButton.textContent = isVisible ? translations[languageSelect.value].showDeviceTable : translations[languageSelect.value].hideDeviceTable;
                 if (!isVisible) {
                     calculateDeviceConsumption(); 
                 }
@@ -2469,3 +2468,4 @@
     </script>
 </body>
 </html>
+
