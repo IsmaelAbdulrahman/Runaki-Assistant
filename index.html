@@ -1401,60 +1401,64 @@
             };
 
             // --- TARIFF CALCULATION LOGIC (IRAQI SYSTEM) ---
-            const getIraqiTariffDetails = (kWh, category) => {
-                const lang = currentLang;
-                let totalCost = 0;
-                let breakdown = [];
-                let remainingKwh = kWh;
-                
-                let tiers, rates, slabNames;
+const getIraqiTariffDetails = (kWh, category) => {
+    const lang = currentLang;
+    let totalCost = 0;
+    let breakdown = [];
+    let remainingKwh = kWh;
+    
+    let tiers, rates, slabNames;
 
-                if (category === 'Household') {
-                    tiers = [1500, 3000, 4000];
-                    rates = [10, 35, 80, 120];
-                    slabNames = ["1-1500 kWh", "1501-3000 kWh", "3001-4000 kWh", "4001+ kWh"];
-                } else if (category === 'Commercial') {
-                    tiers = [1000, 2000];
-                    rates = [60, 80, 120];
-                    slabNames = ["1-1000 kWh", "1001-2000 kWh", "2001+ kWh"];
-                } else {
-                    // Handle flat rates
-                    let rate = 0;
-                    if (category === 'Agriculture' || category === 'Industrial') rate = 60;
-                    if (category === 'Government') rate = 120;
+    if (category === 'Household') {
+        // Updated household rates
+        tiers = [400, 800, 1200, 1600];
+        rates = [72, 108, 175, 265, 350];
+        slabNames = ["0-400 kWh", "401-800 kWh", "801-1200 kWh", "1201-1600 kWh", "1601+ kWh"];
+    } else if (category === 'Commercial') {
+        // Updated business rate (flat)
+        tiers = [];
+        rates = [185];
+        slabNames = ["All consumption"];
+    } else {
+        // Handle other categories with flat rates
+        let rate = 0;
+        if (category === 'Agriculture') rate = 60;
+        else if (category === 'Industrial') rate = 160;
+        else if (category === 'Government') rate = 160;
+        // Add Heavy Industry if needed (you may need to add it to your category dropdown)
 
-                    totalCost = kWh * rate;
-                    breakdown.push(`  - ${translations[lang].consumption}: ${formatNumber(kWh, 2)} ${translations[lang].unitKWH} @ ${formatNumber(rate, 2)} ${translations[lang].iqdPerKwh} = ${formatNumber(totalCost, 0, true)} ${translations[lang].unitIQD}`);
-                    return { totalCost, breakdown: breakdown.join("\n") };
-                }
+        totalCost = kWh * rate;
+        breakdown.push(`  - ${translations[lang].consumption}: ${formatNumber(kWh, 2)} ${translations[lang].unitKWH} @ ${formatNumber(rate, 2)} ${translations[lang].iqdPerKwh} = ${formatNumber(totalCost, 0, true)} ${translations[lang].unitIQD}`);
+        return { totalCost, breakdown: breakdown.join("\n") };
+    }
 
-                // Progressive calculation for tiered rates
-                let previousSlabLimit = 0;
-                for (let i = 0; i < rates.length; i++) {
-                    if (remainingKwh <= 0) break;
+    // Progressive calculation for tiered rates (household)
+    let previousSlabLimit = 0;
+    for (let i = 0; i < rates.length; i++) {
+        if (remainingKwh <= 0) break;
 
-                    const slabRate = rates[i];
-                    const slabLimit = (i < tiers.length) ? tiers[i] : Infinity;
-                    const slabName = slabNames[i];
+        const slabRate = rates[i];
+        const slabLimit = (i < tiers.length) ? tiers[i] : Infinity;
+        const slabName = slabNames[i];
 
-                    let consumptionInThisSlab = 0;
-                    if (i === 0) {
-                        consumptionInThisSlab = Math.min(remainingKwh, slabLimit);
-                    } else {
-                        consumptionInThisSlab = Math.min(remainingKwh, slabLimit - previousSlabLimit);
-                    }
+        let consumptionInThisSlab = 0;
+        if (i === 0) {
+            consumptionInThisSlab = Math.min(remainingKwh, slabLimit);
+        } else {
+            consumptionInThisSlab = Math.min(remainingKwh, slabLimit - previousSlabLimit);
+        }
 
-                    if (consumptionInThisSlab > 0) {
-                        const costInThisSlab = consumptionInThisSlab * slabRate;
-                        totalCost += costInThisSlab;
-                        breakdown.push(`  - ${translations[lang].slab} ${i + 1} (${slabName}): ${formatNumber(consumptionInThisSlab, 2)} ${translations[lang].unitKWH} @ ${formatNumber(slabRate, 0)} ${translations[lang].iqdPerKwh} = ${formatNumber(costInThisSlab, 0, true)} ${translations[lang].unitIQD}`);
-                    }
-                    remainingKwh -= consumptionInThisSlab;
-                    previousSlabLimit = slabLimit;
-                }
-                
-                return { totalCost, breakdown: breakdown.join("\n") };
-            };
+        if (consumptionInThisSlab > 0) {
+            const costInThisSlab = consumptionInThisSlab * slabRate;
+            totalCost += costInThisSlab;
+            breakdown.push(`  - ${translations[lang].slab} ${i + 1} (${slabName}): ${formatNumber(consumptionInThisSlab, 2)} ${translations[lang].unitKWH} @ ${formatNumber(slabRate, 0)} ${translations[lang].iqdPerKwh} = ${formatNumber(costInThisSlab, 0, true)} ${translations[lang].unitIQD}`);
+        }
+        remainingKwh -= consumptionInThisSlab;
+        previousSlabLimit = slabLimit;
+    }
+    
+    return { totalCost, breakdown: breakdown.join("\n") };
+};
 
             const calculateCostForCategory = (consumption, category) => {
                 return getIraqiTariffDetails(consumption, category).totalCost;
@@ -2314,3 +2318,4 @@
     </script>
 </body>
 </html>
+
