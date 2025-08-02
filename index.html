@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN for plotting -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+    <!-- Chart.js Datalabels plugin CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
         /* Define a custom color palette using CSS variables for consistency */
         :root {
@@ -70,38 +72,46 @@
         /* RTL specific styles */
         body.rtl {
             direction: rtl;
+        }
+        body.rtl h1,
+        body.rtl h2,
+        body.rtl .section-card,
+        body.rtl footer {
             text-align: right;
         }
-
-        body.rtl .input-group label {
-            /* Adjust label alignment for RTL if needed, depends on flex layout */
-            margin-right: 0;
-            margin-left: 1.25rem; /* Equivalent of gap from LTR */
+        body.rtl .text-left {
+            text-align: right;
         }
-
-        body.rtl .device-table th, 
-        body.rtl .device-table td {
-            text-align: center; /* Keep center for table cells */
+        body.rtl .items-start {
+            align-items: flex-end;
         }
-
         body.rtl .modal-close-button {
             right: unset;
             left: 1rem;
         }
         
         /* Language selector styling */
-        .language-selector {
-            margin-top: 1rem; /* Space from the content above */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
+        .lang-btn {
+            transition: background-color 0.2s, border-color 0.2s;
+            border: 2px solid transparent;
+            width: 3rem;
+            height: 3rem;
+            font-weight: bold;
+        }
+        .lang-btn.active {
+            border-color: var(--primary-blue);
+            background-color: var(--input-dark-bg);
+            color: white;
+        }
+        .lang-btn:not(.active) {
+            background-color: var(--card-dark);
+            color: var(--text-medium-light);
         }
 
         h1 {
             color: white; /* Changed to white as requested */
             font-weight: 800;
-            margin-bottom: 2.5rem; /* Increased margin */
+            margin-bottom: 1.5rem; /* Reduced margin */
             text-align: center;
             font-size: 2.75rem; /* Slightly larger font size */
             letter-spacing: -0.025em; /* Tighten letter spacing slightly */
@@ -111,7 +121,6 @@
             color: var(--text-light); /* Night mode heading color */
             font-weight: 700;
             margin-bottom: 1.25rem; /* Increased margin */
-            text-align: left;
             font-size: 1.6rem; /* Slightly larger for section titles */
         }
 
@@ -189,6 +198,10 @@
             background-color: var(--button-light-gray); /* Light grey background */
         }
 
+        button.btn-action {
+            color: var(--highlight-yellow-dark);
+        }
+
         button:hover {
             transform: translateY(-3px); /* More pronounced lift */
             box-shadow: 0 8px 16px rgba(0,0,0,0.2); /* Stronger hover shadow */
@@ -260,57 +273,6 @@
             border-radius: 1rem;
             padding: 1.5rem; 
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Slider styling (Not used in this version, but kept for reference) */
-        .range-slider {
-            width: 100%;
-            height: 0.75rem; 
-            background-color: #d1fae5; 
-            border-radius: 0.4rem;
-            appearance: none;
-            cursor: grab;
-            margin-top: 2rem; 
-            box-shadow: inset 0 1px 4px rgba(0,0,0,0.1);
-        }
-
-        .range-slider::-webkit-slider-thumb {
-            appearance: none;
-            width: 1.8rem; 
-            height: 1.8rem; 
-            background: var(--secondary-green);
-            border-radius: 50%;
-            border: 4px solid white; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3); 
-            transition: background 0.15s ease-in-out;
-            cursor: grab;
-        }
-        .range-slider::-webkit-slider-thumb:active {
-            cursor: grabbing;
-        }
-
-        .range-slider::-moz-range-thumb {
-            width: 1.8rem;
-            height: 1.8rem;
-            background: var(--secondary-green);
-            border-radius: 50%;
-            border: 4px solid white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            transition: background 0.15s ease-in-out;
-            cursor: grab;
-        }
-        .range-slider::-moz-range-thumb:active {
-            cursor: grabbing;
-        }
-
-        .range-slider::-webkit-slider-runnable-track {
-            background: linear-gradient(to right, #a7f3d0 0%, #a7f3d0 var(--slider-fill, 0%), #fff var(--slider-fill, 0%), #fff 100%);
-            border-radius: 0.4rem;
-        }
-
-        .range-slider::-moz-range-track {
-            background: linear-gradient(to right, #a7f3d0 0%, #a7f3d0 var(--slider-fill, 0%), #fff var(--slider-fill, 0%), #fff 100%);
-            border-radius: 0.4rem;
         }
 
         /* Device Table Styling */
@@ -396,7 +358,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
+            display: none; /* Initially hidden */
             justify-content: center;
             align-items: center;
             z-index: 1000;
@@ -449,12 +411,11 @@
         footer {
             color: var(--text-medium-light); /* Night mode footer text */
             margin-top: 8rem; /* Increased margin-top for footer */
-            text-align: center;
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.25rem;
         }
 
         /* Message Box Styling */
@@ -517,28 +478,31 @@
             border-radius: 0.5rem;
             overflow: hidden;
         }
-
         .report-table th, .report-table td {
             padding: 0.75rem;
             border: 1px solid var(--input-dark-border);
             text-align: left;
             color: var(--text-light);
         }
-
         .report-table th {
             background-color: var(--primary-blue-darker);
             color: white;
             font-weight: 700;
         }
-
         .report-table tbody tr:nth-child(even) {
             background-color: #3a475c; /* Slightly different background for even rows */
         }
     </style>
 </head>
 <body>
-
     <h1 class="text-3xl lg:text-4xl" data-lang-key="mainTitle">Runaki Bill Assistant</h1>
+    
+    <!-- Language Selection Buttons -->
+    <div id="languageSelectorTop" class="mb-6 flex justify-center gap-2">
+        <button id="lang-en" class="lang-btn">EN</button>
+        <button id="lang-ar" class="lang-btn">AR</button>
+        <button id="lang-ku" class="lang-btn">KU</button>
+    </div>
 
     <div class="main-container">
         <!-- Main content now in a single column -->
@@ -554,7 +518,7 @@
                         <option value="Commercial" data-lang-key="commercialOption">Commercial</option>
                         <option value="Agriculture" data-lang-key="agricultureOption">Agriculture</option>
                         <option value="Industrial" data-lang-key="industrialOption">Industrial</option>
-                        <option value="Large Industry" data-lang-key="largeIndustryOption">Large Industry</option>
+                        <option value="Heavy Industry" data-lang-key="heavyIndustryOption">Heavy Industry</option>
                         <option value="State" data-lang-key="stateOption">State</option>
                     </select>
                     <label for="manualInputTypeDropdown" data-lang-key="inputLabel">Input:</label>
@@ -565,7 +529,7 @@
                     </select>
                     <input type="number" id="manualInput" value="1891" class="w-28">
                 </div>
-                <button id="calculateManualButton" class="btn w-full" data-lang-key="calculateBillButton">Calculate Bill</button>
+                <button id="calculateManualButton" class="btn btn-action w-full" data-lang-key="calculateBillButton">Calculate Bill</button>
                 <div class="result-grid" id="manualResultGrid">
                     <div class="result-item">
                         <div class="result-label" data-lang-key="billLabel">Bill</div>
@@ -584,7 +548,7 @@
                         <div class="result-value" id="manualAvgRate">0.00 IQD/kWh</div>
                     </div>
                 </div>
-                <button id="manualReportButton" class="btn w-full mt-6" data-lang-key="generateReportButton">Generate Report</button>
+                <button id="manualReportButton" class="btn btn-action w-full mt-6" data-lang-key="generateReportButton">Generate Report</button>
             </div>
 
             <!-- 2. By Meter Calculation -->
@@ -598,7 +562,7 @@
                     <label for="daysInput" data-lang-key="daysLabel">Days:</label>
                     <input type="number" id="daysInput" value="30" min="1" max="365" class="w-16">
                 </div>
-                <button id="calculateMeterButton" class="btn w-full" data-lang-key="calculateBillButton">Calculate Bill</button>
+                <button id="calculateMeterButton" class="btn btn-action w-full" data-lang-key="calculateBillButton">Calculate Bill</button>
                 <div class="result-grid" id="meterResultGrid">
                     <div class="result-item">
                         <div class="result-label" data-lang-key="billLabel">Bill</div>
@@ -609,1842 +573,1232 @@
                         <div class="result-value" id="meterKwh">0.00 kWh</div>
                     </div>
                     <div class="result-item">
-                        <div class="result-label" data-lang-key="avgAmperesLabel">Avg Amperes</div>
-                        <div class="result-value" id="meterAmperes">0.00 A</div>
+                        <div class="result-label" data-lang-key="dailyConsumptionLabel">Daily Consumption</div>
+                        <div class="result-value" id="meterDailyKwh">0.00 kWh</div>
                     </div>
                     <div class="result-item">
                         <div class="result-label" data-lang-key="avgRateLabel">Avg Rate</div>
                         <div class="result-value" id="meterAvgRate">0.00 IQD/kWh</div>
                     </div>
                 </div>
-                <button id="meterReportButton" class="btn w-full mt-6" data-lang-key="generateReportButton">Generate Report</button>
-            </div>
-            
-            <!-- New buttons for showing/hiding sections -->
-            <div class="flex flex-col items-start gap-2 mt-6 p-4 border border-gray-700 rounded-lg max-w-lg ml-0 mr-auto" style="background-color: var(--card-dark);">
-                <button id="toggleManualCalculationButton" class="btn w-full text-left" data-lang-key="hideManualCalculation">Hide Manual Calculation</button>
-                <button id="toggleMeterCalculationButton" class="btn w-full text-left" data-lang-key="showMeterCalculation">Show By Meter Calculation</button>
-                <button id="toggleTableButton" class="btn w-full text-left" data-lang-key="showDeviceTable">Show Device Table</button>
-                <button id="toggleBudgetOptimizationButton" class="btn w-full text-left" data-lang-key="showBudgetOptimization">Show Budget Optimization</button>
-                <button id="showTariffDetailsButton" class="btn w-full text-left" data-lang-key="showTariffDetails">Show Tariff Details</button>
+                <button id="meterReportButton" class="btn btn-action w-full mt-6" data-lang-key="generateReportButton">Generate Report</button>
             </div>
 
-            <!-- 5. Device Consumption Table -->
-            <div class="section-card flex-grow" id="deviceTableSection" style="display: none;">
-                <h2 class="text-xl" data-lang-key="deviceConsumptionTableTitle">5. Device Consumption Table</h2>
-                <div class="device-table-container">
-                    <table id="deviceTable" class="device-table">
-                        <thead>
-                            <tr>
-                                <th data-lang-key="deviceHeader">Device</th>
-                                <th data-lang-key="wattHeader">Watt</th>
-                                <th data-lang-key="hoursHeader">Hours</th>
-                                <th data-lang-key="dayHeader">Day</th>
-                                <th data-lang-key="countHeader">Count</th>
-                                <th data-lang-key="kwhHeader">kWh</th>
-                                <th data-lang-key="iqdHeader">IQD</th>
-                                <th data-lang-key="onHeader">On</th>
-                                <th data-lang-key="fixedHeader">Fixed</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Device rows will be populated here by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-                <div class="flex flex-wrap items-start gap-4 mt-6 max-w-lg ml-0 mr-auto">
-                    <button id="addRowButton" class="btn w-full sm:w-auto text-left" data-lang-key="addRowButton">Add Row</button>
-                    <button id="deleteRowButton" class="btn w-full sm:w-auto text-left" data-lang-key="deleteSelectedButton">Delete Selected</button>
-                    <button id="saveTableButton" class="btn w-full sm:w-auto text-left" data-lang-key="saveDataCSVButton">Save Data (CSV)</button>
-                    <label for="loadFileInput" class="btn cursor-pointer w-full sm:w-auto text-left" data-lang-key="loadDataCSVButton">Load Data (CSV)<input type="file" id="loadFileInput" accept=".csv" class="hidden"></label>
-                    <button id="clearAllButton" class="btn w-full sm:w-auto text-left" data-lang-key="clearAllButton">Clear All</button>
-                </div>
-                <button id="deviceReportButton" class="btn w-full mt-6" data-lang-key="generateReportButton">Generate Report</button>
-            </div>
-
-            <!-- 3. Budget Optimization -->
-            <div class="section-card" id="budgetOptimizationSection" style="display: none;">
-                <h2 class="text-xl" data-lang-key="budgetOptimizationTitle">3. Budget Optimization</h2>
-                <div class="input-group">
-                    <select id="optimizationTargetDropdown" class="p-2 border rounded-md">
-                        <option value="Target Cost" data-lang-key="targetCostOption">Target Cost</option>
-                        <option value="Target Amperes" data-lang-key="targetAmperesOption">Target Amperes</option>
-                        <option value="Target kWh" data-lang-key="targetKwhOption">Target kWh</option>
-                    </select>
-                    <input type="number" id="budgetLimitInput" value="100000" class="w-32">
-                </div>
-                <button id="optimizeBudgetButton" class="btn w-full" data-lang-key="optimizeTargetButton">Optimize Target</button>
-                <div class="result-grid" id="budgetOptimizationResultGrid">
-                    <div class="result-item col-span-full">
-                        <div class="result-label" data-lang-key="optimizationResultLabel">Optimization Result</div>
-                        <div class="result-value" id="budgetResultLabel" data-lang-key="notOptimized">Not Optimized</div>
+            <!-- 3. By Devices Calculation -->
+            <div class="section-card" id="deviceCalculationSection" style="display: none;">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                    <h2 class="text-xl mb-4 md:mb-0" data-lang-key="deviceCalculationTitle">3. By Devices Calculation</h2>
+                    <div class="flex flex-row space-x-2">
+                        <button id="addDeviceButton" class="btn">
+                            <span data-lang-key="addDeviceButton">Add Device</span>
+                        </button>
+                        <button id="exportDeviceButton" class="btn">
+                            <span data-lang-key="exportButton">Export</span>
+                        </button>
+                        <button id="importDeviceButton" class="btn">
+                            <span data-lang-key="importButton">Import</span>
+                        </button>
+                        <button id="clearDeviceButton" class="btn">
+                            <span data-lang-key="clearButton">Clear</span>
+                        </button>
                     </div>
                 </div>
-            </div>
-
-        </div>
-    </div>
-
-    <footer class="mt-8 text-center text-neutral-gray-medium text-sm">
-        <p data-lang-key="footerText">Created by Dr. Ismael Abdulrahman</p>
-        <div class="language-selector">
-            <select id="languageSelect" class="p-2 border rounded-md bg-gray-700 text-white">
-                <option value="en">English</option>
-                <option value="ar">العربية (Arabic)</option>
-                <option value="ku">کوردی سۆرانی (Kurdish Sorani)</option>
-            </select>
-        </div>
-    </footer>
-
-    <!-- Custom Modal for Tariff Details -->
-    <div id="tariffDetailsModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <button class="modal-close-button" id="closeTariffDetailsModal">&times;</button>
-            <h3 id="tariffDetailsModalTitle" data-lang-key="tariffDetailsModalTitle">Tariff Details</h3>
-            <div id="householdTariffChartContainer" class="chart-container" style="display: none;">
-                <canvas id="householdTariffChart"></canvas>
-            </div>
-            <div id="otherCategoriesTariffChartContainer" class="chart-container" style="display: none;">
-                <canvas id="otherCategoriesTariffChart"></canvas>
-            </div>
-            <pre id="tariffDetailsModalContent"></pre>
-        </div>
-    </div>
-
-    <!-- Custom Modal for Reports -->
-    <div id="reportModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <button class="modal-close-button" id="closeReportModal">&times;</button>
-            <h3 id="reportModalTitle" data-lang-key="reportModalTitle">Report</h3>
-            <div id="reportModalContent" class="prose"></div>
-        </div>
-    </div>
-
-    <!-- Custom Message Box -->
-    <div id="appMessage" class=""></div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- LANGUAGE TRANSLATION ---
-            const translations = {
-                en: {
-                    appTitle: "Runaki Bill Assistant",
-                    mainTitle: "Runaki Bill Assistant",
-                    manualCalculationTitle: "1. Manual Calculation",
-                    categoryLabel: "Category:",
-                    householdOption: "Household",
-                    commercialOption: "Commercial",
-                    agricultureOption: "Agriculture",
-                    industrialOption: "Industrial",
-                    largeIndustryOption: "Large Industry",
-                    stateOption: "State",
-                    inputLabel: "Input:",
-                    kwhOption: "kWh",
-                    avgAmperesOption: "Avg Amperes",
-                    givenBillOption: "Given Bill (IQD)",
-                    calculateBillButton: "Calculate Bill",
-                    billLabel: "Bill",
-                    consumptionLabel: "Consumption",
-                    avgAmperesLabel: "Avg Amperes",
-                    avgRateLabel: "Avg Rate",
-                    generateReportButton: "Generate Report",
-                    meterCalculationTitle: "2. By Meter Calculation",
-                    prevReadingLabel: "Prev Reading:",
-                    currReadingLabel: "Curr Reading:",
-                    daysLabel: "Days:",
-                    hideManualCalculation: "Hide Manual Calculation",
-                    showMeterCalculation: "Show By Meter Calculation",
-                    showDeviceTable: "Show Device Table",
-                    hideDeviceTable: "Hide Device Table",
-                    showBudgetOptimization: "Show Budget Optimization",
-                    hideBudgetOptimization: "Hide Budget Optimization",
-                    showTariffDetails: "Show Tariff Details",
-                    deviceConsumptionTableTitle: "5. Device Consumption Table",
-                    deviceHeader: "Device",
-                    wattHeader: "Watt",
-                    hoursHeader: "Hours",
-                    dayHeader: "Day",
-                    countHeader: "Count",
-                    kwhHeader: "kWh",
-                    iqdHeader: "IQD",
-                    onHeader: "On",
-                    fixedHeader: "Fixed",
-                    addRowButton: "Add Row",
-                    deleteSelectedButton: "Delete Selected",
-                    saveDataCSVButton: "Save Data (CSV)",
-                    loadDataCSVButton: "Load Data (CSV)",
-                    clearAllButton: "Clear All",
-                    budgetOptimizationTitle: "3. Budget Optimization",
-                    targetCostOption: "Target Cost",
-                    targetAmperesOption: "Target Amperes",
-                    targetKwhOption: "Target kWh",
-                    optimizeTargetButton: "Optimize Target",
-                    optimizationResultLabel: "Optimization Result",
-                    notOptimized: "Not Optimized",
-                    footerText: "Created by Dr. Ismael Abdulrahman",
-                    tariffDetailsModalTitle: "Electricity Tariff Details",
-                    reportModalTitle: "Report",
-                    // Messages
-                    enterValidNumeric: "Please enter a valid numeric value for consumption.",
-                    currentReadingLessThanPrevious: "Current reading cannot be less than previous reading.",
-                    enterPositiveDays: "Please enter a positive integer for days.",
-                    performCalculationFirst: "Please perform a calculation first.",
-                    ensureValidMeterReadings: "Please ensure valid meter readings and days are entered before generating a report.",
-                    addAndCalculateDeviceConsumption: "Please add and calculate device consumption before generating a report.",
-                    csvEmpty: "CSV file is empty or corrupted.",
-                    deviceDataSaved: "Device data saved to CSV successfully!",
-                    deviceDataLoaded: "Device data loaded from CSV successfully!",
-                    errorLoadingData: "Error loading data: {error}. Please ensure it's a valid CSV file.",
-                    selectRowToDelete: "Please select a row to delete.",
-                    allDeviceDataCleared: "All device data has been cleared and reset to default.",
-                    invalidTarget: "Invalid Target",
-                    withinTarget: "Result: Within Target!",
-                    currentStatusWithinTarget: "Your current status is already within the specified target!",
-                    optimizationCompleted: "Optimization completed successfully!",
-                    unreachable: "Result: Unreachable",
-                    couldNotReachTarget: "Could not reach the target by only reducing hours of variable devices.",
-                    // Report specific labels
-                    manualCalculationSummary: "Manual Calculation Summary",
-                    meterCalculationSummary: "Meter Calculation Summary",
-                    overallConsumptionSummary: "Overall Consumption Summary",
-                    tariffBreakdown: "Tariff Breakdown",
-                    deviceBreakdown: "Device Breakdown",
-                    device: "Device",
-                    watt: "Watt",
-                    hoursPerDay: "Hours/Day",
-                    daysPerMonth: "Days/Month",
-                    count: "Count",
-                    kwhPerMonth: "kWh/Month",
-                    iqdPerMonth: "IQD/Month",
-                    onQuestion: "On?",
-                    fixedQuestion: "Fixed?",
-                    category: "Category",
-                    previousReading: "Previous Reading",
-                    currentReading: "Current Reading",
-                    days: "Days",
-                    totalBill: "Total Bill",
-                    totalConsumption: "Total Consumption",
-                    averageAmperes: "Average Amperes",
-                    averageRate: "Average Rate",
-                    // Tariff details
-                    householdTariffRates: "Household Tariff Rates (IQD/kWh)",
-                    otherCategoriesTariffRates: "Other Categories Tariff Rates (IQD/kWh)",
-                    rate: "Rate (IQD/kWh)",
-                    consumptionTiers: "Consumption Tiers",
-                    consumption: "Consumption",
-                    iqdPerKwh: "IQD/kWh",
-                    categoryText: "Category",
-                    slab: "Slab",
-                    // Units
-                    unitIQD: "IQD",
-                    unitKWH: "kWh",
-                    unitA: "A",
-                    yes: "Yes",
-                    no: "No",
-                    // Device Names
-                    deviceNames: {
-                        ledTv: "LED TV",
-                        refrigerator: "Refrigerator",
-                        washingMachine: "Washing Machine",
-                        ledLighting: "LED Lighting",
-                        freezer: "Freezer",
-                        waterPump: "Water Pump",
-                        waterHeater: "Water Heater",
-                        airCooler: "Air Cooler",
-                        fan: "Fan",
-                        dishwasher: "Dishwasher",
-                        waterDispenser: "Water Dispenser",
-                        splitAc1Ton: "Split AC (1 ton)",
-                        splitAc1_5Ton: "Split AC (1.5 ton)",
-                        splitAc2Ton: "Split AC (2 ton)",
-                        towerAc: "Tower AC",
-                        electricHeater: "Electric Heater",
-                        iron: "Iron",
-                        microwave: "Microwave",
-                        electricKettle: "Electric Kettle",
-                        hairDryer: "Hair Dryer",
-                        vacuumCleaner: "Vacuum Cleaner",
-                        electricOven: "Electric Oven",
-                        phoneCharger: "Phone Charger",
-                        desktopPc: "Desktop PC",
-                        pcMonitor: "PC Monitor",
-                        newDevice: "New Device"
-                    }
-                },
-                ar: {
-                    appTitle: "مساعد فواتير روناكي",
-                    mainTitle: "مساعد فواتير روناكي",
-                    manualCalculationTitle: "1. الحساب اليدوي",
-                    categoryLabel: "الفئة:",
-                    householdOption: "منزلي",
-                    commercialOption: "تجاري",
-                    agricultureOption: "زراعي",
-                    industrialOption: "صناعي",
-                    largeIndustryOption: "صناعات كبرى",
-                    stateOption: "حكومي",
-                    inputLabel: "الإدخال:",
-                    kwhOption: "كيلوواط ساعة",
-                    avgAmperesOption: "متوسط الأمبير",
-                    givenBillOption: "الفاتورة المعطاة (دينار عراقي)",
-                    calculateBillButton: "حساب الفاتورة",
-                    billLabel: "الفاتورة",
-                    consumptionLabel: "الاستهلاك",
-                    avgAmperesLabel: "متوسط الأمبير",
-                    avgRateLabel: "متوسط السعر",
-                    generateReportButton: "إنشاء تقرير",
-                    meterCalculationTitle: "2. الحساب بالعداد",
-                    prevReadingLabel: "القراءة السابقة:",
-                    currReadingLabel: "القراءة الحالية:",
-                    daysLabel: "الأيام:",
-                    hideManualCalculation: "إخفاء الحساب اليدوي",
-                    showMeterCalculation: "إظهار الحساب بالعداد",
-                    showDeviceTable: "إظهار جدول الأجهزة",
-                    hideDeviceTable: "إخفاء جدول الأجهزة",
-                    showBudgetOptimization: "إظهار تحسين الميزانية",
-                    hideBudgetOptimization: "إخفاء تحسين الميزانية",
-                    showTariffDetails: "إظهار تفاصيل التعرفة",
-                    deviceConsumptionTableTitle: "5. جدول استهلاك الأجهزة",
-                    deviceHeader: "الجهاز",
-                    wattHeader: "واط",
-                    hoursHeader: "الساعات",
-                    dayHeader: "اليوم",
-                    countHeader: "العدد",
-                    kwhHeader: "كيلوواط ساعة",
-                    iqdHeader: "دينار عراقي",
-                    onHeader: "تشغيل",
-                    fixedHeader: "ثابت",
-                    addRowButton: "إضافة صف",
-                    deleteSelectedButton: "حذف المحدد",
-                    saveDataCSVButton: "حفظ البيانات (CSV)",
-                    loadDataCSVButton: "تحميل البيانات (CSV)",
-                    clearAllButton: "مسح الكل",
-                    budgetOptimizationTitle: "3. تحسين الميزانية",
-                    targetCostOption: "التكلفة المستهدفة",
-                    targetAmperesOption: "الأمبير المستهدف",
-                    targetKwhOption: "كيلوواط ساعة المستهدفة",
-                    optimizeTargetButton: "تحسين الهدف",
-                    optimizationResultLabel: "نتيجة التحسين",
-                    notOptimized: "لم يتم التحسين",
-                    footerText: "تم الإنشاء بواسطة د. إسماعيل عبدالرحمن",
-                    tariffDetailsModalTitle: "تفاصيل تعرفة الكهرباء",
-                    reportModalTitle: "التقرير",
-                    // Messages
-                    enterValidNumeric: "الرجاء إدخال قيمة رقمية صالحة للاستهلاك.",
-                    currentReadingLessThanPrevious: "لا يمكن أن تكون القراءة الحالية أقل من القراءة السابقة.",
-                    enterPositiveDays: "الرجاء إدخال عدد صحيح موجب للأيام.",
-                    performCalculationFirst: "الرجاء إجراء عملية حساب أولاً.",
-                    ensureValidMeterReadings: "الرجاء التأكد من إدخال قراءات عداد وأيام صالحة قبل إنشاء التقرير.",
-                    addAndCalculateDeviceConsumption: "الرجاء إضافة وحساب استهلاك الجهاز قبل إنشاء التقرير.",
-                    csvEmpty: "ملف CSV فارغ أو تالف.",
-                    deviceDataSaved: "تم حفظ بيانات الجهاز إلى CSV بنجاح!",
-                    deviceDataLoaded: "تم تحميل بيانات الجهاز من CSV بنجاح!",
-                    errorLoadingData: "خطأ في تحميل البيانات: {error}. يرجى التأكد من أنه ملف CSV صالح.",
-                    selectRowToDelete: "الرجاء تحديد صف لحذفه.",
-                    allDeviceDataCleared: "تم مسح جميع بيانات الجهاز وإعادة تعيينها إلى الافتراضي.",
-                    invalidTarget: "هدف غير صالح",
-                    withinTarget: "النتيجة: ضمن الهدف!",
-                    currentStatusWithinTarget: "وضعك الحالي ضمن الهدف المحدد بالفعل!",
-                    optimizationCompleted: "اكتمل التحسين بنجاح!",
-                    unreachable: "النتيجة: لا يمكن الوصول إليه",
-                    couldNotReachTarget: "تعذر الوصول إلى الهدف عن طريق تقليل ساعات الأجهزة المتغيرة فقط.",
-                    // Report specific labels
-                    manualCalculationSummary: "ملخص الحساب اليدوي",
-                    meterCalculationSummary: "ملخص الحساب بالعداد",
-                    overallConsumptionSummary: "ملخص الاستهلاك الكلي",
-                    tariffBreakdown: "تفاصيل التعرفة",
-                    deviceBreakdown: "تفاصيل الجهاز",
-                    device: "الجهاز",
-                    watt: "واط",
-                    hoursPerDay: "ساعات/يوم",
-                    daysPerMonth: "أيام/شهر",
-                    count: "العدد",
-                    kwhPerMonth: "كيلوواط ساعة/شهر",
-                    iqdPerMonth: "دينار عراقي/شهر",
-                    onQuestion: "تشغيل؟",
-                    fixedQuestion: "ثابت؟",
-                    category: "الفئة",
-                    previousReading: "القراءة السابقة",
-                    currentReading: "القراءة الحالية",
-                    days: "الأيام",
-                    totalBill: "إجمالي الفاتورة",
-                    totalConsumption: "إجمالي الاستهلاك",
-                    averageAmperes: "متوسط الأمبير",
-                    averageRate: "متوسط السعر",
-                    // Tariff details
-                    householdTariffRates: "أسعار تعرفة المنازل (دينار عراقي/كيلوواط ساعة)",
-                    otherCategoriesTariffRates: "أسعار تعرفة الفئات الأخرى (دينار عراقي/كيلوواط ساعة)",
-                    rate: "السعر (دينار عراقي/كيلوواط ساعة)",
-                    consumptionTiers: "شرائح الاستهلاك",
-                    consumption: "الاستهلاك",
-                    iqdPerKwh: "دينار عراقي/كيلوواط ساعة",
-                    slab: "شريحة",
-                    // Units
-                    unitIQD: "دينار عراقي",
-                    unitKWH: "كيلوواط ساعة",
-                    unitA: "أمبير",
-                    yes: "نعم",
-                    no: "لا",
-                    // Device Names
-                    deviceNames: {
-                        ledTv: "تلفزيون LED",
-                        refrigerator: "ثلاجة",
-                        washingMachine: "غسالة",
-                        ledLighting: "إضاءة LED",
-                        freezer: "فريزر",
-                        waterPump: "مضخة مياه",
-                        waterHeater: "سخان مياه",
-                        airCooler: "مبرد هواء",
-                        fan: "مروحة",
-                        dishwasher: "غسالة صحون",
-                        waterDispenser: "موزع مياه",
-                        splitAc1Ton: "مكيف سبليت (1 طن)",
-                        splitAc1_5Ton: "مكيف سبليت (1.5 طن)",
-                        splitAc2Ton: "مكيف سبليت (2 طن)",
-                        towerAc: "مكيف برج",
-                        electricHeater: "سخان كهربائي",
-                        iron: "مكواة",
-                        microwave: "ميكروويف",
-                        electricKettle: "غلاية كهربائية",
-                        hairDryer: "مجفف شعر",
-                        vacuumCleaner: "مكنسة كهربائية",
-                        electricOven: "فرن كهربائي",
-                        phoneCharger: "شاحن هاتف",
-                        desktopPc: "كمبيوتر مكتبي",
-                        pcMonitor: "شاشة كمبيوتر",
-                        newDevice: "جهاز جديد"
-                    }
-                },
-                ku: {
-                    appTitle: "یارمەتیدەری بیل ڕوناکی",
-                    mainTitle: "یارمەتیدەری بیل ڕوناکی",
-                    manualCalculationTitle: "1. ژماردنی دەستی",
-                    categoryLabel: "پۆلێن:",
-                    householdOption: "ماڵان",
-                    commercialOption: "بازرگانی",
-                    agricultureOption: "کشتوکاڵ",
-                    industrialOption: "پیشەسازی",
-                    largeIndustryOption: "پیشەسازی گەورە",
-                    stateOption: "حکومی",
-                    inputLabel: "دانان:",
-                    kwhOption: "کیلۆوات کاتژمێر",
-                    avgAmperesOption: "تێکڕای ئەمپێر",
-                    givenBillOption: "بیلی دراو (د.ع)",
-                    calculateBillButton: "ژماردنی بیل",
-                    billLabel: "بیل",
-                    consumptionLabel: "بەکارهێنان",
-                    avgAmperesLabel: "تێکڕای ئەمپێر",
-                    avgRateLabel: "تێکڕای نرخ",
-                    generateReportButton: "دروستکردنی ڕاپۆرت",
-                    meterCalculationTitle: "2. ژماردن بە پێوەری کارەبا",
-                    prevReadingLabel: "خوێندنەوەی پێشوو:",
-                    currReadingLabel: "خوێندنەوەی ئێستا:",
-                    daysLabel: "ڕۆژەکان:",
-                    hideManualCalculation: "شاردنەوەی ژماردنی دەستی",
-                    showMeterCalculation: "پیشاندانی ژماردن بە پێوەری کارەبا",
-                    showDeviceTable: "پیشاندانی خشتەی ئامێرەکان",
-                    hideDeviceTable: "شاردنەوەی خشتەی ئامێرەکان",
-                    showBudgetOptimization: "پیشاندانی باشترکردنی بودجە",
-                    hideBudgetOptimization: "شاردنەوەی باشترکردنی بودجە",
-                    showTariffDetails: "پیشاندانی وردەکارییەکانی تاریف",
-                    deviceConsumptionTableTitle: "5. خشتەی بەکارهێنانی ئامێر",
-                    deviceHeader: "ئامێر",
-                    wattHeader: "وات",
-                    hoursHeader: "کاتژمێر",
-                    dayHeader: "ڕۆژ",
-                    countHeader: "ژمارە",
-                    kwhHeader: "کیلۆوات کاتژمێر",
-                    iqdHeader: "د.ع",
-                    onHeader: "کارا",
-                    fixedHeader: "جێگیر",
-                    addRowButton: "زیادکردنی ڕیز",
-                    deleteSelectedButton: "سڕینەوەی هەڵبژێردراو",
-                    saveDataCSVButton: "پاشەکەوتکردنی داتا (CSV)",
-                    loadDataCSVButton: "بارکردنی داتا (CSV)",
-                    clearAllButton: "پاککردنەوەی هەموو",
-                    budgetOptimizationTitle: "3. باشترکردنی بودجە",
-                    targetCostOption: "تێچووی ئامانج",
-                    targetAmperesOption: "ئەمپێری ئامانج",
-                    targetKwhOption: "کیلۆوات کاتژمێری ئامانج",
-                    optimizeTargetButton: "باشترکردنی ئامانج",
-                    optimizationResultLabel: "ئەنجامی باشترکردن",
-                    notOptimized: "باشتر نەکراوە",
-                    footerText: "دروستکراوە لەلایەن د. ئیسماعیل عبدالرحمن",
-                    tariffDetailsModalTitle: "وردەکارییەکانی تاریفی کارەبا",
-                    reportModalTitle: "ڕاپۆرت",
-                    // Messages
-                    enterValidNumeric: "تکایە بەهایەکی ژمارەیی دروست بۆ بەکارهێنان بنووسە.",
-                    currentReadingLessThanPrevious: "خوێندنەوەی ئێستا ناتوانێت کەمتر بێت لە خوێندنەوەی پێشوو.",
-                    enterPositiveDays: "تکایە ژمارەیەکی تەواوی پۆزەتیڤ بۆ ڕۆژەکان بنووسە.",
-                    performCalculationFirst: "تکایە سەرەتا ژماردنێک ئەنجام بدە.",
-                    ensureValidMeterReadings: "تکایە دڵنیا بە لەوەی خوێندنەوەی پێوەر و ڕۆژەکان دروستن پێش دروستکردنی ڕاپۆرت.",
-                    addAndCalculateDeviceConsumption: "تکایە ئامێر زیاد بکە و بەکارهێنانەکەی بژمێرە پێش دروستکردنی ڕاپۆرت.",
-                    csvEmpty: "فایلی CSV بەتاڵە یان تێکچووە.",
-                    deviceDataSaved: "داتای ئامێر بە سەرکەوتوویی پاشەکەوت کرا بۆ CSV!",
-                    deviceDataLoaded: "تم تحميل بيانات الجهاز من CSV بنجاح!",
-                    errorLoadingData: "هەڵە لە بارکردنی داتا: {error}. تکایە دڵنیا بە لەوەی فایلی CSV دروستە.",
-                    selectRowToDelete: "تکایە ڕیزێک هەڵبژێرە بۆ سڕینەوە.",
-                    allDeviceDataCleared: "هەموو داتای ئامێر پاککرایەوە و گەڕێنرایەوە بۆ باری بنەڕەتی.",
-                    invalidTarget: "ئامانجی نادروست",
-                    withinTarget: "ئەنجام: لەناو ئامانجدا!",
-                    currentStatusWithinTarget: "دۆخی ئێستات لەناو ئامانجی دیاریکراودا پاشەکەوت کراوە!",
-                    optimizationCompleted: "باشترکردن بە سەرکەوتوویی تەواو بوو!",
-                    unreachable: "ئەنجام: ناتوانرێت پێی بگات",
-                    couldNotReachTarget: "نەتوانرا بگاتە ئامانج تەنها بە کەمکردنەوەی کاتژمێرەکانی ئامێرە گۆڕاوەکان.",
-                    // Report specific labels
-                    manualCalculationSummary: "کورتەی ژماردنی دەستی",
-                    meterCalculationSummary: "کورتەی ژماردن بە پێوەر",
-                    overallConsumptionSummary: "کورتەی گشتیی بەکارهێنان",
-                    tariffBreakdown: "وردەکارییەکانی تاریف",
-                    deviceBreakdown: "وردەکارییەکانی ئامێر",
-                    device: "ئامێر",
-                    watt: "وات",
-                    hoursPerDay: "کاتژمێر/ڕۆژ",
-                    daysPerMonth: "ڕۆژ/مانگ",
-                    count: "ژمارە",
-                    kwhPerMonth: "کیلۆوات کاتژمێر/مانگ",
-                    iqdPerMonth: "د.ع/مانگ",
-                    onQuestion: "کارا؟",
-                    fixedQuestion: "جێگیر؟",
-                    category: "پۆلێن",
-                    previousReading: "خوێندنەوەی پێشوو",
-                    currentReading: "خوێندنەوەی ئێستا",
-                    days: "ڕۆژەکان",
-                    totalBill: "کۆی بیل",
-                    totalConsumption: "کۆی بەکارهێنان",
-                    averageAmperes: "تێکڕای ئەمپێر",
-                    averageRate: "تێکڕای نرخ",
-                    // Tariff details
-                    householdTariffRates: "نرخی تاریفی ماڵان (د.ع/کیلۆوات کاتژمێر)",
-                    otherCategoriesTariffRates: "نرخی تاریفی پۆلێنەکانی تر (د.ع/کیلۆوات کاتژمێر)",
-                    rate: "نرخ (د.ع/کیلۆوات کاتژمێر)",
-                    consumptionTiers: "پلەکانی بەکارهێنان",
-                    consumption: "بەکارهێنان",
-                    iqdPerKwh: "د.ع/کیلۆوات کاتژمێر",
-                    slab: "شریحه",
-                    // Units
-                    unitIQD: "د.ع",
-                    unitKWH: "کیلۆوات کاتژمێر",
-                    unitA: "ئەمپێر",
-                    yes: "بەڵێ",
-                    no: "نەخێر",
-                    // Device Names
-                    deviceNames: {
-                        ledTv: "تەلەفزیۆنی LED",
-                        refrigerator: "ساردکەرەوە",
-                        washingMachine: "جلشۆر",
-                        ledLighting: "ڕووناککەرەوەی LED",
-                        freezer: "فریزەر",
-                        waterPump: "پەمپی ئاو",
-                        waterHeater: "گەرمکەرەوەی ئاو",
-                        airCooler: "فێنککەرەوەی هەوا",
-                        fan: "پانکە",
-                        dishwasher: "قاپشۆر",
-                        waterDispenser: "دابەشکردنی ئاو",
-                        splitAc1Ton: "ئەی سی سپلیت (1 تۆن)",
-                        splitAc1_5Ton: "ئەی سی سپلیت (1.5 تۆن)",
-                        splitAc2Ton: "ئەی سی سپلیت (2 تۆن)",
-                        towerAc: "ئەی سی تاوەر",
-                        electricHeater: "گەرمکەرەوەی کارەبایی",
-                        iron: "ئوتوو",
-                        microwave: "مایکرۆوەیڤ",
-                        electricKettle: "گۆزەڵەی کارەبایی",
-                        hairDryer: "وشککەرەوەی قژ",
-                        vacuumCleaner: "پاککەرەوەی کارەبایی",
-                        electricOven: "فڕنی کارەبایی",
-                        phoneCharger: "شاحنی مۆبایل",
-                        desktopPc: "کۆمپیوتەری مێز",
-                        pcMonitor: "شاشەی کۆمپیوتەر",
-                        newDevice: "ئامێری نوێ"
-                    }
-                }
-            };
-
-            const languageSelect = document.getElementById('languageSelect');
-
-            const translatePage = (lang) => {
-                const elements = document.querySelectorAll('[data-lang-key]');
-                const body = document.body;
-
-                // Set direction and text alignment
-                if (lang === 'ar' || lang === 'ku') {
-                    body.classList.add('rtl');
-                } else {
-                    body.classList.remove('rtl');
-                }
-
-                // Translate static text content
-                elements.forEach(element => {
-                    const key = element.getAttribute('data-lang-key');
-                    if (translations[lang] && translations[lang][key]) {
-                        element.textContent = translations[lang][key];
-                    }
-                });
-
-                // Translate options in dropdowns
-                document.querySelectorAll('select').forEach(selectElement => {
-                    Array.from(selectElement.options).forEach(option => {
-                        const key = option.getAttribute('data-lang-key');
-                        if (key && translations[lang] && translations[lang][key]) {
-                            option.textContent = translations[lang][key];
-                        }
-                    });
-                });
-
-                // Update device table names
-                Array.from(deviceTableBody.children).forEach(row => {
-                    const nameInput = row.querySelector('.device-input[type="text"]');
-                    const nameKey = nameInput.getAttribute('data-name-key');
-                    if (nameKey && translations[lang].deviceNames[nameKey]) {
-                        nameInput.value = translations[lang].deviceNames[nameKey];
-                    }
-                });
-
-                // Update input placeholders if needed (none currently in your HTML, but good practice)
-                // Example:
-                // document.querySelector('input[data-lang-placeholder-key="someKey"]').placeholder = translations[lang].someKey;
-
-                // Update report modal content if it's open (re-generate it)
-                if (reportModal.style.display === 'flex') {
-                    const currentReportTitle = reportModalTitle.textContent;
-                    // Check against all possible translated titles to determine which report to regenerate
-                    if (currentReportTitle === translations.en.manualCalculationSummary ||
-                        currentReportTitle === translations.ar.manualCalculationSummary ||
-                        currentReportTitle === translations.ku.manualCalculationSummary) {
-                        generateManualReport();
-                    } else if (currentReportTitle === translations.en.meterCalculationSummary ||
-                               currentReportTitle === translations.ar.meterCalculationSummary ||
-                               currentReportTitle === translations.ku.meterCalculationSummary) {
-                        generateMeterReport();
-                    } else if (currentReportTitle === translations.en.overallConsumptionSummary ||
-                               currentReportTitle === translations.ar.overallConsumptionSummary ||
-                               currentReportTitle === translations.ku.overallConsumptionSummary) {
-                        generateDeviceReport();
-                    }
-                }
-
-
-                // Update tariff modal content if it's open (re-generate it)
-                if (tariffDetailsModal.style.display === 'flex') {
-                    showTariffDetailsButton.click(); // Re-trigger the display to update charts/text
-                }
-
-                // Update button texts that toggle visibility
-                const isManualVisible = manualCalculationSection.style.display === 'block';
-                toggleManualCalculationButton.textContent = isManualVisible ? translations[lang].hideManualCalculation : translations[lang].showManualCalculation;
-                
-                const isMeterVisible = meterCalculationSection.style.display === 'block';
-                toggleMeterCalculationButton.textContent = isMeterVisible ? translations[lang].hideMeterCalculation : translations[lang].showMeterCalculation;
-
-                const isDeviceTableVisible = deviceTableSection.style.display === 'block';
-                toggleTableButton.textContent = isDeviceTableVisible ? translations[lang].hideDeviceTable : translations[lang].showDeviceTable;
-
-                const isBudgetOptimizationVisible = budgetOptimizationSection.style.display === 'block';
-                toggleBudgetOptimizationButton.textContent = isBudgetOptimizationVisible ? translations[lang].hideBudgetOptimization : translations[lang].showBudgetOptimization;
-            };
-
-            // --- GLOBAL CONSTANTS ---
-            const VOLTAGE = 220;
-            const HOURS_PER_DAY = 24;
-
-            // --- UI ELEMENTS ---
-            const categoryDropdown = document.getElementById('categoryDropdown');
-            const manualInputTypeDropdown = document.getElementById('manualInputTypeDropdown');
-            const manualInput = document.getElementById('manualInput');
-            const calculateManualButton = document.getElementById('calculateManualButton');
-            const manualReportButton = document.getElementById('manualReportButton');
-
-            const manualKwhElem = document.getElementById('manualKwh');
-            const manualAmperesElem = document.getElementById('manualAmperes');
-            const manualBillElem = document.getElementById('manualBill');
-            const manualAvgRateElem = document.getElementById('manualAvgRate');
-            const manualResultGrid = document.getElementById('manualResultGrid');
-
-            const calculateMeterButton = document.getElementById('calculateMeterButton');
-            const meterPrevReading = document.getElementById('meterPrevReading');
-            const meterCurrReading = document.getElementById('meterCurrReading');
-            const daysInput = document.getElementById('daysInput');
-
-            const meterKwhElem = document.getElementById('meterKwh');
-            const meterAmperesElem = document.getElementById('meterAmperes');
-            const meterBillElem = document.getElementById('meterBill');
-            const meterAvgRateElem = document.getElementById('meterAvgRate');
-            const meterReportButton = document.getElementById('meterReportButton');
-            const meterResultGrid = document.getElementById('meterResultGrid');
-
-            const optimizeBudgetButton = document.getElementById('optimizeBudgetButton');
-            const optimizationTargetDropdown = document.getElementById('optimizationTargetDropdown');
-            const budgetLimitInput = document.getElementById('budgetLimitInput');
-            const budgetResultLabel = document.getElementById('budgetResultLabel');
-            const budgetOptimizationResultGrid = document.getElementById('budgetOptimizationResultGrid');
-
-            const deviceTableBody = document.querySelector("#deviceTable tbody");
-            const addRowButton = document.getElementById('addRowButton');
-            const deleteRowButton = document.getElementById('deleteRowButton');
-            const saveTableButton = document.getElementById('saveTableButton');
-            const loadFileInput = document.getElementById('loadFileInput');
-            const clearAllButton = document.getElementById('clearAllButton');
-            const deviceReportButton = document.getElementById('deviceReportButton');
-            const deviceTableSection = document.getElementById('deviceTableSection'); // For result grid color
-
-            // New UI element references for toggling visibility
-            const toggleBudgetOptimizationButton = document.getElementById('toggleBudgetOptimizationButton'); 
-            const toggleTableButton = document.getElementById('toggleTableButton');
-            const showTariffDetailsButton = document.getElementById('showTariffDetailsButton'); 
-
-            // Section elements
-            const manualCalculationSection = document.getElementById('manualCalculationSection');
-            const meterCalculationSection = document.getElementById('meterCalculationSection');
-            const budgetOptimizationSection = document.getElementById('budgetOptimizationSection'); 
-            
-
-            // New toggle buttons for manual and meter sections
-            const toggleManualCalculationButton = document.getElementById('toggleManualCalculationButton');
-            const toggleMeterCalculationButton = document.getElementById('toggleMeterCalculationButton');
-
-            // Modal elements (Tariff)
-            const tariffDetailsModal = document.getElementById('tariffDetailsModal');
-            const closeTariffDetailsModal = document.getElementById('closeTariffDetailsModal');
-            const tariffDetailsModalTitle = document.getElementById('tariffDetailsModalTitle');
-            const tariffDetailsModalContent = document.getElementById('tariffDetailsModalContent');
-            const householdTariffChartContainer = document.getElementById('householdTariffChartContainer');
-            const householdTariffChartCanvas = document.getElementById('householdTariffChart');
-            const otherCategoriesTariffChartContainer = document.getElementById('otherCategoriesTariffChartContainer');
-            const otherCategoriesTariffChartCanvas = document.getElementById('otherCategoriesTariffChart');
-            let householdTariffChartInstance = null;
-            let otherCategoriesTariffChartInstance = null;
-
-            // Modal elements (Report)
-            const reportModal = document.getElementById('reportModal');
-            const closeReportModal = document.getElementById('closeReportModal');
-            const reportModalTitle = document.getElementById('reportModalTitle');
-            const reportModalContent = document.getElementById('reportModalContent');
-
-            // Message box element
-            const appMessage = document.getElementById('appMessage');
-
-            let selectedTableRow = null; 
-
-            // Set initial language to English after all UI elements are defined
-            translatePage('en');
-            languageSelect.value = 'en'; // Ensure dropdown reflects default
-
-            // Event listener for language selection change
-            languageSelect.addEventListener('change', (e) => {
-                translatePage(e.target.value);
-            });
-
-
-            // --- UTILITY FUNCTIONS ---
-            const formatNumber = (value, decimalPlaces = 2, isCurrency = false, removeTrailingZeroDecimal = false) => {
-                try {
-                    const num = parseFloat(value);
-                    if (isNaN(num)) return String(value);
-                    const lang = languageSelect.value;
-                    // Use 'ar-IQ' for Arabic, 'en-US' for English and Kurdish (as Kurdish typically uses Western numerals for numbers)
-                    const locale = lang === 'ar' ? 'ar-IQ' : 'en-US'; 
-
-                    const options = {
-                        minimumFractionDigits: decimalPlaces,
-                        maximumFractionDigits: decimalPlaces,
-                        useGrouping: false // Disable thousands separators (commas)
-                    };
-
-                    if (isCurrency) {
-                        // For currency, we want no decimals, and no grouping
-                        return Math.round(num).toLocaleString(locale, { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 0 });
-                    }
-                    if (removeTrailingZeroDecimal && num === parseInt(num)) {
-                        // For integers that should be displayed without decimals, and no grouping
-                        return parseInt(num).toLocaleString(locale, { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 0 });
-                    }
-                    return num.toLocaleString(locale, options);
-                } catch (e) {
-                    console.error("Error formatting number:", e);
-                    return String(value);
-                }
-            };
-
-            const convertArabicNumeralsToWestern = (input) => {
-                if (typeof input !== 'string') return input;
-                const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-                const westernNumerals = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-
-                let output = input;
-                for (let i = 0; i < arabicNumerals.length; i++) {
-                    output = output.replace(new RegExp(arabicNumerals[i], 'g'), westernNumerals[i]);
-                }
-                return output;
-            };
-
-            const validateNumeric = (textInput) => {
-                if (typeof textInput !== 'string') textInput = String(textInput);
-
-                // Convert Arabic numerals to Western numerals first
-                let cleanInput = convertArabicNumeralsToWestern(textInput);
-
-                // Replace Arabic thousands separator (٬) and decimal separator (٫)
-                cleanInput = cleanInput.replace(/٬/g, '').replace(/٫/g, '.'); // Arabic thousands comma, Arabic decimal point
-
-                // Replace English thousands comma (,)
-                cleanInput = cleanInput.replace(/,/g, '');
-
-                if (!cleanInput.trim()) return 0.0;
-                const value = parseFloat(cleanInput);
-                return isNaN(value) ? 0.0 : value;
-            };
-
-            const kwhToAmperes = (kwh, days) => {
-                if (!days || days <= 0) return 0.0;
-                const hoursTotal = HOURS_PER_DAY * days;
-                return (kwh * 1000) / (VOLTAGE * hoursTotal);
-            };
-
-            const amperesToKwh = (amperes, days) => {
-                if (!days || days <= 0) return 0.0;
-                const hoursTotal = HOURS_PER_DAY * days;
-                return (amperes * VOLTAGE * hoursTotal) / 1000;
-            };
-
-            // --- MESSAGE DISPLAY FUNCTION ---
-            const showMessage = (messageKey, type = 'info', replacements = {}) => {
-                const lang = languageSelect.value;
-                let message = translations[lang] && translations[lang][messageKey] ? translations[lang][messageKey] : messageKey;
-                
-                // Apply replacements
-                for (const key in replacements) {
-                    message = message.replace(`{${key}}`, replacements[key]);
-                }
-
-                appMessage.textContent = message;
-                appMessage.className = ``; // Clear existing classes
-                appMessage.classList.add(type, 'show');
-                setTimeout(() => {
-                    appMessage.classList.remove('show');
-                }, 3000); // Message disappears after 3 seconds
-            };
-
-            // --- TARIFF CALCULATION LOGIC (KURDISTAN RUNAKI SYSTEM) ---
-            const getRonakiHouseholdTariffDetails = (kWh) => {
-                const tiers = [400, 800, 1200, 1600];
-                const rates = [72, 108, 175, 265, 350];
-                const slabNames = ["1-400 kWh", "401-800 kWh", "801-1200 kWh", "1201-1600 kWh", "1601+ kWh"];
-                const lang = languageSelect.value;
-
-                let totalCost = 0;
-                let remainingKwh = kWh;
-                const breakdown = [];
-                let previousSlabLimit = 0;
-
-                for (let i = 0; i < rates.length; i++) {
-                    if (remainingKwh <= 0) break;
-
-                    const slabRate = rates[i];
-                    const slabLimit = (i < tiers.length) ? tiers[i] : Infinity;
-                    const slabName = slabNames[i];
-
-                    let consumptionInThisSlab = 0;
-                    if (i === 0) {
-                        consumptionInThisSlab = Math.min(remainingKwh, slabLimit);
-                    } else {
-                        consumptionInThisSlab = Math.min(remainingKwh, slabLimit - previousSlabLimit);
-                    }
-
-                    if (consumptionInThisSlab > 0) {
-                        const costInThisSlab = consumptionInThisSlab * slabRate;
-                        totalCost += costInThisSlab;
-                        breakdown.push(`  - ${translations[lang].slab} ${i + 1} (${slabName}): ${formatNumber(consumptionInThisSlab, 2)} ${translations[lang].unitKWH} @ ${formatNumber(slabRate, 2)} ${translations[lang].iqdPerKwh} = ${formatNumber(costInThisSlab, 0, true)} ${translations[lang].unitIQD}`);
-                    }
-                    remainingKwh -= consumptionInThisSlab;
-                    previousSlabLimit = slabLimit;
-                }
-                return { totalCost, breakdown: breakdown.join("\n"), tiers, rates, slabNames };
-            };
-
-            const getRonakiFlatTariffDetails = (kWh, rate) => {
-                const lang = languageSelect.value;
-                const totalCost = kWh * rate;
-                const breakdown = `  - ${translations[lang].consumption}: ${formatNumber(kWh, 2)} ${translations[lang].unitKWH} @ ${formatNumber(rate, 2)} ${translations[lang].iqdPerKwh} = ${formatNumber(totalCost, 0, true)} ${translations[lang].unitIQD}`;
-                return { totalCost, breakdown };
-            };
-
-            const calculateCostForCategory = (consumption, category) => {
-                if (category === 'Household') {
-                    return getRonakiHouseholdTariffDetails(consumption).totalCost;
-                } else if (category === 'Commercial') {
-                    return getRonakiFlatTariffDetails(consumption, 185).totalCost;
-                } else if (category === 'Agriculture') {
-                    return getRonakiFlatTariffDetails(consumption, 60).totalCost;
-                } else if (category === 'Industrial') {
-                    return getRonakiFlatTariffDetails(consumption, 160).totalCost;
-                } else if (category === 'Large Industry') {
-                    return getRonakiFlatTariffDetails(consumption, 125).totalCost;
-                } else if (category === 'State') {
-                    return getRonakiFlatTariffDetails(consumption, 160).totalCost;
-                } else {
-                    console.error(`Unknown category for cost calculation: ${category}`);
-                    return NaN;
-                }
-            };
-
-            // --- UI UPDATE FUNCTIONS ---
-
-            const updateResultDisplay = (kwh, amperes, bill, avgRate, kwhElem, amperesElem, billElem, avgRateElem, resultGridElement, sectionType) => {
-                // Set dynamic CSS variables for colors
-                let resultColorVar, highlightColorVar;
-                if (sectionType === 'manual') {
-                    resultColorVar = 'var(--manual-result-color)';
-                    highlightColorVar = 'var(--manual-highlight-color)';
-                } else if (sectionType === 'meter') {
-                    resultColorVar = 'var(--meter-result-color)';
-                    highlightColorVar = 'var(--meter-highlight-color)';
-                } else if (sectionType === 'device') {
-                    resultColorVar = 'var(--device-result-color)';
-                    highlightColorVar = 'var(--device-highlight-color)';
-                } else if (sectionType === 'optimization') {
-                    resultColorVar = 'var(--optimization-result-color)';
-                    highlightColorVar = 'var(--optimization-highlight-color)';
-                }
-
-                resultGridElement.style.setProperty('--current-result-color', resultColorVar);
-                resultGridElement.style.setProperty('--current-highlight-color', highlightColorVar);
-
-                // Apply flashing animation
-                [kwhElem, amperesElem, billElem, avgRateElem].forEach(elem => {
-                    elem.classList.remove('flash-animation'); // Remove existing animation
-                    void elem.offsetWidth; // Trigger reflow to restart animation
-                    elem.classList.add('flash-animation'); // Add animation
-                });
-                const lang = languageSelect.value;
-                billElem.textContent = `${formatNumber(bill, 0, true)} ${translations[lang].unitIQD}`; // Bill first
-                kwhElem.textContent = `${formatNumber(kwh, 2)} ${translations[lang].unitKWH}`;
-                amperesElem.textContent = `${formatNumber(amperes, 2)} ${translations[lang].unitA}`;
-                avgRateElem.textContent = `${formatNumber(avgRate, 2)} ${translations[lang].iqdPerKwh}`;
-            };
-
-            // --- MAIN CALCULATION HANDLER ---
-            const performManualCalculation = () => {
-                let inputValue = validateNumeric(manualInput.value);
-                if (isNaN(inputValue) || inputValue < 0) {
-                    showMessage("enterValidNumeric", 'error');
-                    updateResultDisplay(0, 0, 0, 0, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem, manualResultGrid, 'manual');
-                    return;
-                }
-
-                const daysVal = validateNumeric(daysInput.value) || 30;
-                const category = categoryDropdown.value;
-                let calculatedKwh = 0;
-                let calculatedAmperes = 0;
-                let totalBill = 0;
-
-                if (manualInputTypeDropdown.value === 'kWh') {
-                    calculatedKwh = inputValue;
-                    calculatedAmperes = kwhToAmperes(calculatedKwh, daysVal);
-                    totalBill = calculateCostForCategory(calculatedKwh, category);
-                } else if (manualInputTypeDropdown.value === 'Avg Amperes') {
-                    calculatedAmperes = inputValue;
-                    calculatedKwh = amperesToKwh(calculatedAmperes, daysVal);
-                    totalBill = calculateCostForCategory(calculatedKwh, category);
-                } else if (manualInputTypeDropdown.value === 'Given Bill') {
-                    const targetBill = inputValue;
-                    let lowKwh = 0;
-                    let highKwh = 50000; 
-                    let foundKwh = 0;
-                    const tolerance = 1.0;
-
-                    for (let i = 0; i < 100; i++) { 
-                        const midKwh = (lowKwh + highKwh) / 2;
-                        const calculatedBillAtMid = calculateCostForCategory(midKwh, category);
-
-                        if (Math.abs(calculatedBillAtMid - targetBill) < tolerance) {
-                            foundKwh = midKwh;
-                            break;
-                        } else if (calculatedBillAtMid < targetBill) {
-                            lowKwh = midKwh;
-                        } else {
-                            highKwh = midKwh;
-                        }
-                    }
-                    calculatedKwh = foundKwh;
-                    calculatedAmperes = kwhToAmperes(calculatedKwh, daysVal);
-                    totalBill = targetBill; 
-                }
-
-                const avgRate = calculatedKwh > 0 ? totalBill / calculatedKwh : 0;
-
-                updateResultDisplay(calculatedKwh, calculatedAmperes, totalBill, avgRate, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem, manualResultGrid, 'manual');
-            };
-
-            const performMeterCalculation = () => {
-                const prevReading = validateNumeric(meterPrevReading.value);
-                const currReading = validateNumeric(meterCurrReading.value);
-                const daysVal = validateNumeric(daysInput.value) || 30;
-                const category = categoryDropdown.value;
-
-                if (isNaN(prevReading) || isNaN(currReading) || prevReading < 0 || currReading < 0) {
-                    showMessage("ensureValidMeterReadings", 'error');
-                    updateResultDisplay(0, 0, 0, 0, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem, meterResultGrid, 'meter');
-                    return;
-                }
-                if (currReading < prevReading) {
-                    showMessage("currentReadingLessThanPrevious", 'error');
-                    updateResultDisplay(0, 0, 0, 0, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem, meterResultGrid, 'meter');
-                    return;
-                }
-                if (isNaN(daysVal) || daysVal <= 0) {
-                    showMessage("enterPositiveDays", 'error');
-                    updateResultDisplay(0, 0, 0, 0, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem, meterResultGrid, 'meter');
-                    return;
-                }
-
-                const consumption = currReading - prevReading;
-                const totalBill = calculateCostForCategory(consumption, category);
-                const avgAmperes = kwhToAmperes(consumption, daysVal);
-                const avgRate = consumption > 0 ? totalBill / consumption : 0;
-
-                updateResultDisplay(consumption, avgAmperes, totalBill, avgRate, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem, meterResultGrid, 'meter');
-            };
-
-            const calculateDeviceConsumption = () => {
-                let totalKwh = 0;
-                const deviceDetails = [];
-                const category = categoryDropdown.value;
-                const daysVal = validateNumeric(daysInput.value) || 30;
-                const lang = languageSelect.value;
-
-                Array.from(deviceTableBody.children).forEach(row => {
-                    const isOn = row.querySelector('.device-on').checked;
-                    const kwhOutputCell = row.querySelector('.output-kwh');
-                    const iqdOutputCell = row.querySelector('.output-iqd');
-
-                    if (!isOn) {
-                        kwhOutputCell.textContent = '0.00';
-                        iqdOutputCell.textContent = '0';
-                        return;
-                    }
-
-                    const inputs = row.querySelectorAll('input[type="text"], input[type="number"]');
-                    const deviceName = inputs[0].value;
-                    const watt = validateNumeric(inputs[1].value);
-                    const hours = validateNumeric(inputs[2].value);
-                    const day = validateNumeric(inputs[3].value);
-                    const count = validateNumeric(inputs[4].value);
-
-                    const kwh = (watt / 1000) * hours * day * count;
-                    kwhOutputCell.textContent = formatNumber(kwh, 2);
-                    totalKwh += kwh;
-                    deviceDetails.push({ name: deviceName, kwh: kwh, row: row }); 
-                });
-
-                const totalBill = calculateCostForCategory(totalKwh, category);
-                const avgRate = totalKwh > 0 ? totalBill / totalKwh : 0;
-
-                deviceDetails.forEach(device => {
-                    const iqd = device.kwh * avgRate;
-                    device.row.querySelector('.output-iqd').textContent = formatNumber(iqd, 0, true);
-                    device.iqd = iqd; 
-                });
-                // Update a dummy result grid for device consumption to trigger color change
-                // We'll use the manualResultGrid for this as it's always visible and we need a target for the color change.
-                updateResultDisplay(totalKwh, kwhToAmperes(totalKwh, daysVal), totalBill, avgRate, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem, manualResultGrid, 'device');
-            };
-
-            const optimizeForBudget = () => {
-                let targetValue = validateNumeric(budgetLimitInput.value);
-                if (isNaN(targetValue) || targetValue < 0) {
-                    showMessage("enterValidNumeric", 'error');
-                    budgetResultLabel.textContent = translations[languageSelect.value].invalidTarget;
-                    updateResultDisplay(0, 0, 0, 0, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem, budgetOptimizationResultGrid, 'optimization'); // Use dummy values for color update
-                    return;
-                }
-
-                const daysVal = validateNumeric(daysInput.value) || 30;
-                let currentTotalKwh = 0;
-                const variableDevicesData = [];
-                const category = categoryDropdown.value;
-
-                Array.from(deviceTableBody.children).forEach((row, idx) => {
-                    const isOn = row.querySelector('.device-on').checked;
-                    if (!isOn) return;
-
-                    const inputs = row.querySelectorAll('input[type="text"], input[type="number"]');
-                    const deviceName = inputs[0].value;
-                    const watt = validateNumeric(inputs[1].value);
-                    const hours = validateNumeric(inputs[2].value);
-                    const day = validateNumeric(inputs[3].value);
-                    const count = validateNumeric(inputs[4].value);
-                    const isFixed = row.querySelector('.device-fixed').checked;
-
-                    const currentKwhDevice = (watt / 1000) * hours * day * count;
-                    currentTotalKwh += currentKwhDevice;
-
-                    if (!isFixed) { // Only consider variable devices for optimization
-                        variableDevicesData.push({
-                            index: idx,
-                            name: deviceName,
-                            initialKwh: currentKwhDevice,
-                            watt, hours, day, count,
-                            row: row 
-                        });
-                    }
-                });
-
-                const currentBill = calculateCostForCategory(currentTotalKwh, category);
-                const currentAmperes = kwhToAmperes(currentTotalKwh, daysVal);
-                const lang = languageSelect.value;
-
-                let targetKwhForOptimization = 0;
-                if (optimizationTargetDropdown.value === 'Target Cost') {
-                    if (currentBill > 0) {
-                        targetKwhForOptimization = (targetValue / currentBill) * currentTotalKwh;
-                    } else {
-                        targetKwhForOptimization = targetValue / 100; 
-                    }
-                } else if (optimizationTargetDropdown.value === 'Target Amperes') {
-                    targetKwhForOptimization = amperesToKwh(targetValue, daysVal);
-                } else if (optimizationTargetDropdown.value === 'Target kWh') {
-                    targetKwhForOptimization = targetValue;
-                }
-
-                if ((optimizationTargetDropdown.value === 'Target Cost' && currentBill <= targetValue) ||
-                    (optimizationTargetDropdown.value === 'Target Amperes' && currentAmperes <= targetValue) ||
-                    (optimizationTargetDropdown.value === 'Target kWh' && currentTotalKwh <= targetValue)) {
-                    budgetResultLabel.textContent = translations[lang].withinTarget;
-                    showMessage('currentStatusWithinTarget', 'info');
-                    updateResultDisplay(currentTotalKwh, currentAmperes, currentBill, currentTotalKwh > 0 ? currentBill / currentTotalKwh : 0, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem, budgetOptimizationResultGrid, 'optimization');
-                    return;
-                }
-
-                variableDevicesData.sort((a, b) => b.initialKwh - a.initialKwh);
-
-                let optimizedConsumptionKwh = currentTotalKwh;
-                let changesMade = false;
-
-                for (const device of variableDevicesData) {
-                    if (optimizedConsumptionKwh <= targetKwhForOptimization) break; 
-
-                    const kwhPerHour = (device.watt / 1000) * device.day * device.count;
-                    if (kwhPerHour <= 0) continue;
-
-                    let currentDeviceHours = validateNumeric(device.row.querySelector('input[type="number"]').value);
-
-                    while (currentDeviceHours > 0) {
-                        const testHours = Math.max(0, currentDeviceHours - 1); 
-                        const kwhReducedByHour = (currentDeviceHours - testHours) * kwhPerHour;
-                        const potentialNewTotalConsumption = optimizedConsumptionKwh - kwhReducedByHour;
-
-                        let potentialNewBill = calculateCostForCategory(potentialNewTotalConsumption, category);
-                        let potentialNewAmperes = kwhToAmperes(potentialNewTotalConsumption, daysVal);
-
-                        let canReduceFurther = false;
-                        if ((optimizationTargetDropdown.value === 'Target Cost' && potentialNewBill <= targetValue) ||
-                            (optimizationTargetDropdown.value === 'Target Amperes' && potentialNewAmperes <= targetValue) ||
-                            (optimizationTargetDropdown.value === 'Target kWh' && potentialNewTotalConsumption <= targetValue)) {
-                            canReduceFurther = true;
-                        }
-
-                        if (canReduceFurther || testHours === 0) { 
-                            const hoursReduced = currentDeviceHours - testHours;
-                            if (hoursReduced > 0) {
-                                device.row.querySelector('input[type="number"]').value = formatNumber(testHours, 1, false, true); 
-                                optimizedConsumptionKwh = potentialNewTotalConsumption;
-                                changesMade = true;
-                            }
-                            break; 
-                        } else {
-                            currentDeviceHours = testHours; 
-                        }
-                    }
-                }
-
-                if (changesMade) {
-                    budgetResultLabel.textContent = translations[lang].optimizationCompleted;
-                    calculateDeviceConsumption(); // Recalculate device consumption to update table outputs
-                    showMessage('optimizationCompleted', 'success');
-                } else {
-                    budgetResultLabel.textContent = translations[lang].unreachable;
-                    showMessage('couldNotReachTarget', 'error');
-                }
-                // Update the optimization result display with the final (or current) values
-                updateResultDisplay(optimizedConsumptionKwh, kwhToAmperes(optimizedConsumptionKwh, daysVal), calculateCostForCategory(optimizedConsumptionKwh, category), optimizedConsumptionKwh > 0 ? calculateCostForCategory(optimizedConsumptionKwh, category) / optimizedConsumptionKwh : 0, manualKwhElem, manualAmperesElem, manualBillElem, manualAvgRateElem, budgetOptimizationResultGrid, 'optimization');
-            };
-
-            // --- DEVICE TABLE LOGIC ---
-            const addTableRow = (deviceData = {}) => {
-                const lang = languageSelect.value;
-                const defaultNameKey = deviceData.nameKey || 'newDevice';
-                const data = {
-                    nameKey: defaultNameKey,
-                    name: translations[lang].deviceNames[defaultNameKey], 
-                    watt: '100', hours: '8', day: '30', count: '1', on: true, fixed: false, ...deviceData
-                };
-
-                const row = deviceTableBody.insertRow();
-                row.innerHTML = `
-                    <td><input type="text" value="${data.name}" class="device-input" data-name-key="${data.nameKey}"></td>
-                    <td><input type="number" value="${data.watt}" class="device-input"></td>
-                    <td><input type="number" value="${data.hours}" class="device-input" min="0" max="24"></td>
-                    <td><input type="number" value="${data.day}" class="device-input" min="0" max="31"></td>
-                    <td><input type="number" value="${data.count}" class="device-input" min="0"></td>
-                    <td class="output-kwh output-cell">0.00</td>
-                    <td class="output-iqd output-cell">0</td>
-                    <td><input type="checkbox" class="device-on" ${data.on ? 'checked' : ''}></td>
-                    <td><input type="checkbox" class="device-fixed" ${data.fixed ? 'checked' : ''}></td>
-                `;
-
-                row.querySelector('.device-on').addEventListener('change', () => calculateDeviceConsumption());
-                row.querySelector('.device-fixed').addEventListener('change', () => calculateDeviceConsumption());
-                row.querySelectorAll('.device-input').forEach(input => {
-                    // Store the nameKey on the input itself for translation updates
-                    if (input.type === 'text') {
-                        input.setAttribute('data-name-key', data.nameKey);
-                    }
-                    input.addEventListener('change', () => calculateDeviceConsumption());
-                });
-
-                row.addEventListener('click', () => handleTableRowClick(row, Array.from(deviceTableBody.children).indexOf(row)));
-
-                if (!data.on) row.classList.add('inactive'); 
-            };
-
-            const handleTableRowClick = (row, index) => {
-                if (selectedTableRow) {
-                    selectedTableRow.classList.remove('selected-row');
-                }
-                selectedTableRow = row;
-                selectedTableRow.classList.add('selected-row');
-            };
-
-            const startupPopulateDeviceTable = () => {
-                const sampleDevices = [
-                    { nameKey: 'ledTv', watt: '100', hours: '8', day: '30', count: '1', on: true, fixed: false },
-                    { nameKey: 'refrigerator', watt: '175', hours: '24', day: '30', count: '1', on: true, fixed: true },
-                    { nameKey: 'washingMachine', watt: '2000', hours: '2', day: '4', count: '1', on: true, fixed: false },
-                    { nameKey: 'ledLighting', watt: '12', hours: '12', day: '30', count: '20', on: true, fixed: false },
-                    { nameKey: 'freezer', watt: '150', hours: '24', day: '30', count: '1', on: true, fixed: true },
-                    { nameKey: 'waterPump', watt: '500', hours: '1', day: '30', count: '1', on: true, fixed: false },
-                    { nameKey: 'waterHeater', watt: '2500', hours: '1', day: '15', count: '1', on: false, fixed: false },
-                    { nameKey: 'airCooler', watt: '250', hours: '18', day: '30', count: '1', on: true, fixed: false },
-                    { nameKey: 'fan', watt: '75', hours: '18', day: '30', count: '1', on: true, fixed: false },
-                    { nameKey: 'dishwasher', watt: '1800', hours: '2', day: '15', count: '1', on: true, fixed: false },
-                    { nameKey: 'waterDispenser', watt: '175', hours: '2', day: '15', count: '1', on: true, fixed: false },
-                    { nameKey: 'splitAc1Ton', watt: '1000', hours: '4', day: '30', count: '1', on: true, fixed: false },
-                    { nameKey: 'splitAc1_5Ton', watt: '1500', hours: '4', day: '30', count: '1', on: false, fixed: false },
-                    { nameKey: 'splitAc2Ton', watt: '2000', hours: '4', day: '30', count: '1', on: false, fixed: false },
-                    { nameKey: 'towerAc', watt: '3000', hours: '4', day: '30', count: '1', on: false, fixed: false },
-                    { nameKey: 'electricHeater', watt: '2000', hours: '6', day: '20', count: '1', on: false, fixed: false },
-                    { nameKey: 'iron', watt: '1500', hours: '1', day: '8', count: '1', on: false, fixed: false },
-                    { nameKey: 'microwave', watt: '1000', hours: '0.5', day: '15', count: '1', on: false, fixed: false },
-                    { nameKey: 'electricKettle', watt: '1800', hours: '0.2', day: '30', count: '1', on: false, fixed: false },
-                    { nameKey: 'hairDryer', watt: '1600', hours: '0.2', day: '10', count: '1', on: false, fixed: false },
-                    { nameKey: 'vacuumCleaner', watt: '1400', hours: '0.5', day: '4', count: '1', on: false, fixed: false },
-                    { nameKey: 'electricOven', watt: '2500', hours: '1', day: '10', count: '1', on: false, fixed: false },
-                    { nameKey: 'phoneCharger', watt: '10', hours: '8', day: '30', count: '2', on: false, fixed: true },
-                    { nameKey: 'desktopPc', watt: '150', hours: '6', day: '30', count: '1', on: true, fixed: false },
-                    { nameKey: 'pcMonitor', watt: '40', hours: '6', day: '30', count: '1', on: false, fixed: false },
-                ];
-                
-                deviceTableBody.innerHTML = ''; // Clear existing rows before populating
-                sampleDevices.forEach(device => {
-                    addTableRow(device);
-                });
-            };
-
-            // --- REPORT GENERATION FUNCTIONS ---
-            const generateManualReport = () => {
-                const lang = languageSelect.value;
-                // Retrieve raw numeric values from the elements, not just text content
-                const kwh = validateNumeric(manualKwhElem.textContent.replace(translations[lang].unitKWH, '').trim());
-                const bill = validateNumeric(manualBillElem.textContent.replace(translations[lang].unitIQD, '').trim());
-                const amperes = validateNumeric(manualAmperesElem.textContent.replace(translations[lang].unitA, '').trim());
-                const avgRate = validateNumeric(manualAvgRateElem.textContent.replace(translations[lang].iqdPerKwh, '').trim());
-                const category = categoryDropdown.value;
-
-                // Removed the strict check for kwh <= 0, as a 0 kWh result can be valid for a report
-                const { breakdown } = getRonakiHouseholdTariffDetails(kwh); 
-
-                let reportHtml = `
-                    <div class="report-section-title">${translations[lang].manualCalculationSummary}</div>
-                    <p><span class="report-item-label">${translations[lang].category}:</span> <span class="report-item-value">${translations[lang][category.toLowerCase() + 'Option'] || category}</span></p>
-                    <p><span class="report-item-label">${translations[lang].billLabel}:</span> <span class="report-item-value">${formatNumber(bill, 0, true)} ${translations[lang].unitIQD}</span></p>
-                    <p><span class="report-item-label">${translations[lang].consumptionLabel}:</span> <span class="report-item-value">${formatNumber(kwh, 2)} ${translations[lang].unitKWH}</span></p>
-                    <p><span class="report-item-label">${translations[lang].avgAmperesLabel}:</span> <span class="report-item-value">${formatNumber(amperes, 2)} ${translations[lang].unitA}</span></p>
-                    <p><span class="report-item-label">${translations[lang].avgRateLabel}:</span> <span class="report-item-value">${formatNumber(avgRate, 2)} ${translations[lang].iqdPerKwh}</span></p>
-                `;
-                if (category === 'Household') {
-                    reportHtml += `<div class="report-section-title">${translations[lang].tariffBreakdown}</div><pre>${breakdown}</pre>`;
-                } else {
-                    reportHtml += `<div class="report-section-title">${translations[lang].tariffBreakdown}</div><pre>${getRonakiFlatTariffDetails(kwh, avgRate).breakdown}</pre>`;
-                }
-
-                reportModalTitle.textContent = translations[lang].reportModalTitle; // Update title
-                reportModalContent.innerHTML = reportHtml;
-                reportModal.style.display = 'flex';
-            };
-
-            const generateMeterReport = () => {
-                const lang = languageSelect.value;
-                const prevReading = validateNumeric(meterPrevReading.value);
-                const currReading = validateNumeric(meterCurrReading.value);
-                const daysVal = validateNumeric(daysInput.value) || 30;
-                const category = categoryDropdown.value;
-                const consumption = currReading - prevReading;
-                const totalBill = calculateCostForCategory(consumption, category);
-                const avgAmperes = kwhToAmperes(consumption, daysVal);
-                const avgRate = consumption > 0 ? totalBill / consumption : 0;
-
-                // Removed the strict validation here, as performMeterCalculation already handles it
-                // and sets display values to 0 if invalid. If 0 is a result, it's valid.
-                let reportHtml = `
-                    <div class="report-section-title">${translations[lang].meterCalculationSummary}</div>
-                    <p><span class="report-item-label">${translations[lang].category}:</span> <span class="report-item-value">${translations[lang][category.toLowerCase() + 'Option'] || category}</span></p>
-                    <p><span class="report-item-label">${translations[lang].previousReading}:</span> <span class="report-item-value">${formatNumber(prevReading, 0, true)} ${translations[lang].unitKWH}</span></p>
-                    <p><span class="report-item-label">${translations[lang].currentReading}:</span> <span class="report-item-value">${formatNumber(currReading, 0, true)} ${translations[lang].unitKWH}</span></p>
-                    <p><span class="report-item-label">${translations[lang].days}:</span> <span class="report-item-value">${formatNumber(daysVal, 0, false, true)}</span></p>
-                    <p><span class="report-item-label">${translations[lang].billLabel}:</span> <span class="report-item-value">${formatNumber(totalBill, 0, true)} ${translations[lang].unitIQD}</span></p>
-                    <p><span class="report-item-label">${translations[lang].consumptionLabel}:</span> <span class="report-item-value">${formatNumber(consumption, 2)} ${translations[lang].unitKWH}</span></p>
-                    <p><span class="report-item-label">${translations[lang].avgAmperesLabel}:</span> <span class="report-item-value">${formatNumber(avgAmperes, 2)} ${translations[lang].unitA}</span></p>
-                    <p><span class="report-item-label">${translations[lang].avgRateLabel}:</span> <span class="report-item-value">${formatNumber(avgRate, 2)} ${translations[lang].iqdPerKwh}</span></p>
-                `;
-                if (category === 'Household') {
-                    const { breakdown } = getRonakiHouseholdTariffDetails(consumption);
-                    reportHtml += `<div class="report-section-title">${translations[lang].tariffBreakdown}</div><pre>${breakdown}</pre>`;
-                } else {
-                    const { breakdown } = getRonakiFlatTariffDetails(consumption, avgRate);
-                    reportHtml += `<div class="report-section-title">${translations[lang].tariffBreakdown}</div><pre>${breakdown}</pre>`;
-                }
-
-                reportModalTitle.textContent = translations[lang].reportModalTitle; // Update title
-                reportModalContent.innerHTML = reportHtml;
-                reportModal.style.display = 'flex';
-            };
-
-            const generateDeviceReport = () => {
-                const lang = languageSelect.value;
-                let totalKwh = 0;
-                const deviceDetailsForReport = [];
-                const category = categoryDropdown.value;
-                const daysVal = validateNumeric(daysInput.value) || 30;
-
-                Array.from(deviceTableBody.children).forEach(row => {
-                    const isOn = row.querySelector('.device-on').checked;
-                    const inputs = row.querySelectorAll('input[type="text"], input[type="number"]');
-                    const deviceName = inputs[0].value;
-                    const watt = validateNumeric(inputs[1].value);
-                    const hours = validateNumeric(inputs[2].value);
-                    const day = validateNumeric(inputs[3].value);
-                    const count = validateNumeric(inputs[4].value);
-                    const isFixed = row.querySelector('.device-fixed').checked;
-                    const kwh = (watt / 1000) * hours * day * count;
-                    
-                    if (isOn) {
-                        totalKwh += kwh; 
-                    }
-
-                    deviceDetailsForReport.push({
-                        name: deviceName,
-                        watt: formatNumber(watt, 0, false, true),
-                        hours: formatNumber(hours, 1, false, true),
-                        day: formatNumber(day, 0, false, true),
-                        count: formatNumber(count, 0, false, true),
-                        kwh: formatNumber(kwh, 2),
-                        on: isOn ? translations[lang].yes : translations[lang].no, // Translate Yes/No
-                        fixed: isFixed ? translations[lang].yes : translations[lang].no // Translate Yes/No
-                    });
-                });
-
-                // Changed condition: only check if there are no devices added at all.
-                // If devices are present, even if totalKwh is 0 (e.g., all off), a report should be generated.
-                if (deviceTableBody.children.length === 0) {
-                    showMessage("addAndCalculateDeviceConsumption", 'info');
-                    return;
-                }
-                
-                const finalTotalBill = calculateCostForCategory(totalKwh, category);
-                const finalAvgRate = totalKwh > 0 ? finalTotalBill / totalKwh : 0;
-                const finalAvgAmperes = kwhToAmperes(totalKwh, daysVal);
-
-                let reportHtml = `
-                    <div class="report-section-title">${translations[lang].overallConsumptionSummary}</div>
-                    <p><span class="report-item-label">${translations[lang].category}:</span> <span class="report-item-value">${translations[lang][category.toLowerCase() + 'Option'] || category}</span></p>
-                    <p><span class="report-item-label">${translations[lang].totalBill}:</span> <span class="report-item-value">${formatNumber(finalTotalBill, 0, true)} ${translations[lang].unitIQD}</span></p>
-                    <p><span class="report-item-label">${translations[lang].totalConsumption}:</span> <span class="report-item-value">${formatNumber(totalKwh, 2)} ${translations[lang].unitKWH}</span></p>
-                    <p><span class="report-item-label">${translations[lang].averageAmperes}:</span> <span class="report-item-value">${formatNumber(finalAvgAmperes, 2)} ${translations[lang].unitA}</span></p>
-                    <p><span class="report-item-label">${translations[lang].averageRate}:</span> <span class="report-item-value">${formatNumber(finalAvgRate, 2)} ${translations[lang].iqdPerKwh}</span></p>
-
-                    <div class="report-section-title">${translations[lang].deviceBreakdown}</div>
-                    <table class="report-table">
+                <div class="device-table-container">
+                    <table class="device-table" id="deviceTable">
                         <thead>
                             <tr>
-                                <th>${translations[lang].device}</th>
-                                <th>${translations[lang].watt}</th>
-                                <th>${translations[lang].hoursPerDay}</th>
-                                <th>${translations[lang].daysPerMonth}</th>
-                                <th>${translations[lang].count}</th>
-                                <th>${translations[lang].kwhPerMonth}</th>
-                                <th>${translations[lang].iqdPerMonth}</th>
-                                <th>${translations[lang].onQuestion}</th>
-                                <th>${translations[lang].fixedQuestion}</th>
+                                <th class="w-1/12" data-lang-key="selectHeader"></th>
+                                <th class="w-3/12" data-lang-key="deviceNameHeader">Device Name</th>
+                                <th class="w-1/12" data-lang-key="wattageHeader">Wattage (W)</th>
+                                <th class="w-2/12" data-lang-key="hoursHeader">Hours/Day</th>
+                                <th class="w-1/12" data-lang-key="daysHeader">Days/Month</th>
+                                <th class="w-3/12" data-lang-key="consumptionHeader">Consumption (kWh)</th>
+                                <th class="w-1/12" data-lang-key="actionsHeader"></th>
                             </tr>
                         </thead>
                         <tbody>
-                `;
-
-                deviceDetailsForReport.forEach(device => {
-                    const iqd = validateNumeric(device.kwh) * finalAvgRate;
-                    reportHtml += `
-                            <tr>
-                                <td>${device.name}</td>
-                                <td>${device.watt}</td>
-                                <td>${device.hours}</td>
-                                <td>${device.day}</td>
-                                <td>${device.count}</td>
-                                <td>${device.kwh}</td>
-                                <td>${formatNumber(iqd, 0, true)}</td>
-                                <td>${device.on}</td>
-                                <td>${device.fixed}</td>
-                            </tr>
-                    `;
-                });
-
-                reportHtml += `
+                            <!-- Device rows will be added here dynamically -->
                         </tbody>
                     </table>
-                `;
+                </div>
+                <div class="result-grid" id="deviceResultGrid">
+                    <div class="result-item">
+                        <div class="result-label" data-lang-key="billLabel">Bill</div>
+                        <div class="result-value" id="deviceBill">0 IQD</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label" data-lang-key="consumptionLabel">Consumption</div>
+                        <div class="result-value" id="deviceKwh">0.00 kWh</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label" data-lang-key="avgDailyConsumptionLabel">Avg Daily Consumption</div>
+                        <div class="result-value" id="deviceDailyKwh">0.00 kWh</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label" data-lang-key="avgRateLabel">Avg Rate</div>
+                        <div class="result-value" id="deviceAvgRate">0.00 IQD/kWh</div>
+                    </div>
+                </div>
+                <button id="deviceReportButton" class="btn btn-action w-full mt-6" data-lang-key="generateReportButton">Generate Report</button>
+            </div>
 
-                reportModalTitle.textContent = translations[lang].reportModalTitle; // Update title
-                reportModalContent.innerHTML = reportHtml;
-                reportModal.style.display = 'flex';
-            };
+            <!-- Buttons to toggle calculation modes -->
+            <div id="calculationToggleButtons" class="flex justify-center space-x-4 mt-6">
+                <button id="showManualButton" class="btn btn-action w-1/2 md:w-auto" data-lang-key="manualButton">Manual</button>
+                <button id="showMeterButton" class="btn btn-action w-1/2 md:w-auto" data-lang-key="meterButton">Meter</button>
+                <button id="showDeviceButton" class="btn btn-action w-1/2 md:w-auto" data-lang-key="deviceButton">Devices</button>
+            </div>
+            
+            <!-- Overall Consumption Pie Chart -->
+            <div class="section-card">
+                <div class="chart-container">
+                    <canvas id="consumptionPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Modals -->
+    <!-- Modal for Tariff Details -->
+    <div id="tariffDetailsModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button" id="closeTariffDetailsModal">&times;</button>
+            <h3 data-lang-key="tariffDetailsTitle">Tariff Details</h3>
+            <div class="overflow-y-auto max-h-[70vh]">
+                <div id="tariffDetailsContent"></div>
+            </div>
+        </div>
+    </div>
 
-            // --- CSV HANDLING FUNCTIONS ---
-            const exportTableToCsv = () => {
-                const table = document.getElementById('deviceTable');
-                let csv = [];
+    <!-- Modal for Reports -->
+    <div id="reportModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button" id="closeReportModal">&times;</button>
+            <h3 data-lang-key="reportTitle">Report</h3>
+            <div class="overflow-y-auto max-h-[70vh]">
+                <div id="reportContent"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Message box for notifications -->
+    <div id="appMessage" class="hidden"></div>
+    
+    <footer>
+        <p data-lang-key="footerCredit">Made with ❤️ by a passionate team</p>
+        <p data-lang-key="disclaimer">Disclaimer: This is an estimation tool and should not be considered an official bill.</p>
+        <button id="showTariffDetailsButton" class="btn btn-action text-sm mt-2" data-lang-key="tariffDetailsButton">Show Tariff Details</button>
+    </footer>
 
-                // Get headers
-                let headers = [];
-                table.querySelectorAll('th').forEach(th => {
-                    headers.push(th.innerText);
-                });
-                csv.push(headers.join(','));
-
-                // Get rows
-                table.querySelectorAll('tbody tr').forEach(row => {
-                    let rowData = [];
-                    row.querySelectorAll('td').forEach((td, index) => {
-                        let cellValue;
-                        if (index === 0) { // Device Name input
-                            cellValue = td.querySelector('input').getAttribute('data-name-key'); // Store the key, not the translated value
-                        } else if (index < 5) { // Other input fields
-                            cellValue = td.querySelector('input').value;
-                        } else if (index >= 7) { // Checkboxes
-                            cellValue = td.querySelector('input').checked ? 'TRUE' : 'FALSE';
-                        } else { // Output cells
-                            cellValue = td.innerText.replace(/,/g, ''); // Remove commas for numeric values
-                        }
-                        // Escape commas and double quotes for CSV
-                        if (String(cellValue).includes(',') || String(cellValue).includes('"')) {
-                            cellValue = `"${String(cellValue).replace(/"/g, '""')}"`;
-                        }
-                        rowData.push(cellValue);
-                    });
-                    csv.push(rowData.join(','));
-                });
-
-                const csvString = csv.join('\n');
-                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'devices_runaki.csv';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                showMessage("deviceDataSaved", 'success');
-            };
-
-            const importTableFromCsv = (csvString) => {
-                const lines = csvString.split('\n').filter(line => line.trim() !== '');
-                if (lines.length < 1) {
-                    showMessage("csvEmpty", 'error');
-                    return;
-                }
-
-                // Assuming the first line is headers, we skip it for data parsing
-                const dataRows = lines.slice(1); 
+    <script>
+        // --- LANGUAGE & TRANSLATION SETUP ---
+        const translations = {
+            'en': {
+                appTitle: 'Runaki Bill Assistant',
+                mainTitle: 'Runaki Bill Assistant',
+                householdOption: 'Household',
+                commercialOption: 'Commercial',
+                agricultureOption: 'Agriculture',
+                industrialOption: 'Industrial',
+                heavyIndustryOption: 'Heavy Industry',
+                stateOption: 'State',
+                manualButton: 'Manual',
+                meterButton: 'Meter',
+                deviceButton: 'Devices',
+                calculateBillButton: 'Calculate Bill',
+                generateReportButton: 'Generate Report',
+                categoryLabel: 'Category:',
+                inputLabel: 'Input:',
+                kwhOption: 'kWh',
+                avgAmperesOption: 'Avg Amperes',
+                givenBillOption: 'Given Bill (IQD)',
+                billLabel: 'Bill',
+                consumptionLabel: 'Consumption',
+                avgAmperesLabel: 'Avg Amperes',
+                avgRateLabel: 'Avg Rate',
+                prevReadingLabel: 'Prev Reading:',
+                currReadingLabel: 'Curr Reading:',
+                daysLabel: 'Days:',
+                dailyConsumptionLabel: 'Daily Consumption',
+                avgDailyConsumptionLabel: 'Avg Daily Consumption',
+                addDeviceButton: 'Add Device',
+                exportButton: 'Export',
+                importButton: 'Import',
+                clearButton: 'Clear',
+                selectHeader: 'Select',
+                deviceNameHeader: 'Device Name',
+                wattageHeader: 'Wattage (W)',
+                hoursHeader: 'Hours/Day',
+                daysHeader: 'Days/Month',
+                consumptionHeader: 'Consumption (kWh)',
+                actionsHeader: 'Actions',
+                deleteButton: 'Delete',
+                manualCalculationTitle: '1. Manual Calculation',
+                meterCalculationTitle: '2. By Meter Calculation',
+                deviceCalculationTitle: '3. By Devices Calculation',
+                tariffDetailsTitle: 'Tariff Details',
+                reportTitle: 'Report',
+                footerCredit: 'Made with ❤️ by a passionate team',
+                disclaimer: 'Disclaimer: This is an estimation tool and should not be considered an official bill.',
+                tariffDetailsButton: 'Show Tariff Details',
+                error_invalidInput: 'Please enter a valid number for all inputs.',
+                error_invalidMeterReadings: 'Current reading must be greater than previous reading.',
+                reportTitle: 'Electricity Consumption Report',
+                report_category: 'Calculation Category',
+                report_input: 'Input Value',
+                report_kwh: 'Total kWh Consumption',
+                report_bill: 'Total Bill (IQD)',
+                report_avgRate: 'Average Rate (IQD/kWh)',
+                report_household_title: 'Household Tariff Breakdown',
+                report_step: 'Step',
+                report_rate: 'Rate',
+                report_kwh_range: 'kWh Range',
+                report_cost: 'Cost',
+                report_total: 'Total',
+                report_consumption: 'Consumption',
+                report_other_tariff: 'Flat Rate Tariff',
+                report_device_title: 'Device Consumption Breakdown',
+                report_device_table_name: 'Device Name',
+                report_device_table_watts: 'Watts',
+                report_device_table_hours: 'Hrs/Day',
+                report_device_table_days: 'Days/Month',
+                report_device_table_kwh: 'Consumption (kWh)',
+                report_device_table_cost: 'Cost (IQD)',
+                report_no_devices_added: 'No devices have been added yet.',
+                success_exported: 'Device list exported successfully!',
+                success_imported: 'Device list imported successfully!',
+                error_import: 'Invalid file format. Please import a valid JSON file.',
+                confirm_clear_devices: 'Are you sure you want to clear all devices?',
+                tariff_household_title: 'Household Tariff (kWh)',
+                tariff_commercial_title: 'Commercial Tariff (kWh)',
+                tariff_agriculture_title: 'Agriculture Tariff (kWh)',
+                tariff_industrial_title: 'Industrial Tariff (kWh)',
+                tariff_heavy_industry_title: 'Heavy Industry Tariff (kWh)',
+                tariff_state_title: 'State Tariff (kWh)',
                 
-                deviceTableBody.innerHTML = ''; // Clear existing rows
+            },
+            'ar': {
+                appTitle: 'مساعد فواتير رونكي',
+                mainTitle: 'مساعد فواتير رونكي',
+                householdOption: 'منزلي',
+                commercialOption: 'تجاري',
+                agricultureOption: 'زراعي',
+                industrialOption: 'صناعي',
+                heavyIndustryOption: 'صناعة ثقيلة',
+                stateOption: 'حكومي',
+                manualButton: 'يدوي',
+                meterButton: 'بالعداد',
+                deviceButton: 'بالأجهزة',
+                calculateBillButton: 'حساب الفاتورة',
+                generateReportButton: 'إنشاء تقرير',
+                categoryLabel: 'الفئة:',
+                inputLabel: 'الإدخال:',
+                kwhOption: 'كيلوواط ساعة',
+                avgAmperesOption: 'معدل الأمبير',
+                givenBillOption: 'فاتورة معطاة (دينار)',
+                billLabel: 'الفاتورة',
+                consumptionLabel: 'الاستهلاك',
+                avgAmperesLabel: 'معدل الأمبير',
+                avgRateLabel: 'معدل السعر',
+                prevReadingLabel: 'القراءة السابقة:',
+                currReadingLabel: 'القراءة الحالية:',
+                daysLabel: 'الأيام:',
+                dailyConsumptionLabel: 'الاستهلاك اليومي',
+                avgDailyConsumptionLabel: 'معدل الاستهلاك اليومي',
+                addDeviceButton: 'أضف جهاز',
+                exportButton: 'تصدير',
+                importButton: 'استيراد',
+                clearButton: 'مسح',
+                selectHeader: 'تحديد',
+                deviceNameHeader: 'اسم الجهاز',
+                wattageHeader: 'القدرة (واط)',
+                hoursHeader: 'ساعات/يوم',
+                daysHeader: 'أيام/شهر',
+                consumptionHeader: 'الاستهلاك (كيلوواط ساعة)',
+                actionsHeader: 'إجراءات',
+                deleteButton: 'حذف',
+                manualCalculationTitle: '1. الحساب اليدوي',
+                meterCalculationTitle: '2. الحساب بالعداد',
+                deviceCalculationTitle: '3. الحساب بالأجهزة',
+                tariffDetailsTitle: 'تفاصيل التعريفة',
+                reportTitle: 'تقرير',
+                footerCredit: 'صنع بـ ❤️ بواسطة فريق شغوف',
+                disclaimer: 'تنويه: هذه أداة تقديرية ولا تعتبر فاتورة رسمية.',
+                tariffDetailsButton: 'عرض تفاصيل التعريفة',
+                error_invalidInput: 'الرجاء إدخال رقم صحيح لجميع المدخلات.',
+                error_invalidMeterReadings: 'يجب أن تكون القراءة الحالية أكبر من السابقة.',
+                reportTitle: 'تقرير استهلاك الكهرباء',
+                report_category: 'فئة الحساب',
+                report_input: 'قيمة الإدخال',
+                report_kwh: 'إجمالي استهلاك الكيلوواط ساعة',
+                report_bill: 'إجمالي الفاتورة (دينار)',
+                report_avgRate: 'معدل السعر (دينار/ك.و.س)',
+                report_household_title: 'تفاصيل تعريفة المنزلية',
+                report_step: 'الخطوة',
+                report_rate: 'السعر',
+                report_kwh_range: 'نطاق الكيلوواط ساعة',
+                report_cost: 'التكلفة',
+                report_total: 'الإجمالي',
+                report_consumption: 'الاستهلاك',
+                report_other_tariff: 'تعريفة سعر ثابت',
+                report_device_title: 'تفاصيل استهلاك الأجهزة',
+                report_device_table_name: 'اسم الجهاز',
+                report_device_table_watts: 'واط',
+                report_device_table_hours: 'ساعة/يوم',
+                report_device_table_days: 'يوم/شهر',
+                report_device_table_kwh: 'الاستهلاك (ك.و.س)',
+                report_device_table_cost: 'التكلفة (دينار)',
+                report_no_devices_added: 'لم تتم إضافة أي أجهزة بعد.',
+                success_exported: 'تم تصدير قائمة الأجهزة بنجاح!',
+                success_imported: 'تم استيراد قائمة الأجهزة بنجاح!',
+                error_import: 'تنسيق الملف غير صالح. الرجاء استيراد ملف JSON صحيح.',
+                confirm_clear_devices: 'هل أنت متأكد أنك تريد مسح جميع الأجهزة؟',
+                tariff_household_title: 'تعريفة المنزلية (كيلوواط ساعة)',
+                tariff_commercial_title: 'تعريفة التجارية (كيلوواط ساعة)',
+                tariff_agriculture_title: 'تعريفة الزراعية (كيلوواط ساعة)',
+                tariff_industrial_title: 'تعريفة الصناعية (كيلوواط ساعة)',
+                tariff_heavy_industry_title: 'تعريفة الصناعة الثقيلة (كيلوواط ساعة)',
+                tariff_state_title: 'تعريفة الحكومية (كيلوواط ساعة)',
+            },
+            'ku': {
+                appTitle: 'یارمەتیدەری فاتیۆرە روناکی',
+                mainTitle: 'یارمەتیدەری فاتیۆرە روناکی',
+                householdOption: 'ماڵ',
+                commercialOption: 'بازرگانی',
+                agricultureOption: 'کشتوکاڵ',
+                industrialOption: 'پیشەسازی',
+                heavyIndustryOption: 'پیشەسازی قورس',
+                stateOption: 'حکومی',
+                manualButton: 'دەستی',
+                meterButton: 'بە پێوەر',
+                deviceButton: 'بە ئامێرەکان',
+                calculateBillButton: 'حسابکردنی فاتیۆرە',
+                generateReportButton: 'دروستکردنی ڕاپۆرت',
+                categoryLabel: 'جۆر:',
+                inputLabel: 'داخڵکردن:',
+                kwhOption: 'کیلۆوات کاتژمێر',
+                avgAmperesOption: 'تێکڕای ئەمپێر',
+                givenBillOption: 'فاتیۆرەی دراو (دینار)',
+                billLabel: 'فاتیۆرە',
+                consumptionLabel: 'بەکارهێنان',
+                avgAmperesLabel: 'تێکڕای ئەمپێر',
+                avgRateLabel: 'تێکڕای نرخ',
+                prevReadingLabel: 'خوێندنەوەی پێشوو:',
+                currReadingLabel: 'خوێندنەوەی ئێستا:',
+                daysLabel: 'ڕۆژ:',
+                dailyConsumptionLabel: 'بەکارهێنانی ڕۆژانە',
+                avgDailyConsumptionLabel: 'تێکڕای بەکارهێنانی ڕۆژانە',
+                addDeviceButton: 'زیادکردنی ئامێر',
+                exportButton: 'هەناردەکردن',
+                importButton: 'هاوردەکردن',
+                clearButton: 'پاککردنەوە',
+                selectHeader: 'هەڵبژاردن',
+                deviceNameHeader: 'ناوی ئامێر',
+                wattageHeader: 'توانا (وات)',
+                hoursHeader: 'کاتژمێر/ڕۆژ',
+                daysHeader: 'ڕۆژ/مانگ',
+                consumptionHeader: 'بەکارهێنان (ک.و.ک)',
+                actionsHeader: 'کردارەکان',
+                deleteButton: 'سڕینەوە',
+                manualCalculationTitle: '1. حسابکردنی دەستی',
+                meterCalculationTitle: '2. حسابکردن بە پێوەر',
+                deviceCalculationTitle: '3. حسابکردن بە ئامێرەکان',
+                tariffDetailsTitle: 'وردەکارییەکانی تاریفە',
+                reportTitle: 'ڕاپۆرت',
+                footerCredit: 'دروستکراوە بە ❤️ لەلایەن تیمێکی دڵسۆز',
+                disclaimer: 'ئاگاداری: ئەمە ئامێرێکی خەمڵاندنە و نابێت بە فاتیۆرەی فەرمی دابنرێت.',
+                tariffDetailsButton: 'پیشاندانی وردەکارییەکانی تاریفە',
+                error_invalidInput: 'تکایە ژمارەیەکی دروست داخڵ بکە بۆ هەموو داخڵکردنەکان.',
+                error_invalidMeterReadings: 'پێویستە خوێندنەوەی ئێستا لە خوێندنەوەی پێشوو گەورەتر بێت.',
+                reportTitle: 'ڕاپۆرتی بەکارهێنانی کارەبا',
+                report_category: 'جۆری حسابکردن',
+                report_input: 'بەهای داخڵکراو',
+                report_kwh: 'کۆی بەکارهێنانی ک.و.ک',
+                report_bill: 'کۆی فاتیۆرە (دینار)',
+                report_avgRate: 'تێکڕای نرخ (دینار/ک.و.ک)',
+                report_household_title: 'وردەکارییەکانی تاریفەی ماڵ',
+                report_step: 'هەنگاو',
+                report_rate: 'نرخ',
+                report_kwh_range: 'مەودای ک.و.ک',
+                report_cost: 'تێچوو',
+                report_total: 'کۆ',
+                report_consumption: 'بەکارهێنان',
+                report_other_tariff: 'تاریفەی نرخی جێگیر',
+                report_device_title: 'وردەکارییەکانی بەکارهێنانی ئامێر',
+                report_device_table_name: 'ناوی ئامێر',
+                report_device_table_watts: 'وات',
+                report_device_table_hours: 'کاتژمێر/ڕۆژ',
+                report_device_table_days: 'ڕۆژ/مانگ',
+                report_device_table_kwh: 'بەکارهێنان (ک.و.ک)',
+                report_device_table_cost: 'تێچوو (دینار)',
+                report_no_devices_added: 'هیچ ئامێرێک زیاد نەکراوە.',
+                success_exported: 'لیستی ئامێرەکان بە سەرکەوتوویی هەناردە کرا!',
+                success_imported: 'لیستی ئامێرەکان بە سەرکەوتوویی هاوردە کرا!',
+                error_import: 'شێوازی فایلەکە هەڵەیە. تکایە فایلێکی JSON دروست هاوردە بکە.',
+                confirm_clear_devices: 'ئایا دڵنیایت کە دەتەوێت هەموو ئامێرەکان بسڕیتەوە؟',
+                tariff_household_title: 'تاریفەی ماڵ (ک.و.ک)',
+                tariff_commercial_title: 'تاریفەی بازرگانی (ک.و.ک)',
+                tariff_agriculture_title: 'تاریفەی کشتوکاڵ (ک.و.ک)',
+                tariff_industrial_title: 'تاریفەی پیشەسازی (ک.و.ک)',
+                tariff_heavy_industry_title: 'تاریفەی پیشەسازی قورس (ک.و.ک)',
+                tariff_state_title: 'تاریفەی حکومی (ک.و.ک)',
+            }
+        };
 
-                dataRows.forEach(line => {
-                    // Simple CSV parsing: split by comma, but handle quoted fields
-                    const rowValues = [];
-                    let inQuote = false;
-                    let currentField = '';
-                    for (let i = 0; i < line.length; i++) {
-                        const char = line[i];
-                        if (char === '"' && (i === 0 || line[i-1] === ',' || inQuote)) {
-                            if (inQuote && line[i+1] === '"') { // Handle escaped double quote ""
-                                currentField += '"';
-                                i++;
-                            } else {
-                                inQuote = !inQuote;
-                            }
-                        } else if (char === ',' && !inQuote) {
-                            rowValues.push(currentField);
-                            currentField = '';
-                        } else {
-                            currentField += char;
-                        }
-                    }
-                    rowValues.push(currentField); // Add the last field
+        const languageButtons = document.querySelectorAll('.lang-btn');
+        const langEnButton = document.getElementById('lang-en');
+        const langArButton = document.getElementById('lang-ar');
+        const langKuButton = document.getElementById('lang-ku');
+        let currentLanguage = 'en'; // Default language
 
-                    // Ensure we have enough columns (at least 9 for device data)
-                    if (rowValues.length < 9) {
-                        console.warn("Skipping malformed CSV row:", line);
-                        return;
-                    }
+        function setActiveLanguage(lang) {
+            currentLanguage = lang;
+            document.body.className = lang === 'ar' || lang === 'ku' ? 'rtl' : 'ltr';
 
-                    addTableRow({
-                        nameKey: rowValues[0], // Load the nameKey
-                        watt: rowValues[1],
-                        hours: rowValues[2],
-                        day: rowValues[3],
-                        count: rowValues[4],
-                        on: rowValues[7].toUpperCase() === 'TRUE',
-                        fixed: rowValues[8].toUpperCase() === 'TRUE',
+            languageButtons.forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`lang-${lang}`).classList.add('active');
+            
+            updateTextContent();
+            updateChartLabels();
+            updatePlaceholderText();
+        }
+
+        function updateTextContent() {
+            document.querySelectorAll('[data-lang-key]').forEach(element => {
+                const key = element.getAttribute('data-lang-key');
+                if (translations[currentLanguage] && translations[currentLanguage][key]) {
+                    element.textContent = translations[currentLanguage][key];
+                }
+            });
+        }
+
+        function updatePlaceholderText() {
+             // Placeholder for device name input, if it exists
+             const deviceNameInputs = document.querySelectorAll('.device-name-input');
+             deviceNameInputs.forEach(input => {
+                 input.placeholder = translations[currentLanguage]['deviceNameHeader'];
+             });
+        }
+        
+        // Event listeners for language buttons
+        langEnButton.addEventListener('click', () => setActiveLanguage('en'));
+        langArButton.addEventListener('click', () => setActiveLanguage('ar'));
+        langKuButton.addEventListener('click', () => setActiveLanguage('ku'));
+
+
+        // --- TARIFF DATA ---
+        // New tariff data based on user request
+        const tariffs = {
+            'Household': [
+                { limit: 400, rate: 72 },
+                { limit: 800, rate: 108 },
+                { limit: 1200, rate: 175 },
+                { limit: 1600, rate: 265 },
+                { limit: Infinity, rate: 350 }
+            ],
+            'Commercial': 185,
+            'Agriculture': 60,
+            'Industrial': 160,
+            'Heavy Industry': 125,
+            'State': 160
+        };
+
+        // --- CALCULATION LOGIC ---
+
+        /**
+         * Calculates the total bill for a given kWh consumption based on the tariff category.
+         * @param {number} kwhConsumption - The total kWh consumed.
+         * @param {string} category - The tariff category (e.g., 'Household', 'Commercial').
+         * @returns {object} An object containing the total bill and a breakdown of costs.
+         */
+        function calculateBill(kwhConsumption, category) {
+            let totalBill = 0;
+            let breakdown = [];
+            let avgRate = 0;
+
+            if (category === 'Household') {
+                let remainingKwh = kwhConsumption;
+                let previousLimit = 0;
+
+                for (const tier of tariffs.Household) {
+                    if (remainingKwh <= 0) break;
+
+                    const kwhInTier = Math.min(remainingKwh, tier.limit - previousLimit);
+                    const costInTier = kwhInTier * tier.rate;
+
+                    totalBill += costInTier;
+                    breakdown.push({
+                        kwhRange: `${previousLimit + 1} - ${tier.limit === Infinity ? '+' : tier.limit}`,
+                        kwhConsumed: kwhInTier,
+                        rate: tier.rate,
+                        cost: costInTier
                     });
+
+                    remainingKwh -= kwhInTier;
+                    previousLimit = tier.limit;
+                }
+            } else {
+                const rate = tariffs[category] || 0;
+                totalBill = kwhConsumption * rate;
+                breakdown.push({
+                    rate: rate,
+                    cost: totalBill,
+                    kwhConsumed: kwhConsumption
                 });
-                calculateDeviceConsumption();
-                showMessage("deviceDataLoaded", 'success');
-            };
+            }
+
+            if (kwhConsumption > 0) {
+                avgRate = totalBill / kwhConsumption;
+            }
+
+            return { totalBill, avgRate, breakdown };
+        }
+
+        // Helper function to animate a result value with a flash effect
+        function animateResult(element, value, suffix, highlightColor, defaultColor) {
+            element.style.setProperty('--current-result-color', defaultColor);
+            element.style.setProperty('--current-highlight-color', highlightColor);
+            element.classList.add('flash-animation');
+            element.textContent = `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${suffix}`;
+            
+            // Remove the animation class after it completes
+            element.addEventListener('animationend', () => {
+                element.classList.remove('flash-animation');
+            }, { once: true });
+        }
 
 
-            // --- EVENT LISTENERS ---
-            manualInputTypeDropdown.addEventListener('change', (e) => {
-                const type = e.target.value;
-                if (type === 'kWh') manualInput.value = '1891';
-                else if (type === 'Avg Amperes') manualInput.value = '12';
-                else if (type === 'Given Bill') manualInput.value = '100000';
-                performManualCalculation();
-            });
+        // --- MANUAL CALCULATION FUNCTIONS ---
+        function performManualCalculation() {
+            const inputType = document.getElementById('manualInputTypeDropdown').value;
+            const inputValue = parseFloat(document.getElementById('manualInput').value);
+            const category = document.getElementById('categoryDropdown').value;
+            const days = 30; // Assuming a standard month for manual calc
+            let kwh = 0;
+            let bill = 0;
+            let avgAmperes = 0;
+            let breakdown = [];
+            let avgRate = 0;
+            const voltage = 220; // Assuming a standard voltage
 
-            calculateManualButton.addEventListener('click', performManualCalculation);
-            manualInput.addEventListener('change', performManualCalculation); 
-            manualInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') performManualCalculation(); });
-            categoryDropdown.addEventListener('change', () => {
-                performManualCalculation();
-                if (deviceTableSection.style.display === 'block') { // Only recalculate if table is visible
-                    calculateDeviceConsumption(); 
+            if (isNaN(inputValue) || inputValue < 0) {
+                showMessage('error', translations[currentLanguage].error_invalidInput);
+                return;
+            }
+
+            if (inputType === 'kWh') {
+                kwh = inputValue;
+                const result = calculateBill(kwh, category);
+                bill = result.totalBill;
+                avgRate = result.avgRate;
+                breakdown = result.breakdown;
+                avgAmperes = (kwh * 1000) / (voltage * 24 * days);
+            } else if (inputType === 'Avg Amperes') {
+                avgAmperes = inputValue;
+                kwh = (avgAmperes * voltage * 24 * days) / 1000;
+                const result = calculateBill(kwh, category);
+                bill = result.totalBill;
+                avgRate = result.avgRate;
+                breakdown = result.breakdown;
+            } else if (inputType === 'Given Bill') {
+                bill = inputValue;
+                // This is a complex reverse calculation, for simplicity let's approximate or just show the bill
+                kwh = 0; // Reverse calculation from bill to kWh is non-linear for household tariff
+                avgAmperes = 0;
+                avgRate = 0;
+                if (category !== 'Household') {
+                    // For flat rate, we can calculate kWh
+                    const rate = tariffs[category];
+                    if (rate > 0) {
+                        kwh = bill / rate;
+                        avgRate = rate;
+                        avgAmperes = (kwh * 1000) / (voltage * 24 * days);
+                    }
                 }
-            });
+                breakdown = [];
+            }
+            
+            const manualBill = document.getElementById('manualBill');
+            const manualKwh = document.getElementById('manualKwh');
+            const manualAmperes = document.getElementById('manualAmperes');
+            const manualAvgRate = document.getElementById('manualAvgRate');
 
-            calculateMeterButton.addEventListener('click', performMeterCalculation);
-            meterPrevReading.addEventListener('change', performMeterCalculation);
-            meterPrevReading.addEventListener('keydown', (e) => { if (e.key === 'Enter') performMeterCalculation(); });
-            meterCurrReading.addEventListener('change', performMeterCalculation);
-            meterCurrReading.addEventListener('keydown', (e) => { if (e.key === 'Enter') performMeterCalculation(); });
-            daysInput.addEventListener('change', () => {
-                performManualCalculation(); 
-                performMeterCalculation(); 
-                if (deviceTableSection.style.display === 'block') { // Only recalculate if table is visible
-                    calculateDeviceConsumption(); 
+            animateResult(manualBill, bill, 'IQD', 'var(--manual-highlight-color)', 'var(--manual-result-color)');
+            animateResult(manualKwh, kwh, 'kWh', 'var(--manual-highlight-color)', 'var(--manual-result-color)');
+            animateResult(manualAmperes, avgAmperes, 'A', 'var(--manual-highlight-color)', 'var(--manual-result-color)');
+            animateResult(manualAvgRate, avgRate, 'IQD/kWh', 'var(--manual-highlight-color)', 'var(--manual-result-color)');
+
+            manualCalculationData = { category, inputType, inputValue, kwh, bill, avgAmperes, avgRate, breakdown, type: 'manual' };
+            updateConsumptionPieChart();
+        }
+
+        // --- METER CALCULATION FUNCTIONS ---
+        function performMeterCalculation() {
+            const prevReading = parseFloat(document.getElementById('meterPrevReading').value);
+            const currReading = parseFloat(document.getElementById('meterCurrReading').value);
+            const days = parseFloat(document.getElementById('daysInput').value);
+            const category = 'Household'; // Meter calculation is typically for households
+
+            if (isNaN(prevReading) || isNaN(currReading) || isNaN(days) || prevReading < 0 || currReading < 0 || days <= 0) {
+                showMessage('error', translations[currentLanguage].error_invalidInput);
+                return;
+            }
+
+            if (currReading < prevReading) {
+                showMessage('error', translations[currentLanguage].error_invalidMeterReadings);
+                return;
+            }
+
+            const kwh = currReading - prevReading;
+            const dailyKwh = kwh / days;
+            const { totalBill: bill, avgRate, breakdown } = calculateBill(kwh, category);
+
+            const meterBill = document.getElementById('meterBill');
+            const meterKwh = document.getElementById('meterKwh');
+            const meterDailyKwh = document.getElementById('meterDailyKwh');
+            const meterAvgRate = document.getElementById('meterAvgRate');
+
+            animateResult(meterBill, bill, 'IQD', 'var(--meter-highlight-color)', 'var(--meter-result-color)');
+            animateResult(meterKwh, kwh, 'kWh', 'var(--meter-highlight-color)', 'var(--meter-result-color)');
+            animateResult(meterDailyKwh, dailyKwh, 'kWh', 'var(--meter-highlight-color)', 'var(--meter-result-color)');
+            animateResult(meterAvgRate, avgRate, 'IQD/kWh', 'var(--meter-highlight-color)', 'var(--meter-result-color)');
+
+            meterCalculationData = { category, kwh, bill, avgRate, breakdown, days, type: 'meter' };
+            updateConsumptionPieChart();
+        }
+        
+        // --- DEVICE CALCULATION LOGIC ---
+        let devices = JSON.parse(localStorage.getItem('devices')) || [];
+        const deviceTableBody = document.querySelector('#deviceTable tbody');
+
+        /**
+         * Calculates the total consumption for all devices.
+         */
+        function calculateDeviceConsumption() {
+            let totalKwh = 0;
+            let totalDailyKwh = 0;
+            let totalCost = 0;
+            let avgRate = 0;
+            const category = 'Household'; // Devices are typically household
+            const tableRows = deviceTableBody.querySelectorAll('tr');
+
+            // Clear old data and recalculate from current table
+            devices = [];
+            tableRows.forEach(row => {
+                const name = row.querySelector('.device-name-input').value;
+                const wattage = parseFloat(row.querySelector('.device-wattage-input').value) || 0;
+                const hours = parseFloat(row.querySelector('.device-hours-input').value) || 0;
+                const days = parseFloat(row.querySelector('.device-days-input').value) || 0;
+                const isSelected = row.querySelector('.device-checkbox').checked;
+                
+                // Only consider selected devices for calculation
+                if (isSelected) {
+                    const consumption = (wattage * hours * days) / 1000;
+                    totalKwh += consumption;
+                    totalDailyKwh += (wattage * hours) / 1000;
                 }
+                
+                // Always store the full device list, regardless of selection
+                devices.push({ name, wattage, hours, days, isSelected });
             });
-            daysInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') {
-                performManualCalculation();
-                performMeterCalculation();
-                if (deviceTableSection.style.display === 'block') { // Only recalculate if table is visible
-                    calculateDeviceConsumption();
-                }
-            }});
+            
+            // Recalculate bill and breakdown based on total kWh
+            const { totalBill: bill, avgRate: calculatedAvgRate, breakdown } = calculateBill(totalKwh, category);
+            totalCost = bill;
+            avgRate = calculatedAvgRate;
 
-            manualReportButton.addEventListener('click', generateManualReport);
-            meterReportButton.addEventListener('click', generateMeterReport);
-            deviceReportButton.addEventListener('click', generateDeviceReport); // Event listener for new button
+            const deviceBill = document.getElementById('deviceBill');
+            const deviceKwh = document.getElementById('deviceKwh');
+            const deviceDailyKwh = document.getElementById('deviceDailyKwh');
+            const deviceAvgRate = document.getElementById('deviceAvgRate');
 
-            addRowButton.addEventListener('click', () => {
-                addTableRow();
-                calculateDeviceConsumption();
-            });
-            deleteRowButton.addEventListener('click', () => {
-                if (selectedTableRow) {
-                    selectedTableRow.remove();
-                    selectedTableRow = null; 
-                    calculateDeviceConsumption();
+            // Update the output cells in the table for each device
+            // This is a bit inefficient, but necessary for real-time updates
+            updateDeviceConsumptionCells(totalKwh);
+            
+            animateResult(deviceBill, totalCost, 'IQD', 'var(--device-highlight-color)', 'var(--device-result-color)');
+            animateResult(deviceKwh, totalKwh, 'kWh', 'var(--device-highlight-color)', 'var(--device-result-color)');
+            animateResult(deviceDailyKwh, totalDailyKwh, 'kWh', 'var(--device-highlight-color)', 'var(--device-result-color)');
+            animateResult(deviceAvgRate, avgRate, 'IQD/kWh', 'var(--device-highlight-color)', 'var(--device-result-color)');
+            
+            deviceCalculationData = { category, devices, totalKwh, totalCost, avgRate, breakdown, type: 'device' };
+            updateConsumptionPieChart();
+            saveDevices();
+        }
+
+        /**
+         * Updates the consumption and cost cells for each device in the table based on a proportional breakdown.
+         * @param {number} totalKwh - The total kWh of all selected devices.
+         */
+        function updateDeviceConsumptionCells(totalKwh) {
+            const category = 'Household';
+            const tableRows = deviceTableBody.querySelectorAll('tr');
+            
+            tableRows.forEach(row => {
+                const wattage = parseFloat(row.querySelector('.device-wattage-input').value) || 0;
+                const hours = parseFloat(row.querySelector('.device-hours-input').value) || 0;
+                const days = parseFloat(row.querySelector('.device-days-input').value) || 0;
+                const isSelected = row.querySelector('.device-checkbox').checked;
+
+                const deviceConsumptionCell = row.querySelector('.device-consumption-output');
+                const deviceCostCell = row.querySelector('.device-cost-output');
+                const deleteButton = row.querySelector('.device-delete-button');
+
+                if (isSelected) {
+                    const deviceKwh = (wattage * hours * days) / 1000;
+                    const { totalBill: deviceCost } = calculateBill(deviceKwh, category);
+                    
+                    deviceConsumptionCell.textContent = `${deviceKwh.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kWh`;
+                    deviceCostCell.textContent = `${deviceCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} IQD`;
                 } else {
-                    showMessage('selectRowToDelete', 'info');
+                    // Set to 0 if not selected
+                    deviceConsumptionCell.textContent = '0.00 kWh';
+                    deviceCostCell.textContent = '0.00 IQD';
                 }
             });
-            clearAllButton.addEventListener('click', () => {
-                deviceTableBody.innerHTML = '';
-                startupPopulateDeviceTable();
-                calculateDeviceConsumption();
-                showMessage("allDeviceDataCleared", 'info');
-            });
-            saveTableButton.addEventListener('click', exportTableToCsv);
+        }
+        
+        /**
+         * Adds a new device row to the table.
+         * @param {object} device - Optional device object to populate the row.
+         */
+        function addDeviceRow(device = {}) {
+            const newRow = document.createElement('tr');
+            const isSelected = device.isSelected === undefined ? true : device.isSelected;
+            
+            newRow.innerHTML = `
+                <td class="align-middle">
+                    <input type="checkbox" class="device-checkbox" ${isSelected ? 'checked' : ''}>
+                </td>
+                <td>
+                    <input type="text" class="device-name-input" value="${device.name || ''}" placeholder="${translations[currentLanguage]['deviceNameHeader']}">
+                </td>
+                <td>
+                    <input type="number" class="device-wattage-input" value="${device.wattage || ''}" min="0">
+                </td>
+                <td>
+                    <input type="number" class="device-hours-input" value="${device.hours || ''}" min="0" max="24">
+                </td>
+                <td>
+                    <input type="number" class="device-days-input" value="${device.days || ''}" min="0" max="31">
+                </td>
+                <td class="output-cell device-consumption-output">0.00 kWh</td>
+                <td>
+                    <button class="device-delete-button bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 active:bg-red-800 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </td>
+            `;
 
-            loadFileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
+            deviceTableBody.appendChild(newRow);
+
+            // Add event listeners to the new row's inputs
+            const inputs = newRow.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    calculateDeviceConsumption();
+                    updateDeviceConsumptionCells();
+                    // Update the highlight for the current row
+                    newRow.classList.add('selected-row');
+                    setTimeout(() => newRow.classList.remove('selected-row'), 1000);
+                });
+            });
+
+            // Add delete button functionality
+            newRow.querySelector('.device-delete-button').addEventListener('click', () => {
+                newRow.remove();
+                calculateDeviceConsumption();
+            });
+
+            // Add checkbox functionality
+            newRow.querySelector('.device-checkbox').addEventListener('change', () => {
+                calculateDeviceConsumption();
+            });
+
+            // Add selected-row class on click
+            newRow.addEventListener('click', () => {
+                newRow.classList.add('selected-row');
+                setTimeout(() => newRow.classList.remove('selected-row'), 1000);
+            });
+            
+            // Re-run calculation for new device
+            calculateDeviceConsumption();
+        }
+
+        // Populates the device table from the devices array
+        function populateDeviceTable() {
+            deviceTableBody.innerHTML = '';
+            devices.forEach(device => addDeviceRow(device));
+            calculateDeviceConsumption();
+        }
+
+        // Save devices to local storage
+        function saveDevices() {
+            // Re-create the devices array from the current table state
+            const currentDevices = [];
+            deviceTableBody.querySelectorAll('tr').forEach(row => {
+                const name = row.querySelector('.device-name-input').value;
+                const wattage = parseFloat(row.querySelector('.device-wattage-input').value) || 0;
+                const hours = parseFloat(row.querySelector('.device-hours-input').value) || 0;
+                const days = parseFloat(row.querySelector('.device-days-input').value) || 0;
+                const isSelected = row.querySelector('.device-checkbox').checked;
+                currentDevices.push({ name, wattage, hours, days, isSelected });
+            });
+            localStorage.setItem('devices', JSON.stringify(currentDevices));
+        }
+
+        // Export device data to a JSON file
+        function exportDevices() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(devices));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "runaki_devices.json");
+            document.body.appendChild(downloadAnchorNode); // required for firefox
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            showMessage('success', translations[currentLanguage].success_exported);
+        }
+
+        // Import device data from a JSON file
+        function importDevices() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
                 if (!file) return;
 
                 const reader = new FileReader();
-                reader.onload = (readerEvent) => {
+                reader.onload = (e) => {
                     try {
-                        importTableFromCsv(readerEvent.target.result);
+                        const importedDevices = JSON.parse(e.target.result);
+                        if (Array.isArray(importedDevices)) {
+                            devices = importedDevices;
+                            populateDeviceTable();
+                            showMessage('success', translations[currentLanguage].success_imported);
+                        } else {
+                            showMessage('error', translations[currentLanguage].error_import);
+                        }
                     } catch (error) {
-                        showMessage('errorLoadingData', 'error', { error: error.message });
-                        console.error("Error loading data:", error);
+                        showMessage('error', translations[currentLanguage].error_import);
                     }
                 };
                 reader.readAsText(file);
             });
+            fileInput.click();
+        }
 
-            // Budget Optimization
-            optimizationTargetDropdown.addEventListener('change', () => {
-                const target = optimizationTargetDropdown.value;
-                if (target === 'Target Cost') budgetLimitInput.value = '100000';
-                else if (target === 'Target Amperes') budgetLimitInput.value = '12';
-                else if (target === 'Target kWh') budgetLimitInput.value = '1891';
-                budgetResultLabel.textContent = translations[languageSelect.value].notOptimized;
+        // Clear all devices from the table and local storage
+        function clearDevices() {
+            // Using a custom modal-like function since alert() is not allowed.
+            if (confirmClearDevices()) {
+                devices = [];
+                populateDeviceTable();
+                saveDevices();
+            }
+        }
+        
+        // A custom confirmation dialog since `window.confirm` is not available in the sandbox.
+        function confirmClearDevices() {
+            const modalOverlay = document.createElement('div');
+            modalOverlay.className = 'modal-overlay';
+            modalOverlay.style.display = 'flex';
+            
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+            modalContent.innerHTML = `
+                <h3 class="text-xl font-bold mb-4">${translations[currentLanguage].confirm_clear_devices}</h3>
+                <div class="flex justify-center gap-4">
+                    <button id="confirmYes" class="btn bg-red-600 text-white px-4 py-2 rounded-md">Yes</button>
+                    <button id="confirmNo" class="btn bg-gray-500 text-white px-4 py-2 rounded-md">No</button>
+                </div>
+            `;
+            
+            modalOverlay.appendChild(modalContent);
+            document.body.appendChild(modalOverlay);
+
+            return new Promise(resolve => {
+                document.getElementById('confirmYes').addEventListener('click', () => {
+                    document.body.removeChild(modalOverlay);
+                    resolve(true);
+                });
+                document.getElementById('confirmNo').addEventListener('click', () => {
+                    document.body.removeChild(modalOverlay);
+                    resolve(false);
+                });
             });
-            optimizeBudgetButton.addEventListener('click', optimizeForBudget);
-            budgetLimitInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') optimizeForBudget(); });
+        }
+        
+        // Initial population call for the device table
+        function startupPopulateDeviceTable() {
+            populateDeviceTable();
+            // If the table is empty, add a default row for better UX
+            if (devices.length === 0) {
+                 addDeviceRow({
+                    name: 'Air Conditioner',
+                    wattage: 1800,
+                    hours: 8,
+                    days: 30,
+                    isSelected: true
+                });
+            }
+        }
 
+        // --- GLOBAL STATE & UI CONTROLS ---
+        let manualCalculationData = {};
+        let meterCalculationData = {};
+        let deviceCalculationData = {};
 
-            // Toggle Budget Optimization Section
-            toggleBudgetOptimizationButton.addEventListener('click', () => {
-                const isVisible = budgetOptimizationSection.style.display === 'block';
-                budgetOptimizationSection.style.display = isVisible ? 'none' : 'block';
-                toggleBudgetOptimizationButton.textContent = isVisible ? translations[languageSelect.value].showBudgetOptimization : translations[languageSelect.value].hideBudgetOptimization;
-                if (!isVisible) {
-                    // If showing, ensure initial calculation is run
-                    optimizeForBudget();
+        const manualSection = document.getElementById('manualCalculationSection');
+        const meterSection = document.getElementById('meterCalculationSection');
+        const deviceSection = document.getElementById('deviceCalculationSection');
+
+        const showManualButton = document.getElementById('showManualButton');
+        const showMeterButton = document.getElementById('showMeterButton');
+        const showDeviceButton = document.getElementById('showDeviceButton');
+
+        function toggleCalculationMode(mode) {
+            manualSection.style.display = 'none';
+            meterSection.style.display = 'none';
+            deviceSection.style.display = 'none';
+
+            if (mode === 'manual') {
+                manualSection.style.display = 'block';
+            } else if (mode === 'meter') {
+                meterSection.style.display = 'block';
+            } else if (mode === 'device') {
+                deviceSection.style.display = 'block';
+            }
+            updateCalculationToggleButtons(mode);
+            updateConsumptionPieChart();
+        }
+
+        // Update button active state
+        function updateCalculationToggleButtons(activeMode) {
+            const buttons = [showManualButton, showMeterButton, showDeviceButton];
+            buttons.forEach(btn => {
+                btn.classList.remove('active', 'bg-blue-600');
+                btn.classList.add('bg-gray-200');
+                if (btn.id === `show${activeMode.charAt(0).toUpperCase() + activeMode.slice(1)}Button`) {
+                    btn.classList.add('active', 'bg-blue-600', 'text-white');
+                    btn.classList.remove('bg-gray-200', 'text-gray-800');
                 }
             });
+        }
 
-            // Toggle Device Table Button
-            toggleTableButton.addEventListener('click', () => {
-                const isVisible = deviceTableSection.style.display === 'block';
-                deviceTableSection.style.display = isVisible ? 'none' : 'block';
-                toggleTableButton.textContent = isVisible ? translations[languageSelect.value].showDeviceTable : translations[languageSelect.value].hideDeviceTable;
-                if (!isVisible) {
-                    calculateDeviceConsumption(); 
+        // --- CHART & REPORTING ---
+        let consumptionPieChart;
+        const chartColors = [
+            '#facc15', // yellow for manual
+            '#22c55e', // green for meter
+            '#a7f3d0'  // teal for device
+        ];
+
+        function createConsumptionPieChart() {
+            const ctx = document.getElementById('consumptionPieChart').getContext('2d');
+            consumptionPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: [], // Labels will be set dynamically
+                    datasets: [{
+                        data: [], // Data will be set dynamically
+                        backgroundColor: chartColors,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: 'var(--text-light)' // Night mode legend text
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    const label = tooltipItem.label || '';
+                                    const value = tooltipItem.raw;
+                                    return `${label}: ${value.toFixed(2)} kWh`;
+                                }
+                            }
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            font: {
+                                weight: 'bold',
+                                size: 14
+                            },
+                            formatter: (value, context) => {
+                                const total = context.chart.data.datasets[0].data.reduce((acc, current) => acc + current, 0);
+                                if (total === 0) return '';
+                                const percentage = (value / total * 100).toFixed(1) + '%';
+                                return percentage;
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+
+        function updateConsumptionPieChart() {
+            if (!consumptionPieChart) return;
+            
+            const data = [
+                {
+                    label: translations[currentLanguage].manualButton,
+                    kwh: manualCalculationData.kwh || 0
+                },
+                {
+                    label: translations[currentLanguage].meterButton,
+                    kwh: meterCalculationData.kwh || 0
+                },
+                {
+                    label: translations[currentLanguage].deviceButton,
+                    kwh: deviceCalculationData.totalKwh || 0
                 }
+            ];
+
+            const labels = data.map(d => d.label);
+            const kwhValues = data.map(d => d.kwh);
+
+            consumptionPieChart.data.labels = labels;
+            consumptionPieChart.data.datasets[0].data = kwhValues;
+            consumptionPieChart.update();
+        }
+
+        function updateChartLabels() {
+            if (consumptionPieChart) {
+                const labels = consumptionPieChart.data.labels;
+                labels[0] = translations[currentLanguage].manualButton;
+                labels[1] = translations[currentLanguage].meterButton;
+                labels[2] = translations[currentLanguage].deviceButton;
+                consumptionPieChart.update();
+            }
+        }
+        
+        // --- REPORT GENERATION ---
+        function generateReport(data) {
+            const reportContentDiv = document.getElementById('reportContent');
+            reportContentDiv.innerHTML = '';
+            
+            if (!data || Object.keys(data).length === 0) {
+                return;
+            }
+
+            const isHousehold = data.category === 'Household';
+            
+            // Main report summary
+            let html = `
+                <div class="mb-4">
+                    <p class="report-section-title">${translations[currentLanguage].report_category}: <span class="report-item-value">${data.type === 'manual' ? translations[currentLanguage].manualButton : (data.type === 'meter' ? translations[currentLanguage].meterButton : translations[currentLanguage].deviceButton)}</span></p>
+                    <p><span class="report-item-label">${translations[currentLanguage].report_kwh}:</span> <span class="report-item-value">${data.kwh ? data.kwh.toFixed(2) : (data.totalKwh ? data.totalKwh.toFixed(2) : '0.00')}</span> kWh</p>
+                    <p><span class="report-item-label">${translations[currentLanguage].report_bill}:</span> <span class="report-item-value">${data.bill ? data.bill.toFixed(2) : (data.totalCost ? data.totalCost.toFixed(2) : '0.00')}</span> IQD</p>
+                    <p><span class="report-item-label">${translations[currentLanguage].report_avgRate}:</span> <span class="report-item-value">${data.avgRate ? data.avgRate.toFixed(2) : '0.00'}</span> IQD/kWh</p>
+                </div>
+            `;
+            
+            // Tariff Breakdown
+            html += `<p class="report-section-title">${isHousehold ? translations[currentLanguage].report_household_title : translations[currentLanguage].report_other_tariff}</p>`;
+            
+            if (isHousehold) {
+                html += `
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>${translations[currentLanguage].report_kwh_range}</th>
+                                <th>${translations[currentLanguage].report_consumption}</th>
+                                <th>${translations[currentLanguage].report_rate} (IQD/kWh)</th>
+                                <th>${translations[currentLanguage].report_cost} (IQD)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                data.breakdown.forEach(tier => {
+                    html += `
+                        <tr>
+                            <td>${tier.kwhRange} kWh</td>
+                            <td>${tier.kwhConsumed.toFixed(2)} kWh</td>
+                            <td>${tier.rate}</td>
+                            <td>${tier.cost.toFixed(2)} IQD</td>
+                        </tr>
+                    `;
+                });
+                html += `
+                        </tbody>
+                    </table>
+                `;
+            } else if (data.breakdown && data.breakdown.length > 0) {
+                // For flat rate tariffs
+                const flatRate = data.breakdown[0].rate;
+                html += `
+                    <p>
+                        <span class="report-item-label">${translations[currentLanguage].report_rate}:</span>
+                        <span class="report-item-value">${flatRate}</span> IQD/kWh
+                    </p>
+                `;
+            }
+            
+            // Device Breakdown for device calculation reports
+            if (data.type === 'device' && data.devices && data.devices.length > 0) {
+                html += `<p class="report-section-title">${translations[currentLanguage].report_device_title}</p>`;
+                html += `
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>${translations[currentLanguage].report_device_table_name}</th>
+                                <th>${translations[currentLanguage].report_device_table_watts}</th>
+                                <th>${translations[currentLanguage].report_device_table_hours}</th>
+                                <th>${translations[currentLanguage].report_device_table_days}</th>
+                                <th>${translations[currentLanguage].report_device_table_kwh}</th>
+                                <th>${translations[currentLanguage].report_device_table_cost}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                data.devices.forEach(device => {
+                    if (device.isSelected) {
+                        const deviceKwh = (device.wattage * device.hours * device.days) / 1000;
+                        const { totalBill: deviceCost } = calculateBill(deviceKwh, 'Household');
+                        
+                        html += `
+                            <tr>
+                                <td>${device.name || translations[currentLanguage].deviceNameHeader}</td>
+                                <td>${device.wattage || 0} W</td>
+                                <td>${device.hours || 0}</td>
+                                <td>${device.days || 0}</td>
+                                <td>${deviceKwh.toFixed(2)} kWh</td>
+                                <td>${deviceCost.toFixed(2)} IQD</td>
+                            </tr>
+                        `;
+                    }
+                });
+                html += `
+                        </tbody>
+                    </table>
+                `;
+            } else if (data.type === 'device' && (!data.devices || data.devices.length === 0)) {
+                 html += `<p class="report-section-title">${translations[currentLanguage].report_device_title}</p>`;
+                 html += `<p>${translations[currentLanguage].report_no_devices_added}</p>`;
+            }
+            
+            reportContentDiv.innerHTML = html;
+        }
+
+
+        function showReportModal(reportData) {
+            generateReport(reportData);
+            document.getElementById('reportModal').style.display = 'flex';
+        }
+
+        // --- TARIFF DETAILS MODAL ---
+        function generateTariffDetailsContent() {
+            const contentDiv = document.getElementById('tariffDetailsContent');
+            let html = '';
+
+            // Household
+            html += `<h4 class="text-xl font-bold mt-4 mb-2 text-primary-blue-darker" data-lang-key="tariff_household_title"></h4>`;
+            html += `<ul class="list-disc list-inside space-y-1">`;
+            tariffs.Household.forEach(tier => {
+                const range = tier.limit === Infinity ? `1600+` : `${(tier.limit - 400 > 0 ? tier.limit - 399 : 0)} - ${tier.limit}`;
+                html += `<li>${range} kWh: ${tier.rate} IQD/kWh</li>`;
+            });
+            html += `</ul>`;
+
+            // Other categories
+            const otherTariffs = {
+                'Commercial': 'tariff_commercial_title',
+                'Agriculture': 'tariff_agriculture_title',
+                'Industrial': 'tariff_industrial_title',
+                'Heavy Industry': 'tariff_heavy_industry_title',
+                'State': 'tariff_state_title'
+            };
+
+            for (const category in otherTariffs) {
+                html += `<h4 class="text-xl font-bold mt-4 mb-2 text-primary-blue-darker" data-lang-key="${otherTariffs[category]}"></h4>`;
+                html += `<p>${tariffs[category]} IQD/kWh</p>`;
+            }
+
+            contentDiv.innerHTML = html;
+            updateTextContent();
+        }
+
+        // --- MESSAGE BOX FUNCTIONALITY ---
+        function showMessage(type, message) {
+            const messageBox = document.getElementById('appMessage');
+            messageBox.textContent = message;
+            messageBox.className = `show ${type}`;
+            
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000); // Hide after 3 seconds
+        }
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get all elements and sections
+            const manualCalculateButton = document.getElementById('calculateManualButton');
+            const meterCalculateButton = document.getElementById('calculateMeterButton');
+            const deviceAddButton = document.getElementById('addDeviceButton');
+            const deviceExportButton = document.getElementById('exportDeviceButton');
+            const deviceImportButton = document.getElementById('importDeviceButton');
+            const deviceClearButton = document.getElementById('clearDeviceButton');
+
+            const manualReportButton = document.getElementById('manualReportButton');
+            const meterReportButton = document.getElementById('meterReportButton');
+            const deviceReportButton = document.getElementById('deviceReportButton');
+
+            const showTariffDetailsButton = document.getElementById('showTariffDetailsButton');
+            const tariffDetailsModal = document.getElementById('tariffDetailsModal');
+            const closeTariffDetailsModal = document.getElementById('closeTariffDetailsModal');
+            
+            const reportModal = document.getElementById('reportModal');
+            const closeReportModal = document.getElementById('closeReportModal');
+
+            // Toggle buttons
+            showManualButton.addEventListener('click', () => toggleCalculationMode('manual'));
+            showMeterButton.addEventListener('click', () => toggleCalculationMode('meter'));
+            showDeviceButton.addEventListener('click', () => toggleCalculationMode('device'));
+
+            // Calculation buttons
+            manualCalculateButton.addEventListener('click', performManualCalculation);
+            meterCalculateButton.addEventListener('click', performMeterCalculation);
+            deviceAddButton.addEventListener('click', () => addDeviceRow());
+            deviceExportButton.addEventListener('click', exportDevices);
+            deviceImportButton.addEventListener('click', importDevices);
+            deviceClearButton.addEventListener('click', clearDevices);
+
+            // Report buttons
+            manualReportButton.addEventListener('click', () => showReportModal(manualCalculationData));
+            meterReportButton.addEventListener('click', () => showReportModal(meterCalculationData));
+            deviceReportButton.addEventListener('click', () => showReportModal(deviceCalculationData));
+
+            // Input event listeners for real-time calculation
+            document.querySelectorAll('#manualInputTypeDropdown, #manualInput, #categoryDropdown').forEach(element => {
+                element.addEventListener('input', performManualCalculation);
+            });
+            document.querySelectorAll('#meterPrevReading, #meterCurrReading, #daysInput').forEach(element => {
+                element.addEventListener('input', performMeterCalculation);
             });
 
-            // Toggle Manual Calculation Section
-            toggleManualCalculationButton.addEventListener('click', () => {
-                manualCalculationSection.style.display = 'block';
-                meterCalculationSection.style.display = 'none';
-                toggleManualCalculationButton.textContent = translations[languageSelect.value].hideManualCalculation;
-                toggleMeterCalculationButton.textContent = translations[languageSelect.value].showManualCalculation;
-            });
-
-            // Toggle Meter Calculation Section
-            toggleMeterCalculationButton.addEventListener('click', () => {
-                meterCalculationSection.style.display = 'block';
-                manualCalculationSection.style.display = 'none';
-                toggleMeterCalculationButton.textContent = translations[languageSelect.value].hideMeterCalculation;
-                toggleManualCalculationButton.textContent = translations[languageSelect.value].showManualCalculation;
-            });
-
-
-            // Show Tariff Details Button
+            // Modal event listeners
             showTariffDetailsButton.addEventListener('click', () => {
-                const lang = languageSelect.value;
-                const currentCategory = categoryDropdown.value;
-                tariffDetailsModalTitle.textContent = translations[lang].tariffDetailsModalTitle; // Changed title to be more general
-
-                // Destroy existing charts if they exist
-                if (householdTariffChartInstance) {
-                    householdTariffChartInstance.destroy();
-                    householdTariffChartInstance = null;
-                }
-                if (otherCategoriesTariffChartInstance) {
-                    otherCategoriesTariffChartInstance.destroy();
-                    otherCategoriesTariffChartInstance = null;
-                }
-
-                // Show chart containers, hide preformatted text
-                householdTariffChartContainer.style.display = 'block';
-                otherCategoriesTariffChartContainer.style.display = 'block';
-                tariffDetailsModalContent.style.display = 'none';
-
-                // Data for Household Chart
-                const { tiers, rates, slabNames } = getRonakiHouseholdTariffDetails(1600); // Get all tiers
-                const householdLabels = slabNames;
-                const householdData = rates;
-                const householdBackgroundColors = [
-                    'rgba(255, 99, 132, 0.6)', // Red
-                    'rgba(255, 159, 64, 0.6)', // Orange
-                    'rgba(255, 206, 86, 0.6)', // Yellow
-                    'rgba(75, 192, 192, 0.6)', // Green
-                    'rgba(54, 162, 235, 0.6)'  // Blue
-                ];
-                const householdBorderColors = [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(54, 162, 235, 1)'
-                ];
-
-                householdTariffChartInstance = new Chart(householdTariffChartCanvas, {
-                    type: 'bar',
-                    data: {
-                        labels: householdLabels,
-                        datasets: [{
-                            label: translations[lang].iqdPerKwh, // Translated label
-                            data: householdData,
-                            backgroundColor: householdBackgroundColors,
-                            borderColor: householdBorderColors,
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            title: {
-                                display: true,
-                                text: translations[lang].householdTariffRates, // Translated title
-                                color: 'white', // Changed to white
-                                font: { size: 16 }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `${context.label}: ${formatNumber(context.parsed.y, 2)} ${translations[lang].iqdPerKwh}`;
-                                    }
-                                }
-                            },
-                            datalabels: { // Add datalabels plugin configuration
-                                anchor: 'end',
-                                align: 'top',
-                                color: 'white', // Changed to white
-                                font: {
-                                    weight: 'bold'
-                                },
-                                formatter: function(value) {
-                                    return formatNumber(value, 0); // Format value for display
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: { display: true, text: translations[lang].rate, color: 'white' }, // Translated title
-                                ticks: { color: 'white' }, // Changed to white
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            },
-                            x: {
-                                title: { display: true, text: translations[lang].consumptionTiers, color: 'white' }, // Translated title
-                                ticks: { color: 'white', autoSkip: false, maxRotation: 45, minRotation: 45 }, // Changed to white
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            }
-                        }
-                    },
-                    plugins: [ChartDataLabels] // Register the plugin
-                });
-
-                // Data for Other Categories Chart
-                const otherCategories = [
-                    { name: translations[lang].commercialOption, rate: 185, color: 'rgba(153, 102, 255, 0.6)', borderColor: 'rgba(153, 102, 255, 1)' }, // Purple
-                    { name: translations[lang].agricultureOption, rate: 60, color: 'rgba(255, 205, 86, 0.6)', borderColor: 'rgba(255, 205, 86, 1)' }, // Yellow
-                    { name: translations[lang].industrialOption, rate: 160, color: 'rgba(201, 203, 207, 0.6)', borderColor: 'rgba(201, 203, 207, 1)' }, // Grey
-                    { name: translations[lang].largeIndustryOption, rate: 125, color: 'rgba(255, 99, 132, 0.6)', borderColor: 'rgba(255, 99, 132, 1)' }, // Red
-                    { name: translations[lang].stateOption, rate: 160, color: 'rgba(54, 162, 235, 0.6)', borderColor: 'rgba(54, 162, 235, 1)' } // Blue
-                ];
-
-                const otherLabels = otherCategories.map(cat => cat.name);
-                const otherData = otherCategories.map(cat => cat.rate);
-                const otherBackgrounds = otherCategories.map(cat => cat.color);
-                const otherBorders = otherCategories.map(cat => cat.borderColor);
-
-                otherCategoriesTariffChartInstance = new Chart(otherCategoriesTariffChartCanvas, {
-                    type: 'bar',
-                    data: {
-                        labels: otherLabels,
-                        datasets: [{
-                            label: translations[lang].iqdPerKwh, // Translated label
-                            data: otherData,
-                            backgroundColor: otherBackgrounds,
-                            borderColor: otherBorders,
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            title: {
-                                display: true,
-                                text: translations[lang].otherCategoriesTariffRates, // Translated title
-                                color: 'white', // Changed to white
-                                font: { size: 16 }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `${context.label}: ${formatNumber(context.parsed.y, 2)} ${translations[lang].iqdPerKwh}`;
-                                    }
-                                }
-                            },
-                            datalabels: { // Add datalabels plugin configuration
-                                anchor: 'end',
-                                align: 'top',
-                                color: 'white', // Changed to white
-                                font: {
-                                    weight: 'bold'
-                                },
-                                formatter: function(value) {
-                                    return formatNumber(value, 0); // Format value for display
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: { display: true, text: translations[lang].rate, color: 'white' }, // Translated title
-                                ticks: { color: 'white' }, // Changed to white
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            },
-                            x: {
-                                title: { display: true, text: translations[lang].categoryText, color: 'white' }, // Translated title
-                                ticks: { color: 'white', autoSkip: false, maxRotation: 45, minRotation: 45 }, // Changed to white
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            }
-                        }
-                    },
-                    plugins: [ChartDataLabels] // Register the plugin
-                });
-
-                tariffDetailsModal.style.display = 'flex'; // Show the modal
+                generateTariffDetailsContent();
+                tariffDetailsModal.style.display = 'flex';
             });
 
             closeTariffDetailsModal.addEventListener('click', () => {
-                tariffDetailsModal.style.display = 'none'; // Hide the modal
-                householdTariffChartContainer.style.display = 'none'; // Hide chart containers
-                otherCategoriesTariffChartContainer.style.display = 'none';
+                tariffDetailsModal.style.display = 'none';
             });
 
-            // Close modal if clicked outside content
             tariffDetailsModal.addEventListener('click', (e) => {
                 if (e.target === tariffDetailsModal) {
                     tariffDetailsModal.style.display = 'none';
-                    householdTariffChartContainer.style.display = 'none'; // Hide chart containers
-                    otherCategoriesTariffChartContainer.style.display = 'none';
                 }
             });
 
@@ -2458,12 +1812,15 @@
                 }
             });
 
-
             // --- INITIALIZATION CALLS ---
+            createConsumptionPieChart();
             startupPopulateDeviceTable(); // Populate table on load
             calculateDeviceConsumption(); // Calculate initial device consumption
             performManualCalculation(); // Perform initial manual calculation
             performMeterCalculation(); // Perform initial meter calculation
+            setActiveLanguage('en'); // Set initial language and button state
+            toggleCalculationMode('manual'); // Show the manual calculation section by default
+            updateConsumptionPieChart(); // Initial chart update
         });
     </script>
 </body>
