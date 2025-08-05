@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-lang-key="appTitle">Runaki Bill Assistant</title>
+    <!-- PWA Manifest Link - THIS IS THE LINE TO ADD -->
+    <link rel="manifest" href="/manifest.json">
+    <!-- Optional: Apple specific meta tags for iOS PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Runaki">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <meta name="theme-color" content="#3b82f6"/> <!-- Updated to match manifest theme_color -->
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN for plotting -->
@@ -798,7 +807,6 @@
                     consumptionTiers: "Consumption Tiers",
                     consumption: "Consumption",
                     iqdPerKwh: "IQD/kWh",
-                    categoryText: "Category",
                     slab: "Slab",
                     // Units
                     unitIQD: "IQD",
@@ -924,8 +932,8 @@
                     hoursPerDay: "ساعات/يوم",
                     daysPerMonth: "أيام/شهر",
                     count: "العدد",
-                    kwhPerMonth: "كيلوواط ساعة/شهر",
-                    iqdPerMonth: "دينار عراقي/شهر",
+                    kwhPerMonth: "كيلوواط ساعة",
+                    iqdPerMonth: "دينار عراقي",
                     onQuestion: "تشغيل؟",
                     fixedQuestion: "ثابت؟",
                     category: "الفئة",
@@ -1069,8 +1077,8 @@
                     hoursPerDay: "کاتژمێر/ڕۆژ",
                     daysPerMonth: "ڕۆژ/مانگ",
                     count: "ژمارە",
-                    kwhPerMonth: "کیلۆوات کاتژمێر/مانگ",
-                    iqdPerMonth: "د.ع/مانگ",
+                    kwhPerMonth: "کیلۆوات کاتژمێر",
+                    iqdPerMonth: "د.ع",
                     onQuestion: "کارا؟",
                     fixedQuestion: "جێگیر؟",
                     category: "پۆلێن",
@@ -2350,8 +2358,3 @@ otherCategoriesTariffChartInstance = new Chart(otherCategoriesTariffChartCanvas,
     </script>
 </body>
 </html>
-
-
-
-
-
