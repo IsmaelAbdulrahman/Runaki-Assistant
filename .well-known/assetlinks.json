@@ -4,9 +4,8 @@
     "target": {
       "namespace": "android_app",
       "package_name": "io.github.ismaelabdulrahman.runaki",
-      "sha256_cert_fingerprints": [
-        "90:FB:98:07:39:73:BF:A6:55:83:80:E9:9D:05:9C:9F:0D:6A:60:DC:C6:09:9F:25:52:0E:9F:BB:5A:73:D4:03"
-      ]
+      "sha256_cert_fingerprints":
+        ["90:FB:98:07:39:73:BF:A6:55:83:80:E9:9D:05:9C:9F:0D:6A:60:DC:C6:09:9F:25:52:0E:9F:BB:5A:73:D4:03"]
     }
   }
 ]
