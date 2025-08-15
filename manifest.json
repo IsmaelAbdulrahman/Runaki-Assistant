@@ -3,9 +3,12 @@
   "short_name": "Runaki",
   "description": "An assistant to calculate and optimize electricity bills in Iraq.",
   "start_url": "/Runaki-Assistant/",
+  "scope": "/Runaki-Assistant/",
   "display": "standalone",
   "background_color": "#1a202c",
   "theme_color": "#3b82f6",
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/Runaki-Assistant/icons/icon-192x192.png",
