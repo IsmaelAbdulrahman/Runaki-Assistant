@@ -5,20 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title data-lang-key="appTitle">Runaki Bill Assistant</title>
-    <!-- PWA Manifest Link -->
-    <link rel="manifest" href="/Runaki-Assistant/manifest.json">
-    <!-- Theme color for address bar -->
-    <meta name="theme-color" content="#3b82f6"/>
-    
-    <!-- Tailwind CSS CDN -->
+    <title>Runaki Bill Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN for plotting -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
     <style>
-        /* Base font size increased for better readability */
+        /* Reduced base font size */
         html {
-            font-size: 18px;
+            font-size: 16px;
         }
         
         /* Define a custom color palette using CSS variables for consistency */
@@ -89,7 +82,8 @@
             touch-action: pan-x pan-y;
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Increased font size */
+            /* Reduced font size */
+            font-size: clamp(0.8rem, 3.2vw, 1rem);
         }
 
         /* RTL specific styles */
@@ -113,14 +107,14 @@
             left: 1rem;
         }
         
-        /* Language selector styling */
+        /* Language selector styling - made more compact */
         .lang-btn {
             transition: background-color 0.2s, border-color 0.2s;
             border: 2px solid transparent;
-            width: 4rem; /* Increased width for language text */
-            height: 3rem;
+            width: 3.2rem; /* Reduced width */
+            height: 2.5rem; /* Reduced height */
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 0.9rem; /* Reduced font size */
         }
         .lang-btn.active {
             border-color: var(--primary-blue);
@@ -132,30 +126,31 @@
             color: var(--text-medium-light);
         }
 
+        /* Reduced heading sizes */
         h1 {
             color: white;
             font-weight: 800;
-            margin: 1.5rem 0; /* UPDATED: Added more space */
+            margin: 1rem 0; /* Reduced margin */
             text-align: center;
-            font-size: clamp(1.8rem, 6vw, 3rem); /* Larger title */
-            padding: 0.5rem 0; /* NEW: Added padding for better spacing */
+            font-size: clamp(1.5rem, 5.5vw, 2.5rem); /* Smaller font */
+            padding: 0.5rem 0;
         }
 
         h2 {
             color: var(--text-light);
             font-weight: 700;
-            margin-bottom: 0.75rem;
-            font-size: clamp(1.4rem, 5vw, 1.8rem); /* Larger section headers */
+            margin-bottom: 0.5rem; /* Reduced margin */
+            font-size: clamp(1.2rem, 4.5vw, 1.6rem); /* Smaller font */
         }
 
         .main-container {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.75rem; /* Reduced gap */
             width: 100%;
             max-width: 100%;
             background-color: var(--card-dark);
-            padding: 1rem;
+            padding: 0.75rem; /* Reduced padding */
             flex: 1;
             box-sizing: border-box;
         }
@@ -164,7 +159,7 @@
             background-color: var(--card-dark);
             border: 1px solid var(--input-dark-border);
             border-radius: 0.75rem;
-            padding: 1rem;
+            padding: 0.75rem; /* Reduced padding */
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
             width: 100%;
             box-sizing: border-box;
@@ -174,29 +169,29 @@
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
+            gap: 0.4rem; /* Reduced gap */
+            margin-bottom: 0.8rem; /* Reduced margin */
         }
 
         label {
             font-weight: 600;
             color: var(--text-medium-light);
             flex-shrink: 0;
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger labels */
+            font-size: clamp(0.85rem, 3.2vw, 1rem); /* Smaller font */
         }
 
         input[type="text"],
         input[type="number"],
         select {
-            padding: 0.5rem;
+            padding: 0.4rem; /* Reduced padding */
             border: 1px solid var(--input-dark-border);
             border-radius: 0.5rem;
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger inputs */
+            font-size: clamp(0.85rem, 3.2vw, 1rem); /* Smaller font */
             text-align: center;
             background-color: var(--input-dark-bg);
             color: var(--text-light);
             flex-grow: 1;
-            min-width: 5rem;
+            min-width: 4.5rem; /* Reduced min-width */
             transition: all 0.2s ease-in-out;
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
         }
@@ -209,19 +204,19 @@
             outline: none;
         }
 
-        /* General button styling */
+        /* General button styling - made more compact */
         button {
-            padding: 0.5rem 1rem;
+            padding: 0.4rem 0.8rem; /* Reduced padding */
             border-radius: 0.5rem;
             border: none;
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger buttons */
+            font-size: clamp(0.85rem, 3.2vw, 1rem); /* Smaller font */
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             white-space: nowrap;
             color: var(--button-dark-text);
-            margin: 0.25rem;
+            margin: 0.2rem; /* Reduced margin */
             background-color: var(--button-light-gray);
             width: 100%;
         }
@@ -245,10 +240,10 @@
 
         .result-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); /* Wider items */
-            gap: 0.5rem;
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger results */
-            margin-top: 0.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); /* Wider items */
+            gap: 0.4rem; /* Reduced gap */
+            font-size: clamp(0.85rem, 3.2vw, 1rem); /* Smaller font */
+            margin-top: 0.4rem; /* Reduced margin */
             width: 100%;
         }
 
@@ -256,7 +251,7 @@
             background-color: var(--result-item-dark-bg);
             border: 1px solid var(--result-item-dark-border);
             border-radius: 0.5rem;
-            padding: 0.75rem;
+            padding: 0.6rem; /* Reduced padding */
             text-align: center;
             box-shadow: inset 0 1px 4px rgba(0,0,0,0.07);
         }
@@ -265,13 +260,13 @@
             color: var(--text-medium-light);
             margin-bottom: 0.2rem;
             font-weight: 500;
-            font-size: clamp(0.8rem, 3.5vw, 1rem); /* Larger labels */
+            font-size: clamp(0.75rem, 3.2vw, 0.9rem); /* Smaller font */
         }
 
         .result-value {
             font-weight: 800;
             color: var(--current-result-color); 
-            font-size: clamp(1rem, 3.5vw, 1.3rem); /* Larger values */
+            font-size: clamp(0.9rem, 3.2vw, 1.2rem); /* Smaller font */
             transition: color 0.2s ease-in-out;
             /* Alignment adjustments */
             text-align: left;
@@ -300,21 +295,21 @@
         /* Chart container styling */
         .chart-container {
             width: 100%;
-            height: 250px;
-            margin-top: 1rem; 
+            height: 220px; /* Reduced height */
+            margin-top: 0.8rem; /* Reduced margin */
             background-color: var(--card-dark); 
             border-radius: 0.75rem;
-            padding: 1rem; 
+            padding: 0.8rem; /* Reduced padding */
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         /* Device Table Styling */
         .device-table-container {
             overflow-x: auto;
-            max-height: 400px;
+            max-height: 350px; /* Reduced max-height */
             border: 1px solid var(--input-dark-border);
             border-radius: 0.75rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem; /* Reduced margin */
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             width: 100%;
             -webkit-overflow-scrolling: touch;
@@ -327,10 +322,10 @@
         }
 
         .device-table th, .device-table td {
-            padding: 0.5rem;
+            padding: 0.4rem; /* Reduced padding */
             border-bottom: 1px solid var(--input-dark-border);
             text-align: center;
-            font-size: clamp(0.8rem, 3vw, 1rem); /* Larger table text */
+            font-size: clamp(0.75rem, 2.8vw, 0.9rem); /* Smaller font */
         }
 
         .device-table th {
@@ -354,18 +349,18 @@
         .device-table input[type="text"],
         .device-table input[type="number"] {
             width: 100%;
-            padding: 0.3rem;
+            padding: 0.25rem; /* Reduced padding */
             border: 1px solid var(--input-dark-border);
             border-radius: 0.3rem;
             text-align: center;
-            font-size: clamp(0.8rem, 3vw, 1rem); /* Larger table inputs */
+            font-size: clamp(0.75rem, 2.8vw, 0.9rem); /* Smaller font */
             background-color: var(--input-dark-bg);
             color: var(--text-light);
         }
 
         .device-table input[type="checkbox"] {
-            width: 1.2rem; /* Larger checkboxes */
-            height: 1.2rem;
+            width: 1.1rem; /* Slightly smaller */
+            height: 1.1rem;
             cursor: pointer;
             border-radius: 0.2rem;
             accent-color: var(--primary-blue-darker);
@@ -385,179 +380,21 @@
             }
             
             .input-group {
-                gap: 0.3rem;
+                gap: 0.25rem; /* Smaller gap */
             }
             
             .section-card {
-                padding: 0.75rem;
+                padding: 0.6rem; /* Smaller padding */
             }
         }
 
-        /* Custom Modal for Tariff Details */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 1rem;
-            box-sizing: border-box;
-            overflow-y: auto;
-        }
-
-        .modal-content {
-            background-color: var(--card-dark);
-            padding: 1rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-            max-width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            color: var(--text-light);
-            position: relative;
-            width: 100%;
-        }
-
-        .modal-close-button {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--text-light);
-            cursor: pointer;
-            z-index: 10;
-        }
-        .modal-close-button:hover {
-            color: var(--primary-blue-darker);
-        }
-
-        .modal-content h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-blue-darker);
-            margin-bottom: 0.75rem;
-        }
-
-        .modal-content pre {
-            background-color: #1a202c;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-            font-family: 'Cascadia Code', 'Fira Code', monospace;
-            font-size: 0.9rem; /* Larger code */
-            color: #a0aec0;
-        }
-        
-        /* Footer */
-        footer {
-            color: var(--text-medium-light);
-            margin-top: auto;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.5rem;
-            font-size: clamp(0.8rem, 3.5vw, 1rem); /* Larger footer */
-        }
-
-        /* Message Box Styling */
-        #appMessage {
-            position: fixed;
-            top: env(safe-area-inset-top);
-            right: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            z-index: 1100;
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-            color: white;
-            max-width: 90%;
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger messages */
-        }
-
-        #appMessage.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        #appMessage.info { background-color: #3b82f6; }
-        #appMessage.success { background-color: #22c55e; }
-        #appMessage.error { background-color: #ef4444; }
-
-        /* Report Modal Specific Styles */
-        .report-section-title {
-            font-size: 1.3rem; /* Larger report titles */
-            font-weight: 700;
-            color: var(--primary-blue-darker);
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-            border-bottom: 2px solid var(--primary-blue-darker);
-            padding-bottom: 0.25rem;
-        }
-
-        .report-item-label {
-            font-weight: 600;
-            color: var(--text-medium-light);
-            margin-right: 0.25rem;
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger report labels */
-        }
-
-        .report-item-value {
-            font-weight: 700;
-            color: var(--text-light);
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger report values */
-        }
-
-        .report-breakdown-item {
-            margin-left: 0.5rem;
-            font-size: clamp(0.8rem, 3.5vw, 1rem); /* Larger breakdown */
-            color: var(--text-medium-light);
-        }
-
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 0.5rem;
-            background-color: var(--input-dark-bg);
-            border-radius: 0.5rem;
-            overflow: hidden;
-            font-size: clamp(0.8rem, 3.5vw, 1rem); /* Larger table */
-        }
-
-        .report-table th, .report-table td {
-            padding: 0.5rem;
-            border: 1px solid var(--input-dark-border);
-            text-align: left;
-            color: var(--text-light);
-        }
-
-        .report-table th {
-            background-color: var(--primary-blue-darker);
-            color: white;
-            font-weight: 700;
-        }
-
-        .report-table tbody tr:nth-child(even) {
-            background-color: #3a475c;
-        }
-        
         /* Toggle buttons container */
         .toggle-buttons-container {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-            padding: 0.5rem;
+            gap: 0.4rem; /* Smaller gap */
+            margin-top: 0.4rem; /* Smaller margin */
+            padding: 0.4rem; /* Smaller padding */
             border: 1px solid var(--input-dark-border);
             border-radius: 0.5rem;
             width: 100%;
@@ -581,13 +418,13 @@
             }
             
             .modal-content {
-                padding: 0.75rem;
+                padding: 0.6rem; /* Smaller padding */
             }
             
             .lang-btn {
-                width: 3rem;
-                height: 2.5rem;
-                font-size: 1rem;
+                width: 2.8rem; /* Smaller */
+                height: 2.3rem;
+                font-size: 0.85rem;
             }
         }
         
@@ -602,17 +439,16 @@
         /* NEW: Language selector positioning */
         #languageSelectorTop {
             position: relative;
-            margin: 0 auto 1.5rem auto; /* Center and add bottom margin */
+            margin: 0 auto 1rem auto; /* Reduced bottom margin */
             width: fit-content;
         }
     </style>
 </head>
 <body>
 
-    <h1 class="text-3xl lg:text-4xl" data-lang-key="mainTitle">Runaki Bill Assistant</h1>
+    <h1 class="text-3xl lg:text-4xl">Runaki Bill Assistant</h1>
 
-    <!-- UPDATED: Added mb-6 class for spacing -->
-    <div id="languageSelectorTop" class="mb-6 flex justify-center gap-2">
+    <div id="languageSelectorTop" class="mb-4 flex justify-center gap-2">
         <button id="lang-en" class="lang-btn">En</button>
         <button id="lang-ar" class="lang-btn">عربي</button>
         <button id="lang-ku" class="lang-btn">کوردی</button>
@@ -620,133 +456,132 @@
 
     <div class="main-container">
         <!-- Main content now in a single column -->
-        <div class="flex flex-col w-full space-y-4">
+        <div class="flex flex-col w-full space-y-3">
 
             <!-- 1. Manual Calculation -->
             <div class="section-card" id="manualCalculationSection">
-                <h2 class="text-xl" data-lang-key="manualCalculationTitle">1. Manual Calculation</h2>
+                <h2 class="text-xl">1. Manual Calculation</h2>
                 <div class="input-group">
-                    <label for="categoryDropdown" data-lang-key="categoryLabel">Category:</label>
+                    <label for="categoryDropdown">Category:</label>
                     <select id="categoryDropdown" class="p-2 border rounded-md">
-                        <option value="Household" data-lang-key="householdOption">Household</option>
-                        <option value="Commercial" data-lang-key="commercialOption">Commercial</option>
-                        <option value="Agriculture" data-lang-key="agricultureOption">Agriculture</option>
-                        <option value="Industrial" data-lang-key="industrialOption">Industrial</option>
-                        <option value="Government" data-lang-key="governmentOption">Government</option>
+                        <option value="Household">Household</option>
+                        <option value="Commercial">Commercial</option>
+                        <option value="Agriculture">Agriculture</option>
+                        <option value="Industrial">Industrial</option>
+                        <option value="Government">Government</option>
                     </select>
-                    <label for="manualInputTypeDropdown" data-lang-key="inputLabel">Input:</label>
+                    <label for="manualInputTypeDropdown">Input:</label>
                     <select id="manualInputTypeDropdown" class="p-2 border rounded-md">
-                        <option value="kWh" data-lang-key="kwhOption">kWh</option>
-                        <option value="Avg Amperes" data-lang-key="avgAmperesOption">Avg Amperes</option>
-                        <option value="Given Bill" data-lang-key="givenBillOption">Given Bill (IQD)</option>
+                        <option value="kWh">kWh</option>
+                        <option value="Avg Amperes">Avg Amperes</option>
+                        <option value="Given Bill">Given Bill (IQD)</option>
                     </select>
                     <input type="number" id="manualInput" value="1891" class="w-28">
                 </div>
-                <button id="calculateManualButton" class="btn btn-action" data-lang-key="calculateBillButton">Calculate Bill</button>
+                <button id="calculateManualButton" class="btn btn-action">Calculate Bill</button>
                 <div class="result-grid" id="manualResultGrid">
                     <div class="result-item">
-                        <div class="result-label" data-lang-key="billLabel">Bill</div>
+                        <div class="result-label">Bill</div>
                         <div class="result-value" id="manualBill">0 IQD</div>
                     </div>
                     <div class="result-item">
-                        <div class="result-label" data-lang-key="consumptionLabel">Consumption</div>
+                        <div class="result-label">Consumption</div>
                         <div class="result-value" id="manualKwh">0.00 kWh</div>
                     </div>
                     <div class="result-item">
-                        <div class="result-label" data-lang-key="avgAmperesLabel">Avg Amperes</div>
+                        <div class="result-label">Avg Amperes</div>
                         <div class="result-value" id="manualAmperes">0.00 A</div>
                     </div>
                     <div class="result-item">
-                        <div class="result-label" data-lang-key="avgRateLabel">Avg Rate</div>
+                        <div class="result-label">Avg Rate</div>
                         <div class="result-value" id="manualAvgRate">0.00 IQD/kWh</div>
                     </div>
                 </div>
-                <button id="manualReportButton" class="btn btn-action mt-4" data-lang-key="generateReportButton">Generate Report</button>
+                <button id="manualReportButton" class="btn btn-action mt-4">Generate Report</button>
             </div>
 
             <!-- 2. By Meter Calculation -->
             <div class="section-card" id="meterCalculationSection" style="display: none;">
-                <h2 class="text-xl" data-lang-key="meterCalculationTitle">2. By Meter Calculation</h2>
+                <h2 class="text-xl">2. By Meter Calculation</h2>
                 <div class="input-group">
-                    <label for="meterPrevReading" data-lang-key="prevReadingLabel">Prev Reading:</label>
+                    <label for="meterPrevReading">Prev Reading:</label>
                     <input type="number" id="meterPrevReading" value="31051" class="w-24">
-                    <label for="meterCurrReading" data-lang-key="currReadingLabel">Curr Reading:</label>
+                    <label for="meterCurrReading">Curr Reading:</label>
                     <input type="number" id="meterCurrReading" value="31910" class="w-24">
-                    <label for="daysInput" data-lang-key="daysLabel">Days:</label>
-                    <!-- UPDATED: Added readonly attribute -->
+                    <label for="daysInput">Days:</label>
                     <input type="number" id="daysInput" value="30" min="1" max="365" class="w-16" readonly>
                 </div>
-                <button id="calculateMeterButton" class="btn btn-action" data-lang-key="calculateBillButton">Calculate Bill</button>
+                <button id="calculateMeterButton" class="btn btn-action">Calculate Bill</button>
                 <div class="result-grid" id="meterResultGrid">
                     <div class="result-item">
-                        <div class="result-label" data-lang-key="billLabel">Bill</div>
+                        <div class="result-label">Bill</div>
                         <div class="result-value" id="meterBill">0 IQD</div>
                     </div>
                     <div class="result-item">
-                        <div class="result-label" data-lang-key="consumptionLabel">Consumption</div>
+                        <div class="result-label">Consumption</div>
                         <div class="result-value" id="meterKwh">0.00 kWh</div>
                     </div>
                     <div class="result-item">
-                        <div class="result-label" data-lang-key="monthlyEquivalentLabel">Monthly Equivalent</div>
+                        <div class="result-label">Monthly Equivalent</div>
                         <div class="result-value" id="meterMonthlyEquivalent">0.00 kWh</div>
                     </div>
                     <div class="result-item">
-                        <div class="result-label" data-lang-key="avgAmperesLabel">Avg Amperes</div>
+                        <div class="result-label">Avg Amperes</div>
                         <div class="result-value" id="meterAmperes">0.00 A</div>
                     </div>
                     <div class="result-item">
-                        <div class="result-label" data-lang-key="avgRateLabel">Avg Rate</div>
+                        <div class="result-label">Avg Rate</div>
                         <div class="result-value" id="meterAvgRate">0.00 IQD/kWh</div>
                     </div>
                 </div>
-                <button id="meterReportButton" class="btn btn-action mt-4" data-lang-key="generateReportButton">Generate Report</button>
+                <button id="meterReportButton" class="btn btn-action mt-4">Generate Report</button>
             </div>
             
             <!-- New buttons for showing/hiding sections -->
             <div class="toggle-buttons-container">
-                <button id="toggleManualCalculationButton" class="btn" data-lang-key="hideManualCalculation">Hide Manual Calculation</button>
-                <button id="toggleMeterCalculationButton" class="btn" data-lang-key="showMeterCalculation">Show By Meter Calculation</button>
-                <button id="toggleTableButton" class="btn" data-lang-key="showDeviceTable">Show Device Table</button>
-                <button id="toggleBudgetOptimizationButton" class="btn" data-lang-key="showBudgetOptimization">Show Budget Optimization</button>
-                <button id="showTariffDetailsButton" class="btn" data-lang-key="showTariffDetails">Show Tariff Details</button>
+                <button id="toggleManualCalculationButton" class="btn">Hide Manual Calculation</button>
+                <button id="toggleMeterCalculationButton" class="btn">Show By Meter Calculation</button>
+                <button id="toggleTableButton" class="btn">Show Device Table</button>
+                <button id="toggleBudgetOptimizationButton" class="btn">Show Budget Optimization</button>
+                <button id="showTariffDetailsButton" class="btn">Show Tariff Details</button>
             </div>
 
             <!-- 3. Budget Optimization -->
             <div class="section-card" id="budgetOptimizationSection" style="display: none;">
-                <h2 class="text-xl" data-lang-key="budgetOptimizationTitle">3. Budget Optimization</h2>
+                <h2 class="text-xl">3. Budget Optimization</h2>
                 <div class="input-group">
                     <select id="optimizationTargetDropdown" class="p-2 border rounded-md">
-                        <option value="Target Cost" data-lang-key="targetCostOption">Target Cost</option>
-                        <option value="Target Amperes" data-lang-key="targetAmperesOption">Target Amperes</option>
-                        <option value="Target kWh" data-lang-key="targetKwhOption">Target kWh</option>
+                        <option value="Target Cost">Target Cost</option>
+                        <option value="Target Amperes">Target Amperes</option>
+                        <option value="Target kWh">Target kWh</option>
                     </select>
                     <input type="number" id="budgetLimitInput" value="100000" class="w-32">
                 </div>
-                <button id="optimizeBudgetButton" class="btn btn-action" data-lang-key="optimizeTargetButton">Optimize Target</button>
+                <button id="optimizeBudgetButton" class="btn btn-action">Optimize Target</button>
                 <div class="result-grid" id="budgetOptimizationResultGrid">
                     <div class="result-item col-span-full">
-                        <div class="result-label" data-lang-key="optimizationResultLabel">Optimization Result</div>
-                        <div class="result-value" id="budgetResultLabel" data-lang-key="notOptimized">Not Optimized</div>
+                        <div class="result-label">Optimization Result</div>
+                        <div class="result-value" id="budgetResultLabel">Not Optimized</div>
                     </div>
                 </div>
             </div>
 
             <!-- 4. Device Consumption Table -->
             <div class="section-card flex-grow" id="deviceTableSection" style="display: none;">
-                <h2 class="text-xl" data-lang-key="deviceConsumptionTableTitle">4. Device Consumption Table</h2>
+                <h2 class="text-xl">4. Device Consumption Table</h2>
                 <div class="device-table-container">
                     <table id="deviceTable" class="device-table">
                         <thead>
                             <tr>
-                                <th data-lang-key="deviceHeader">Device</th>
-                                <th data-lang-key="wattHeader">Watt</th>
-                                <th data-lang-key="hoursHeader">Hours</th>
-                                <th data-lang-key="dayHeader">Day</th>
-                                <th data-lang-key="countHeader">Count</th>
-                                <th data-lang-key="kwhHeader">kWh</th>
-                                <th data-lang-key="iqdHeader">IQD</th>
-                                <th data-lang-key="onHeader">On</th>
-                                <th data-lang-key="fixedHeader">Fixed</th>
+                                <th>Device</th>
+                                <th>Watt</th>
+                                <th>Hours</th>
+                                <th>Day</th>
+                                <th>Count</th>
+                                <th>kWh</th>
+                                <th>IQD</th>
+                                <th>On</th>
+                                <th>Fixed</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -755,27 +590,27 @@
                     </table>
                 </div>
                 <div class="flex flex-wrap items-start gap-2 mt-4">
-                    <button id="addRowButton" class="btn" data-lang-key="addRowButton">Add Row</button>
-                    <button id="deleteRowButton" class="btn" data-lang-key="deleteSelectedButton">Delete Selected</button>
-                    <button id="saveTableButton" class="btn" data-lang-key="saveDataCSVButton">Save Data (CSV)</button>
-                    <label for="loadFileInput" class="btn cursor-pointer" data-lang-key="loadDataCSVButton">Load Data (CSV)<input type="file" id="loadFileInput" accept=".csv" class="hidden"></label>
-                    <button id="clearAllButton" class="btn" data-lang-key="clearAllButton">Clear All</button>
+                    <button id="addRowButton" class="btn">Add Row</button>
+                    <button id="deleteRowButton" class="btn">Delete Selected</button>
+                    <button id="saveTableButton" class="btn">Save Data (CSV)</button>
+                    <label for="loadFileInput" class="btn cursor-pointer">Load Data (CSV)<input type="file" id="loadFileInput" accept=".csv" class="hidden"></label>
+                    <button id="clearAllButton" class="btn">Clear All</button>
                 </div>
-                <button id="deviceReportButton" class="btn btn-action mt-4" data-lang-key="generateReportButton">Generate Report</button>
+                <button id="deviceReportButton" class="btn btn-action mt-4">Generate Report</button>
             </div>
 
         </div>
     </div>
 
     <footer class="mt-4 text-center text-neutral-gray-medium text-sm">
-        <button id="aboutButton" class="btn" data-lang-key="aboutButton">About</button>
+        <button id="aboutButton" class="btn">About</button>
     </footer>
 
     <!-- Custom Modal for Tariff Details -->
     <div id="tariffDetailsModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <button class="modal-close-button" id="closeTariffDetailsModal">&times;</button>
-            <h3 id="tariffDetailsModalTitle" data-lang-key="tariffDetailsModalTitle">Tariff Details</h3>
+            <h3 id="tariffDetailsModalTitle">Tariff Details</h3>
             <div id="householdTariffChartContainer" class="chart-container" style="display: none;">
                 <canvas id="householdTariffChart"></canvas>
             </div>
@@ -793,8 +628,8 @@
     <div id="aboutModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <button class="modal-close-button" id="closeAboutModal">&times;</button>
-            <h3 data-lang-key="aboutModalTitle">About</h3>
-            <p data-lang-key="createdBy">Created by Dr. Ismael Abdulrahman</p>
+            <h3>About</h3>
+            <p>Created by Dr. Ismael Abdulrahman</p>
             <p class="text-sm">ismael.abdulrahman@epu.edu.iq</p>
         </div>
     </div>
@@ -803,7 +638,7 @@
     <div id="reportModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <button class="modal-close-button" id="closeReportModal">&times;</button>
-            <h3 id="reportModalTitle" data-lang-key="reportModalTitle">Report</h3>
+            <h3 id="reportModalTitle">Report</h3>
             <div id="reportModalContent" class="prose"></div>
         </div>
     </div>
@@ -833,7 +668,7 @@
                     calculateBillButton: "Calculate Bill",
                     billLabel: "Bill",
                     consumptionLabel: "Consumption",
-                    monthlyEquivalentLabel: "Monthly Equivalent", // NEW
+                    monthlyEquivalentLabel: "Monthly Equivalent",
                     avgAmperesLabel: "Avg Amperes",
                     avgRateLabel: "Avg Rate",
                     generateReportButton: "Generate Report",
@@ -850,7 +685,7 @@
                     showBudgetOptimization: "Show Budget Optimization",
                     hideBudgetOptimization: "Hide Budget Optimization",
                     showTariffDetails: "Show Tariff Details",
-                    deviceConsumptionTableTitle: "4. Device Consumption Table", // UPDATED
+                    deviceConsumptionTableTitle: "4. Device Consumption Table",
                     deviceHeader: "Device",
                     wattHeader: "Watt",
                     hoursHeader: "Hours",
@@ -865,16 +700,16 @@
                     saveDataCSVButton: "Save Data (CSV)",
                     loadDataCSVButton: "Load Data (CSV)",
                     clearAllButton: "Clear All",
-                    budgetOptimizationTitle: "3. Budget Optimization", // UPDATED
+                    budgetOptimizationTitle: "3. Budget Optimization",
                     targetCostOption: "Target Cost",
                     targetAmperesOption: "Target Amperes",
                     targetKwhOption: "Target kWh",
                     optimizeTargetButton: "Optimize Target",
                     optimizationResultLabel: "Optimization Result",
                     notOptimized: "Not Optimized",
-                    aboutButton: "About", // NEW
-                    aboutModalTitle: "About", // NEW
-                    createdBy: "Created by Dr. Ismael Abdulrahman", // NEW
+                    aboutButton: "About",
+                    aboutModalTitle: "About",
+                    createdBy: "Created by Dr. Ismael Abdulrahman",
                     // Messages
                     enterValidNumeric: "Please enter a valid numeric value for consumption.",
                     currentReadingLessThanPrevious: "Current reading cannot be less than previous reading.",
@@ -979,7 +814,7 @@
                     calculateBillButton: "حساب الفاتورة",
                     billLabel: "الفاتورة",
                     consumptionLabel: "الاستهلاك",
-                    monthlyEquivalentLabel: "المعادل الشهري", // NEW
+                    monthlyEquivalentLabel: "المعادل الشهري",
                     avgAmperesLabel: "متوسط الأمبير",
                     avgRateLabel: "متوسط السعر",
                     generateReportButton: "إنشاء تقرير",
@@ -996,7 +831,7 @@
                     showBudgetOptimization: "إظهار تحسين الميزانية",
                     hideBudgetOptimization: "إخفاء تحسين الميزانية",
                     showTariffDetails: "إظهار تفاصيل التعرفة",
-                    deviceConsumptionTableTitle: "4. جدول استهلاك الأجهزة", // UPDATED
+                    deviceConsumptionTableTitle: "4. جدول استهلاك الأجهزة",
                     deviceHeader: "الجهاز",
                     wattHeader: "واط",
                     hoursHeader: "الساعات",
@@ -1011,16 +846,16 @@
                     saveDataCSVButton: "حفظ البيانات (CSV)",
                     loadDataCSVButton: "تحميل البيانات (CSV)",
                     clearAllButton: "مسح الكل",
-                    budgetOptimizationTitle: "3. تحسين الميزانية", // UPDATED
+                    budgetOptimizationTitle: "3. تحسين الميزانية",
                     targetCostOption: "التكلفة المستهدفة",
                     targetAmperesOption: "الأمبير المستهدف",
                     targetKwhOption: "كيلوواط ساعة المستهدفة",
                     optimizeTargetButton: "تحسين الهدف",
                     optimizationResultLabel: "نتيجة التحسين",
                     notOptimized: "لم يتم التحسين",
-                    aboutButton: "حول", // NEW
-                    aboutModalTitle: "حول", // NEW
-                    createdBy: "تم الإنشاء بواسطة د. إسماعيل خورشيد عبدالرحمن", // NEW
+                    aboutButton: "حول",
+                    aboutModalTitle: "حول",
+                    createdBy: "تم الإنشاء بواسطة د. إسماعيل خورشيد عبدالرحمن",
                     // Messages
                     enterValidNumeric: "الرجاء إدخال قيمة رقمية صالحة للاستهلاك.",
                     currentReadingLessThanPrevious: "لا يمكن أن تكون القراءة الحالية أقل من القراءة السابقة.",
@@ -1125,7 +960,7 @@
                     calculateBillButton: "ژماردنی بیل",
                     billLabel: "بیل",
                     consumptionLabel: "بەکارهێنان",
-                    monthlyEquivalentLabel: "هاوتای مانگانە", // NEW
+                    monthlyEquivalentLabel: "هاوتای مانگانە",
                     avgAmperesLabel: "تێکڕای ئەمپێر",
                     avgRateLabel: "تێکڕای نرخ",
                     generateReportButton: "دروستکردنی ڕاپۆرت",
@@ -1142,7 +977,7 @@
                     showBudgetOptimization: "پیشاندانی باشترکردنی بودجە",
                     hideBudgetOptimization: "شاردنەوەی باشترکردنی بودجە",
                     showTariffDetails: "پیشاندانی وردەکارییەکانی تاریف",
-                    deviceConsumptionTableTitle: "4. خشتەی بەکارهێنانی ئامێر", // UPDATED
+                    deviceConsumptionTableTitle: "4. خشتەی بەکارهێنانی ئامێر",
                     deviceHeader: "ئامێر",
                     wattHeader: "وات",
                     hoursHeader: "کاتژمێر",
@@ -1157,16 +992,16 @@
                     saveDataCSVButton: "پاشەکەوتکردنی داتا (CSV)",
                     loadDataCSVButton: "بارکردنی داتا (CSV)",
                     clearAllButton: "پاککردنەوەی هەموو",
-                    budgetOptimizationTitle: "3. باشترکردنی بودجە", // UPDATED
+                    budgetOptimizationTitle: "3. باشترکردنی بودجە",
                     targetCostOption: "تێچووی ئامانج",
                     targetAmperesOption: "ئەمپێری ئامانج",
                     targetKwhOption: "کیلۆوات کاتژمێری ئامانج",
                     optimizeTargetButton: "باشترکردنی ئامانج",
                     optimizationResultLabel: "ئەنجامی باشترکردن",
                     notOptimized: "باشتر نەکراوە",
-                    aboutButton: "زیاتر", // NEW
-                    aboutModalTitle: "زیاتر", // NEW
-                    createdBy: "دروستکراوە لەلایەن د. إسماعیل خورشيد عبدالرحمن", // NEW
+                    aboutButton: "زیاتر",
+                    aboutModalTitle: "زیاتر",
+                    createdBy: "دروستکراوە لەلایەن د. إسماعیل خورشيد عبدالرحمن",
                     // Messages
                     enterValidNumeric: "تکایە بەهایەکی ژمارەیی دروست بۆ بەکارهێنان بنووسە.",
                     currentReadingLessThanPrevious: "خوێندنەوەی ئێستا ناتوانێت کەمتر بێت لە خوێندنەوەی پێشوو.",
@@ -1370,7 +1205,7 @@
             const daysInput = document.getElementById('daysInput');
 
             const meterKwhElem = document.getElementById('meterKwh');
-            const meterMonthlyEquivalentElem = document.getElementById('meterMonthlyEquivalent'); // NEW
+            const meterMonthlyEquivalentElem = document.getElementById('meterMonthlyEquivalent');
             const meterAmperesElem = document.getElementById('meterAmperes');
             const meterBillElem = document.getElementById('meterBill');
             const meterAvgRateElem = document.getElementById('meterAvgRate');
@@ -1390,7 +1225,7 @@
             const loadFileInput = document.getElementById('loadFileInput');
             const clearAllButton = document.getElementById('clearAllButton');
             const deviceReportButton = document.getElementById('deviceReportButton');
-            const deviceTableSection = document.getElementById('deviceTableSection'); // For result grid color
+            const deviceTableSection = document.getElementById('deviceTableSection');
 
             // New UI element references for toggling visibility
             const toggleBudgetOptimizationButton = document.getElementById('toggleBudgetOptimizationButton'); 
