@@ -135,9 +135,10 @@
         h1 {
             color: white;
             font-weight: 800;
-            margin: 0.5rem 0 1rem 0; /* Added space below title */
+            margin: 1.5rem 0; /* UPDATED: Added more space */
             text-align: center;
             font-size: clamp(1.8rem, 6vw, 3rem); /* Larger title */
+            padding: 0.5rem 0; /* NEW: Added padding for better spacing */
         }
 
         h2 {
@@ -597,13 +598,21 @@
                 min-height: -webkit-fill-available;
             }
         }
+
+        /* NEW: Language selector positioning */
+        #languageSelectorTop {
+            position: relative;
+            margin: 0 auto 1.5rem auto; /* Center and add bottom margin */
+            width: fit-content;
+        }
     </style>
 </head>
 <body>
 
     <h1 class="text-3xl lg:text-4xl" data-lang-key="mainTitle">Runaki Bill Assistant</h1>
 
-    <div id="languageSelectorTop" class="mb-4 flex justify-center gap-2">
+    <!-- UPDATED: Added mb-6 class for spacing -->
+    <div id="languageSelectorTop" class="mb-6 flex justify-center gap-2">
         <button id="lang-en" class="lang-btn">En</button>
         <button id="lang-ar" class="lang-btn">عربي</button>
         <button id="lang-ku" class="lang-btn">کوردی</button>
@@ -664,7 +673,8 @@
                     <label for="meterCurrReading" data-lang-key="currReadingLabel">Curr Reading:</label>
                     <input type="number" id="meterCurrReading" value="31910" class="w-24">
                     <label for="daysInput" data-lang-key="daysLabel">Days:</label>
-                    <input type="number" id="daysInput" value="30" min="1" max="365" class="w-16">
+                    <!-- UPDATED: Added readonly attribute -->
+                    <input type="number" id="daysInput" value="30" min="1" max="365" class="w-16" readonly>
                 </div>
                 <button id="calculateMeterButton" class="btn btn-action" data-lang-key="calculateBillButton">Calculate Bill</button>
                 <div class="result-grid" id="meterResultGrid">
@@ -1438,8 +1448,8 @@
                     const num = parseFloat(value);
                     if (isNaN(num)) return String(value);
                     const lang = currentLang;
-                    // Use 'ar-IQ' for Arabic, 'en-US' for English and Kurdish (as Kurdish typically uses Western numerals for numbers)
-                    const locale = lang === 'ar' ? 'ar-IQ' : 'en-US'; 
+                    // UPDATED: Use 'ar-IQ' for both Arabic and Kurdish
+                    const locale = (lang === 'ar' || lang === 'ku') ? 'ar-IQ' : 'en-US'; 
 
                     const options = {
                         minimumFractionDigits: decimalPlaces,
@@ -1700,7 +1710,7 @@
                 const avgAmperes = kwhToAmperes(consumption, daysVal);
                 const avgRate = consumption > 0 ? totalBill / consumption : 0;
                 
-                // NEW: Calculate monthly equivalent (30-day projection)
+                // NEW: Monthly equivalent calculation
                 const dailyAverage = consumption / daysVal;
                 const monthlyEquivalent = dailyAverage * 30;
 
