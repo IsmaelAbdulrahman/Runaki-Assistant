@@ -16,6 +16,11 @@
     <!-- Chart.js CDN for plotting -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
     <style>
+        /* Base font size increased for better readability */
+        html {
+            font-size: 18px;
+        }
+        
         /* Define a custom color palette using CSS variables for consistency */
         :root {
             --primary-blue: #3b82f6;
@@ -84,6 +89,7 @@
             touch-action: pan-x pan-y;
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Increased font size */
         }
 
         /* RTL specific styles */
@@ -111,9 +117,10 @@
         .lang-btn {
             transition: background-color 0.2s, border-color 0.2s;
             border: 2px solid transparent;
-            width: 3rem;
+            width: 4rem; /* Increased width for language text */
             height: 3rem;
             font-weight: bold;
+            font-size: 1.1rem;
         }
         .lang-btn.active {
             border-color: var(--primary-blue);
@@ -128,17 +135,16 @@
         h1 {
             color: white;
             font-weight: 800;
-            margin: 0.5rem 0;
+            margin: 0.5rem 0 1rem 0; /* Added space below title */
             text-align: center;
-            font-size: clamp(1.5rem, 5vw, 2.5rem);
-            padding: 0 0.5rem;
+            font-size: clamp(1.8rem, 6vw, 3rem); /* Larger title */
         }
 
         h2 {
             color: var(--text-light);
             font-weight: 700;
             margin-bottom: 0.75rem;
-            font-size: clamp(1.2rem, 4vw, 1.6rem);
+            font-size: clamp(1.4rem, 5vw, 1.8rem); /* Larger section headers */
         }
 
         .main-container {
@@ -175,7 +181,7 @@
             font-weight: 600;
             color: var(--text-medium-light);
             flex-shrink: 0;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger labels */
         }
 
         input[type="text"],
@@ -184,7 +190,7 @@
             padding: 0.5rem;
             border: 1px solid var(--input-dark-border);
             border-radius: 0.5rem;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger inputs */
             text-align: center;
             background-color: var(--input-dark-bg);
             color: var(--text-light);
@@ -207,7 +213,7 @@
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
             border: none;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger buttons */
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
@@ -238,9 +244,9 @@
 
         .result-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); /* Wider items */
             gap: 0.5rem;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger results */
             margin-top: 0.5rem;
             width: 100%;
         }
@@ -258,14 +264,21 @@
             color: var(--text-medium-light);
             margin-bottom: 0.2rem;
             font-weight: 500;
-            font-size: clamp(0.7rem, 3vw, 0.9rem);
+            font-size: clamp(0.8rem, 3.5vw, 1rem); /* Larger labels */
         }
 
         .result-value {
             font-weight: 800;
             color: var(--current-result-color); 
-            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            font-size: clamp(1rem, 3.5vw, 1.3rem); /* Larger values */
             transition: color 0.2s ease-in-out;
+            /* Alignment adjustments */
+            text-align: left;
+        }
+        
+        /* RTL alignment for values */
+        body.rtl .result-value {
+            text-align: right;
         }
 
         /* Flashing animation for result values */
@@ -316,7 +329,7 @@
             padding: 0.5rem;
             border-bottom: 1px solid var(--input-dark-border);
             text-align: center;
-            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            font-size: clamp(0.8rem, 3vw, 1rem); /* Larger table text */
         }
 
         .device-table th {
@@ -344,14 +357,14 @@
             border: 1px solid var(--input-dark-border);
             border-radius: 0.3rem;
             text-align: center;
-            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            font-size: clamp(0.8rem, 3vw, 1rem); /* Larger table inputs */
             background-color: var(--input-dark-bg);
             color: var(--text-light);
         }
 
         .device-table input[type="checkbox"] {
-            width: 1rem;
-            height: 1rem;
+            width: 1.2rem; /* Larger checkboxes */
+            height: 1.2rem;
             cursor: pointer;
             border-radius: 0.2rem;
             accent-color: var(--primary-blue-darker);
@@ -437,7 +450,7 @@
             border-radius: 0.5rem;
             overflow-x: auto;
             font-family: 'Cascadia Code', 'Fira Code', monospace;
-            font-size: 0.8rem;
+            font-size: 0.9rem; /* Larger code */
             color: #a0aec0;
         }
         
@@ -451,7 +464,7 @@
             align-items: center;
             gap: 0.25rem;
             padding: 0.5rem;
-            font-size: clamp(0.7rem, 3vw, 0.9rem);
+            font-size: clamp(0.8rem, 3.5vw, 1rem); /* Larger footer */
         }
 
         /* Message Box Styling */
@@ -468,7 +481,7 @@
             transition: opacity 0.3s ease-out, transform 0.3s ease-out;
             color: white;
             max-width: 90%;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger messages */
         }
 
         #appMessage.show {
@@ -482,7 +495,7 @@
 
         /* Report Modal Specific Styles */
         .report-section-title {
-            font-size: 1.2rem;
+            font-size: 1.3rem; /* Larger report titles */
             font-weight: 700;
             color: var(--primary-blue-darker);
             margin-top: 1rem;
@@ -495,18 +508,18 @@
             font-weight: 600;
             color: var(--text-medium-light);
             margin-right: 0.25rem;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger report labels */
         }
 
         .report-item-value {
             font-weight: 700;
             color: var(--text-light);
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger report values */
         }
 
         .report-breakdown-item {
             margin-left: 0.5rem;
-            font-size: clamp(0.7rem, 3vw, 0.9rem);
+            font-size: clamp(0.8rem, 3.5vw, 1rem); /* Larger breakdown */
             color: var(--text-medium-light);
         }
 
@@ -517,7 +530,7 @@
             background-color: var(--input-dark-bg);
             border-radius: 0.5rem;
             overflow: hidden;
-            font-size: clamp(0.7rem, 3vw, 0.9rem);
+            font-size: clamp(0.8rem, 3.5vw, 1rem); /* Larger table */
         }
 
         .report-table th, .report-table td {
@@ -571,8 +584,9 @@
             }
             
             .lang-btn {
-                width: 2.5rem;
+                width: 3rem;
                 height: 2.5rem;
+                font-size: 1rem;
             }
         }
         
@@ -590,9 +604,9 @@
     <h1 class="text-3xl lg:text-4xl" data-lang-key="mainTitle">Runaki Bill Assistant</h1>
 
     <div id="languageSelectorTop" class="mb-4 flex justify-center gap-2">
-        <button id="lang-en" class="lang-btn">EN</button>
-        <button id="lang-ar" class="lang-btn">AR</button>
-        <button id="lang-ku" class="lang-btn">KU</button>
+        <button id="lang-en" class="lang-btn">En</button>
+        <button id="lang-ar" class="lang-btn">عربي</button>
+        <button id="lang-ku" class="lang-btn">کوردی</button>
     </div>
 
     <div class="main-container">
@@ -663,6 +677,10 @@
                         <div class="result-value" id="meterKwh">0.00 kWh</div>
                     </div>
                     <div class="result-item">
+                        <div class="result-label" data-lang-key="monthlyEquivalentLabel">Monthly Equivalent</div>
+                        <div class="result-value" id="meterMonthlyEquivalent">0.00 kWh</div>
+                    </div>
+                    <div class="result-item">
                         <div class="result-label" data-lang-key="avgAmperesLabel">Avg Amperes</div>
                         <div class="result-value" id="meterAmperes">0.00 A</div>
                     </div>
@@ -683,9 +701,29 @@
                 <button id="showTariffDetailsButton" class="btn" data-lang-key="showTariffDetails">Show Tariff Details</button>
             </div>
 
-            <!-- 5. Device Consumption Table -->
+            <!-- 3. Budget Optimization -->
+            <div class="section-card" id="budgetOptimizationSection" style="display: none;">
+                <h2 class="text-xl" data-lang-key="budgetOptimizationTitle">3. Budget Optimization</h2>
+                <div class="input-group">
+                    <select id="optimizationTargetDropdown" class="p-2 border rounded-md">
+                        <option value="Target Cost" data-lang-key="targetCostOption">Target Cost</option>
+                        <option value="Target Amperes" data-lang-key="targetAmperesOption">Target Amperes</option>
+                        <option value="Target kWh" data-lang-key="targetKwhOption">Target kWh</option>
+                    </select>
+                    <input type="number" id="budgetLimitInput" value="100000" class="w-32">
+                </div>
+                <button id="optimizeBudgetButton" class="btn btn-action" data-lang-key="optimizeTargetButton">Optimize Target</button>
+                <div class="result-grid" id="budgetOptimizationResultGrid">
+                    <div class="result-item col-span-full">
+                        <div class="result-label" data-lang-key="optimizationResultLabel">Optimization Result</div>
+                        <div class="result-value" id="budgetResultLabel" data-lang-key="notOptimized">Not Optimized</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Device Consumption Table -->
             <div class="section-card flex-grow" id="deviceTableSection" style="display: none;">
-                <h2 class="text-xl" data-lang-key="deviceConsumptionTableTitle">5. Device Consumption Table</h2>
+                <h2 class="text-xl" data-lang-key="deviceConsumptionTableTitle">4. Device Consumption Table</h2>
                 <div class="device-table-container">
                     <table id="deviceTable" class="device-table">
                         <thead>
@@ -716,32 +754,11 @@
                 <button id="deviceReportButton" class="btn btn-action mt-4" data-lang-key="generateReportButton">Generate Report</button>
             </div>
 
-            <!-- 3. Budget Optimization -->
-            <div class="section-card" id="budgetOptimizationSection" style="display: none;">
-                <h2 class="text-xl" data-lang-key="budgetOptimizationTitle">3. Budget Optimization</h2>
-                <div class="input-group">
-                    <select id="optimizationTargetDropdown" class="p-2 border rounded-md">
-                        <option value="Target Cost" data-lang-key="targetCostOption">Target Cost</option>
-                        <option value="Target Amperes" data-lang-key="targetAmperesOption">Target Amperes</option>
-                        <option value="Target kWh" data-lang-key="targetKwhOption">Target kWh</option>
-                    </select>
-                    <input type="number" id="budgetLimitInput" value="100000" class="w-32">
-                </div>
-                <button id="optimizeBudgetButton" class="btn btn-action" data-lang-key="optimizeTargetButton">Optimize Target</button>
-                <div class="result-grid" id="budgetOptimizationResultGrid">
-                    <div class="result-item col-span-full">
-                        <div class="result-label" data-lang-key="optimizationResultLabel">Optimization Result</div>
-                        <div class="result-value" id="budgetResultLabel" data-lang-key="notOptimized">Not Optimized</div>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 
     <footer class="mt-4 text-center text-neutral-gray-medium text-sm">
-        <p data-lang-key="footerText">Created by Dr. Ismael Abdulrahman</p>
-        <p class="text-sm">ismael.abdulrahman@epu.edu.iq</p>
+        <button id="aboutButton" class="btn" data-lang-key="aboutButton">About</button>
     </footer>
 
     <!-- Custom Modal for Tariff Details -->
@@ -759,6 +776,16 @@
                 <canvas id="otherCategoriesTariffChart"></canvas>
             </div>
             <pre id="tariffDetailsModalContent"></pre>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-button" id="closeAboutModal">&times;</button>
+            <h3 data-lang-key="aboutModalTitle">About</h3>
+            <p data-lang-key="createdBy">Created by Dr. Ismael Abdulrahman</p>
+            <p class="text-sm">ismael.abdulrahman@epu.edu.iq</p>
         </div>
     </div>
 
@@ -796,6 +823,7 @@
                     calculateBillButton: "Calculate Bill",
                     billLabel: "Bill",
                     consumptionLabel: "Consumption",
+                    monthlyEquivalentLabel: "Monthly Equivalent", // NEW
                     avgAmperesLabel: "Avg Amperes",
                     avgRateLabel: "Avg Rate",
                     generateReportButton: "Generate Report",
@@ -812,7 +840,7 @@
                     showBudgetOptimization: "Show Budget Optimization",
                     hideBudgetOptimization: "Hide Budget Optimization",
                     showTariffDetails: "Show Tariff Details",
-                    deviceConsumptionTableTitle: "5. Device Consumption Table",
+                    deviceConsumptionTableTitle: "4. Device Consumption Table", // UPDATED
                     deviceHeader: "Device",
                     wattHeader: "Watt",
                     hoursHeader: "Hours",
@@ -827,16 +855,16 @@
                     saveDataCSVButton: "Save Data (CSV)",
                     loadDataCSVButton: "Load Data (CSV)",
                     clearAllButton: "Clear All",
-                    budgetOptimizationTitle: "3. Budget Optimization",
+                    budgetOptimizationTitle: "3. Budget Optimization", // UPDATED
                     targetCostOption: "Target Cost",
                     targetAmperesOption: "Target Amperes",
                     targetKwhOption: "Target kWh",
                     optimizeTargetButton: "Optimize Target",
                     optimizationResultLabel: "Optimization Result",
                     notOptimized: "Not Optimized",
-                    footerText: "Created by Dr. Ismael Abdulrahman",
-                    tariffDetailsModalTitle: "Electricity Tariff Details",
-                    reportModalTitle: "Report",
+                    aboutButton: "About", // NEW
+                    aboutModalTitle: "About", // NEW
+                    createdBy: "Created by Dr. Ismael Abdulrahman", // NEW
                     // Messages
                     enterValidNumeric: "Please enter a valid numeric value for consumption.",
                     currentReadingLessThanPrevious: "Current reading cannot be less than previous reading.",
@@ -941,6 +969,7 @@
                     calculateBillButton: "حساب الفاتورة",
                     billLabel: "الفاتورة",
                     consumptionLabel: "الاستهلاك",
+                    monthlyEquivalentLabel: "المعادل الشهري", // NEW
                     avgAmperesLabel: "متوسط الأمبير",
                     avgRateLabel: "متوسط السعر",
                     generateReportButton: "إنشاء تقرير",
@@ -957,7 +986,7 @@
                     showBudgetOptimization: "إظهار تحسين الميزانية",
                     hideBudgetOptimization: "إخفاء تحسين الميزانية",
                     showTariffDetails: "إظهار تفاصيل التعرفة",
-                    deviceConsumptionTableTitle: "5. جدول استهلاك الأجهزة",
+                    deviceConsumptionTableTitle: "4. جدول استهلاك الأجهزة", // UPDATED
                     deviceHeader: "الجهاز",
                     wattHeader: "واط",
                     hoursHeader: "الساعات",
@@ -972,16 +1001,16 @@
                     saveDataCSVButton: "حفظ البيانات (CSV)",
                     loadDataCSVButton: "تحميل البيانات (CSV)",
                     clearAllButton: "مسح الكل",
-                    budgetOptimizationTitle: "3. تحسين الميزانية",
+                    budgetOptimizationTitle: "3. تحسين الميزانية", // UPDATED
                     targetCostOption: "التكلفة المستهدفة",
                     targetAmperesOption: "الأمبير المستهدف",
                     targetKwhOption: "كيلوواط ساعة المستهدفة",
                     optimizeTargetButton: "تحسين الهدف",
                     optimizationResultLabel: "نتيجة التحسين",
                     notOptimized: "لم يتم التحسين",
-                    footerText: "تم الإنشاء بواسطة د. إسماعيل عبدالرحمن",
-                    tariffDetailsModalTitle: "تفاصيل تعرفة الكهرباء",
-                    reportModalTitle: "التقرير",
+                    aboutButton: "حول", // NEW
+                    aboutModalTitle: "حول", // NEW
+                    createdBy: "تم الإنشاء بواسطة د. إسماعيل عبدالرحمن", // NEW
                     // Messages
                     enterValidNumeric: "الرجاء إدخال قيمة رقمية صالحة للاستهلاك.",
                     currentReadingLessThanPrevious: "لا يمكن أن تكون القراءة الحالية أقل من القراءة السابقة.",
@@ -1086,6 +1115,7 @@
                     calculateBillButton: "ژماردنی بیل",
                     billLabel: "بیل",
                     consumptionLabel: "بەکارهێنان",
+                    monthlyEquivalentLabel: "هاوتای مانگانە", // NEW
                     avgAmperesLabel: "تێکڕای ئەمپێر",
                     avgRateLabel: "تێکڕای نرخ",
                     generateReportButton: "دروستکردنی ڕاپۆرت",
@@ -1102,7 +1132,7 @@
                     showBudgetOptimization: "پیشاندانی باشترکردنی بودجە",
                     hideBudgetOptimization: "شاردنەوەی باشترکردنی بودجە",
                     showTariffDetails: "پیشاندانی وردەکارییەکانی تاریف",
-                    deviceConsumptionTableTitle: "5. خشتەی بەکارهێنانی ئامێر",
+                    deviceConsumptionTableTitle: "4. خشتەی بەکارهێنانی ئامێر", // UPDATED
                     deviceHeader: "ئامێر",
                     wattHeader: "وات",
                     hoursHeader: "کاتژمێر",
@@ -1117,16 +1147,16 @@
                     saveDataCSVButton: "پاشەکەوتکردنی داتا (CSV)",
                     loadDataCSVButton: "بارکردنی داتا (CSV)",
                     clearAllButton: "پاککردنەوەی هەموو",
-                    budgetOptimizationTitle: "3. باشترکردنی بودجە",
+                    budgetOptimizationTitle: "3. باشترکردنی بودجە", // UPDATED
                     targetCostOption: "تێچووی ئامانج",
                     targetAmperesOption: "ئەمپێری ئامانج",
                     targetKwhOption: "کیلۆوات کاتژمێری ئامانج",
                     optimizeTargetButton: "باشترکردنی ئامانج",
                     optimizationResultLabel: "ئەنجامی باشترکردن",
                     notOptimized: "باشتر نەکراوە",
-                    footerText: "دروستکراوە لەلایەن د. ئیسماعیل عبدالرحمن",
-                    tariffDetailsModalTitle: "وردەکارییەکانی تاریفی کارەبا",
-                    reportModalTitle: "ڕاپۆرت",
+                    aboutButton: "زیاتر", // NEW
+                    aboutModalTitle: "زیاتر", // NEW
+                    createdBy: "دروستکراوە لەلایەن د. ئیسماعیل عبدالرحمن", // NEW
                     // Messages
                     enterValidNumeric: "تکایە بەهایەکی ژمارەیی دروست بۆ بەکارهێنان بنووسە.",
                     currentReadingLessThanPrevious: "خوێندنەوەی ئێستا ناتوانێت کەمتر بێت لە خوێندنەوەی پێشوو.",
@@ -1330,6 +1360,7 @@
             const daysInput = document.getElementById('daysInput');
 
             const meterKwhElem = document.getElementById('meterKwh');
+            const meterMonthlyEquivalentElem = document.getElementById('meterMonthlyEquivalent'); // NEW
             const meterAmperesElem = document.getElementById('meterAmperes');
             const meterBillElem = document.getElementById('meterBill');
             const meterAvgRateElem = document.getElementById('meterAvgRate');
@@ -1385,6 +1416,11 @@
             const closeReportModal = document.getElementById('closeReportModal');
             const reportModalTitle = document.getElementById('reportModalTitle');
             const reportModalContent = document.getElementById('reportModalContent');
+
+            // About modal elements
+            const aboutModal = document.getElementById('aboutModal');
+            const closeAboutModal = document.getElementById('closeAboutModal');
+            const aboutButton = document.getElementById('aboutButton');
 
             // Message box element
             const appMessage = document.getElementById('appMessage');
@@ -1663,8 +1699,25 @@
                 const totalBill = calculateCostForCategory(consumption, category);
                 const avgAmperes = kwhToAmperes(consumption, daysVal);
                 const avgRate = consumption > 0 ? totalBill / consumption : 0;
+                
+                // NEW: Calculate monthly equivalent (30-day projection)
+                const dailyAverage = consumption / daysVal;
+                const monthlyEquivalent = dailyAverage * 30;
 
-                updateResultDisplay(consumption, avgAmperes, totalBill, avgRate, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem, meterResultGrid, 'meter');
+                // Update display with all values
+                const lang = currentLang;
+                meterBillElem.textContent = `${formatNumber(totalBill, 0, true)} ${translations[lang].unitIQD}`;
+                meterKwhElem.textContent = `${formatNumber(consumption, 2)} ${translations[lang].unitKWH}`;
+                meterMonthlyEquivalentElem.textContent = `${formatNumber(monthlyEquivalent, 2)} ${translations[lang].unitKWH}`;
+                meterAmperesElem.textContent = `${formatNumber(avgAmperes, 2)} ${translations[lang].unitA}`;
+                meterAvgRateElem.textContent = `${formatNumber(avgRate, 2)} ${translations[lang].iqdPerKwh}`;
+
+                // Apply flashing animation
+                [meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem, meterMonthlyEquivalentElem].forEach(elem => {
+                    elem.classList.remove('flash-animation');
+                    void elem.offsetWidth;
+                    elem.classList.add('flash-animation');
+                });
             };
 
             const calculateDeviceConsumption = () => {
@@ -1941,6 +1994,9 @@
                     bill = calculateCostForCategory(kwh, category);
                     amperes = kwhToAmperes(kwh, daysVal);
                     avgRate = kwh > 0 ? bill / kwh : 0;
+                    // NEW: Monthly equivalent calculation
+                    const dailyAverage = kwh / daysVal;
+                    const monthlyEquivalent = dailyAverage * 30;
 
                     reportHtml += `<div class="report-section-title">${translations[lang].meterCalculationSummary}</div>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].category}:</span> <span class="report-item-value">${translations[lang][category.toLowerCase() + 'Option'] || category}</span></p>`;
@@ -1949,6 +2005,7 @@
                     reportHtml += `<p><span class="report-item-label">${translations[lang].days}:</span> <span class="report-item-value">${formatNumber(daysVal, 0, false, true)}</span></p>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].billLabel}:</span> <span class="report-item-value">${formatNumber(bill, 0, true)} ${translations[lang].unitIQD}</span></p>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].consumptionLabel}:</span> <span class="report-item-value">${formatNumber(kwh, 2)} ${translations[lang].unitKWH}</span></p>`;
+                    reportHtml += `<p><span class="report-item-label">${translations[lang].monthlyEquivalentLabel}:</span> <span class="report-item-value">${formatNumber(monthlyEquivalent, 2)} ${translations[lang].unitKWH}</span></p>`; // NEW
                     reportHtml += `<p><span class="report-item-label">${translations[lang].avgAmperesLabel}:</span> <span class="report-item-value">${formatNumber(amperes, 2)} ${translations[lang].unitA}</span></p>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].avgRateLabel}:</span> <span class="report-item-value">${formatNumber(avgRate, 2)} ${translations[lang].iqdPerKwh}</span></p>`;
                 }
@@ -2006,7 +2063,7 @@
 
                 let reportHtml = `
                     <div class="report-section-title">${translations[lang].overallConsumptionSummary}</div>
-                    <p><span class="report-item-label">${translations[lang].category}:</span> <span class="report-item-value">${translations[lang][category.toLowerCase() + 'Option'] || category}</span></p>`;
+                    <p><span class="report-item-label">${translations[lang].category}:</span> <span class="report-item-value">${translations[lang][category.toLowerCase() + 'Option'] || category}</span></p>`; // UPDATED
                     reportHtml += `<p><span class="report-item-label">${translations[lang].totalBill}:</span> <span class="report-item-value">${formatNumber(finalTotalBill, 0, true)} ${translations[lang].unitIQD}</span></p>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].totalConsumption}:</span> <span class="report-item-value">${formatNumber(totalKwh, 2)} ${translations[lang].unitKWH}</span></p>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].averageAmperes}:</span> <span class="report-item-value">${formatNumber(finalAvgAmperes, 2)} ${translations[lang].unitA}</span></p>`;
@@ -2203,6 +2260,15 @@
             closeReportModal.addEventListener('click', () => {
                 reportModal.style.display = 'none';
             });
+            
+            // About modal
+            aboutButton.addEventListener('click', () => {
+                aboutModal.style.display = 'flex';
+            });
+            
+            closeAboutModal.addEventListener('click', () => {
+                aboutModal.style.display = 'none';
+            });
 
             // Close modals when clicking outside
             window.addEventListener('click', (e) => {
@@ -2211,6 +2277,9 @@
                 }
                 if (e.target === reportModal) {
                     reportModal.style.display = 'none';
+                }
+                if (e.target === aboutModal) {
+                    aboutModal.style.display = 'none';
                 }
             });
 
@@ -2233,14 +2302,14 @@
                 const isVisible = deviceTableSection.style.display === 'block';
                 deviceTableSection.style.display = isVisible ? 'none' : 'block';
                 toggleTableButton.textContent = 
-                    isVisible ? translations[currentLang].showDeviceTable : translations[currentLang].hideDeviceTable;
+                    isVisible ? translations[currentLang].hideDeviceTable : translations[currentLang].showDeviceTable;
             });
 
             toggleBudgetOptimizationButton.addEventListener('click', () => {
                 const isVisible = budgetOptimizationSection.style.display === 'block';
                 budgetOptimizationSection.style.display = isVisible ? 'none' : 'block';
                 toggleBudgetOptimizationButton.textContent = 
-                    isVisible ? translations[currentLang].showBudgetOptimization : translations[currentLang].hideBudgetOptimization;
+                    isVisible ? translations[currentLang].hideBudgetOptimization : translations[currentLang].showBudgetOptimization;
             });
 
             const showTariffDetails = () => {
