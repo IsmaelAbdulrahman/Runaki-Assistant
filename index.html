@@ -126,20 +126,6 @@
             color: var(--text-medium-light);
         }
 
-        /* Language selector container - fixed position */
-        #languageSelectorTop {
-            position: fixed;
-            top: 0.5rem;
-            right: 0.5rem;
-            z-index: 100;
-            display: flex;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            background-color: rgba(45, 55, 72, 0.8);
-            border-radius: 0.5rem;
-            backdrop-filter: blur(4px);
-        }
-
         h1 {
             color: white;
             font-weight: 800;
@@ -147,7 +133,6 @@
             text-align: center;
             font-size: clamp(1.8rem, 6vw, 2.8rem); /* Larger font for title */
             padding: 0 0.5rem;
-            margin-top: 3.5rem; /* Added space for fixed language buttons */
         }
 
         h2 {
@@ -471,6 +456,12 @@
             font-size: clamp(0.8rem, 3vw, 1rem); /* Larger footer text */
         }
 
+        .footer-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
         /* Message Box Styling */
         #appMessage {
             position: fixed;
@@ -603,12 +594,6 @@
     </style>
 </head>
 <body>
-
-    <div id="languageSelectorTop" class="mb-4 flex gap-2">
-        <button id="lang-en" class="lang-btn">EN</button>
-        <button id="lang-ar" class="lang-btn">AR</button>
-        <button id="lang-ku" class="lang-btn">KU</button>
-    </div>
 
     <h1 class="text-3xl lg:text-4xl" data-lang-key="mainTitle">Runaki Bill Assistant</h1>
 
@@ -759,6 +744,11 @@
     <footer class="mt-4 text-center text-neutral-gray-medium text-sm">
         <p data-lang-key="footerText">Created by Dr. Ismael Abdulrahman</p>
         <p class="text-sm">ismael.abdulrahman@epu.edu.iq</p>
+        <div class="footer-buttons" id="languageSelectorBottom">
+            <button id="lang-en" class="lang-btn">EN</button>
+            <button id="lang-ar" class="lang-btn">AR</button>
+            <button id="lang-ku" class="lang-btn">KU</button>
+        </div>
     </footer>
 
     <!-- Custom Modal for Tariff Details -->
@@ -1688,7 +1678,28 @@
                 }
 
                 const consumption = currReading - prevReading;
-                const totalBill = calculateCostForCategory(consumption, category);
+                
+                // Calculate average daily consumption
+                const dailyKwh = consumption / daysVal;
+                
+                // Calculate full months (30 days) and remaining days
+                const fullMonths = Math.floor(daysVal / 30);
+                const remainingDays = daysVal % 30;
+                
+                let totalBill = 0;
+                
+                // Calculate cost for each full month
+                for (let i = 0; i < fullMonths; i++) {
+                    const monthlyKwh = dailyKwh * 30;
+                    totalBill += calculateCostForCategory(monthlyKwh, category);
+                }
+                
+                // Calculate cost for remaining days
+                if (remainingDays > 0) {
+                    const partialKwh = dailyKwh * remainingDays;
+                    totalBill += calculateCostForCategory(partialKwh, category);
+                }
+                
                 const avgAmperes = kwhToAmperes(consumption, daysVal);
                 const avgRate = consumption > 0 ? totalBill / consumption : 0;
 
@@ -2299,11 +2310,18 @@
                             datasets: [{
                                 label: translations[currentLang].iqdPerKwh,
                                 data: rates,
-                                backgroundColor: '#3b82f6'
+                                backgroundColor: [
+                                    '#3b82f6',
+                                    '#22c55e',
+                                    '#f97316',
+                                    '#8b5cf6',
+                                    '#ec4899'
+                                ]
                             }]
                         },
                         options: {
                             responsive: true,
+                            maintainAspectRatio: false,
                             plugins: {
                                 title: {
                                     display: true,
@@ -2351,6 +2369,7 @@
                         },
                         options: {
                             responsive: true,
+                            maintainAspectRatio: false,
                             plugins: {
                                 title: {
                                     display: true,
@@ -2389,6 +2408,7 @@
                         },
                         options: {
                             responsive: true,
+                            maintainAspectRatio: false,
                             plugins: {
                                 title: {
                                     display: true,
