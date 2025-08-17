@@ -18,7 +18,7 @@
     <style>
         /* Base font size increased for better readability */
         html {
-            font-size: 25px; /* Increased from 18px (40% larger) */
+            font-size: 18px;
         }
         
         /* Define a custom color palette using CSS variables for consistency */
@@ -89,7 +89,7 @@
             touch-action: pan-x pan-y;
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
-            font-size: clamp(1.26rem, 4.9vw, 1.54rem); /* Increased font size by 40% */
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Increased font size */
         }
 
         /* RTL specific styles */
@@ -135,17 +135,17 @@
         h1 {
             color: white;
             font-weight: 800;
-            margin: 2rem 0; /* Increased space around title */
+            margin: 1.5rem 0; /* UPDATED: Added more space */
             text-align: center;
-            font-size: clamp(1.35rem, 4.5vw, 2.25rem); /* Reduced by 25% */
-            padding: 1rem 0; /* Added space around title */
+            font-size: clamp(1.8rem, 6vw, 3rem); /* Larger title */
+            padding: 0.5rem 0; /* NEW: Added padding for better spacing */
         }
 
         h2 {
             color: var(--text-light);
             font-weight: 700;
             margin-bottom: 0.75rem;
-            font-size: clamp(1.96rem, 7vw, 2.52rem); /* Larger section headers (40% larger) */
+            font-size: clamp(1.4rem, 5vw, 1.8rem); /* Larger section headers */
         }
 
         .main-container {
@@ -182,7 +182,7 @@
             font-weight: 600;
             color: var(--text-medium-light);
             flex-shrink: 0;
-            font-size: clamp(1.26rem, 4.9vw, 1.54rem); /* Larger labels (40% larger) */
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger labels */
         }
 
         input[type="text"],
@@ -191,7 +191,7 @@
             padding: 0.5rem;
             border: 1px solid var(--input-dark-border);
             border-radius: 0.5rem;
-            font-size: clamp(1.26rem, 4.9vw, 1.54rem); /* Larger inputs (40% larger) */
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger inputs */
             text-align: center;
             background-color: var(--input-dark-bg);
             color: var(--text-light);
@@ -214,7 +214,7 @@
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
             border: none;
-            font-size: clamp(1.26rem, 4.9vw, 1.54rem); /* Larger buttons (40% larger) */
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger buttons */
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
@@ -247,7 +247,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); /* Wider items */
             gap: 0.5rem;
-            font-size: clamp(1.26rem, 4.9vw, 1.54rem); /* Larger results (40% larger) */
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger results */
             margin-top: 0.5rem;
             width: 100%;
         }
@@ -265,17 +265,23 @@
             color: var(--text-medium-light);
             margin-bottom: 0.2rem;
             font-weight: 500;
-            font-size: clamp(1.12rem, 4.9vw, 1.4rem); /* Larger labels (40% larger) */
+            font-size: clamp(0.8rem, 3.5vw, 1rem); /* Larger labels */
         }
 
         .result-value {
             font-weight: 800;
             color: var(--current-result-color); 
-            font-size: clamp(1.4rem, 4.9vw, 1.82rem); /* Larger values (40% larger) */
+            font-size: clamp(1rem, 3.5vw, 1.3rem); /* Larger values */
             transition: color 0.2s ease-in-out;
-            text-align: center; /* Center align results */
+            /* Alignment adjustments */
+            text-align: left;
         }
         
+        /* RTL alignment for values */
+        body.rtl .result-value {
+            text-align: right;
+        }
+
         /* Flashing animation for result values */
         @keyframes flashEffect {
             0% { color: var(--current-result-color); }
@@ -324,7 +330,7 @@
             padding: 0.5rem;
             border-bottom: 1px solid var(--input-dark-border);
             text-align: center;
-            font-size: clamp(1.12rem, 4.2vw, 1.4rem); /* Larger table text (40% larger) */
+            font-size: clamp(0.8rem, 3vw, 1rem); /* Larger table text */
         }
 
         .device-table th {
@@ -352,14 +358,14 @@
             border: 1px solid var(--input-dark-border);
             border-radius: 0.3rem;
             text-align: center;
-            font-size: clamp(1.12rem, 4.2vw, 1.4rem); /* Larger table inputs (40% larger) */
+            font-size: clamp(0.8rem, 3vw, 1rem); /* Larger table inputs */
             background-color: var(--input-dark-bg);
             color: var(--text-light);
         }
 
         .device-table input[type="checkbox"] {
-            width: 1.68rem; /* Larger checkboxes (40% larger) */
-            height: 1.68rem;
+            width: 1.2rem; /* Larger checkboxes */
+            height: 1.2rem;
             cursor: pointer;
             border-radius: 0.2rem;
             accent-color: var(--primary-blue-darker);
@@ -445,7 +451,7 @@
             border-radius: 0.5rem;
             overflow-x: auto;
             font-family: 'Cascadia Code', 'Fira Code', monospace;
-            font-size: 1.26rem; /* Larger code (40% larger) */
+            font-size: 0.9rem; /* Larger code */
             color: #a0aec0;
         }
         
@@ -459,7 +465,7 @@
             align-items: center;
             gap: 0.25rem;
             padding: 0.5rem;
-            font-size: clamp(1.12rem, 4.9vw, 1.4rem); /* Larger footer (40% larger) */
+            font-size: clamp(0.8rem, 3.5vw, 1rem); /* Larger footer */
         }
 
         /* Message Box Styling */
@@ -476,7 +482,7 @@
             transition: opacity 0.3s ease-out, transform 0.3s ease-out;
             color: white;
             max-width: 90%;
-            font-size: clamp(1.26rem, 4.9vw, 1.54rem); /* Larger messages (40% larger) */
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger messages */
         }
 
         #appMessage.show {
@@ -490,7 +496,7 @@
 
         /* Report Modal Specific Styles */
         .report-section-title {
-            font-size: 1.82rem; /* Larger report titles (40% larger) */
+            font-size: 1.3rem; /* Larger report titles */
             font-weight: 700;
             color: var(--primary-blue-darker);
             margin-top: 1rem;
@@ -503,18 +509,18 @@
             font-weight: 600;
             color: var(--text-medium-light);
             margin-right: 0.25rem;
-            font-size: clamp(1.26rem, 4.9vw, 1.54rem); /* Larger report labels (40% larger) */
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger report labels */
         }
 
         .report-item-value {
             font-weight: 700;
             color: var(--text-light);
-            font-size: clamp(1.26rem, 4.9vw, 1.54rem); /* Larger report values (40% larger) */
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); /* Larger report values */
         }
 
         .report-breakdown-item {
             margin-left: 0.5rem;
-            font-size: clamp(1.12rem, 4.9vw, 1.4rem); /* Larger breakdown (40% larger) */
+            font-size: clamp(0.8rem, 3.5vw, 1rem); /* Larger breakdown */
             color: var(--text-medium-light);
         }
 
@@ -525,7 +531,7 @@
             background-color: var(--input-dark-bg);
             border-radius: 0.5rem;
             overflow: hidden;
-            font-size: clamp(1.12rem, 4.9vw, 1.4rem); /* Larger table (40% larger) */
+            font-size: clamp(0.8rem, 3.5vw, 1rem); /* Larger table */
         }
 
         .report-table th, .report-table td {
@@ -598,13 +604,12 @@
             position: relative;
             margin: 0 auto 1.5rem auto; /* Center and add bottom margin */
             width: fit-content;
-            direction: ltr; /* Force LTR layout for language buttons */
         }
     </style>
 </head>
 <body>
 
-    <h1 class="text-3xl lg:text-4xl" data-lang-key="mainTitle"> Runaki Bill Assistant </h1> <!-- Added spaces around title -->
+    <h1 class="text-3xl lg:text-4xl" data-lang-key="mainTitle">Runaki Bill Assistant</h1>
 
     <!-- UPDATED: Added mb-6 class for spacing -->
     <div id="languageSelectorTop" class="mb-6 flex justify-center gap-2">
@@ -680,6 +685,10 @@
                     <div class="result-item">
                         <div class="result-label" data-lang-key="consumptionLabel">Consumption</div>
                         <div class="result-value" id="meterKwh">0.00 kWh</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label" data-lang-key="monthlyEquivalentLabel">Monthly Equivalent</div>
+                        <div class="result-value" id="meterMonthlyEquivalent">0.00 kWh</div>
                     </div>
                     <div class="result-item">
                         <div class="result-label" data-lang-key="avgAmperesLabel">Avg Amperes</div>
@@ -824,6 +833,7 @@
                     calculateBillButton: "Calculate Bill",
                     billLabel: "Bill",
                     consumptionLabel: "Consumption",
+                    monthlyEquivalentLabel: "Monthly Equivalent", // NEW
                     avgAmperesLabel: "Avg Amperes",
                     avgRateLabel: "Avg Rate",
                     generateReportButton: "Generate Report",
@@ -969,6 +979,7 @@
                     calculateBillButton: "حساب الفاتورة",
                     billLabel: "الفاتورة",
                     consumptionLabel: "الاستهلاك",
+                    monthlyEquivalentLabel: "المعادل الشهري", // NEW
                     avgAmperesLabel: "متوسط الأمبير",
                     avgRateLabel: "متوسط السعر",
                     generateReportButton: "إنشاء تقرير",
@@ -1114,6 +1125,7 @@
                     calculateBillButton: "ژماردنی بیل",
                     billLabel: "بیل",
                     consumptionLabel: "بەکارهێنان",
+                    monthlyEquivalentLabel: "هاوتای مانگانە", // NEW
                     avgAmperesLabel: "تێکڕای ئەمپێر",
                     avgRateLabel: "تێکڕای نرخ",
                     generateReportButton: "دروستکردنی ڕاپۆرت",
@@ -1358,6 +1370,7 @@
             const daysInput = document.getElementById('daysInput');
 
             const meterKwhElem = document.getElementById('meterKwh');
+            const meterMonthlyEquivalentElem = document.getElementById('meterMonthlyEquivalent'); // NEW
             const meterAmperesElem = document.getElementById('meterAmperes');
             const meterBillElem = document.getElementById('meterBill');
             const meterAvgRateElem = document.getElementById('meterAvgRate');
@@ -1441,16 +1454,16 @@
                     const options = {
                         minimumFractionDigits: decimalPlaces,
                         maximumFractionDigits: decimalPlaces,
-                        useGrouping: true // Enable grouping (thousands separators)
+                        useGrouping: false // Disable thousands separators (commas)
                     };
 
                     if (isCurrency) {
-                        // For currency, we want no decimals, and grouping
-                        return Math.round(num).toLocaleString(locale, { useGrouping: true, minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                        // For currency, we want no decimals, and no grouping
+                        return Math.round(num).toLocaleString(locale, { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 0 });
                     }
                     if (removeTrailingZeroDecimal && num === parseInt(num)) {
-                        // For integers that should be displayed without decimals, and with grouping
-                        return parseInt(num).toLocaleString(locale, { useGrouping: true, minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                        // For integers that should be displayed without decimals, and no grouping
+                        return parseInt(num).toLocaleString(locale, { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 0 });
                     }
                     return num.toLocaleString(locale, options);
                 } catch (e) {
@@ -1696,16 +1709,21 @@
                 const totalBill = calculateCostForCategory(consumption, category);
                 const avgAmperes = kwhToAmperes(consumption, daysVal);
                 const avgRate = consumption > 0 ? totalBill / consumption : 0;
+                
+                // NEW: Monthly equivalent calculation
+                const dailyAverage = consumption / daysVal;
+                const monthlyEquivalent = dailyAverage * 30;
 
                 // Update display with all values
                 const lang = currentLang;
                 meterBillElem.textContent = `${formatNumber(totalBill, 0, true)} ${translations[lang].unitIQD}`;
                 meterKwhElem.textContent = `${formatNumber(consumption, 2)} ${translations[lang].unitKWH}`;
+                meterMonthlyEquivalentElem.textContent = `${formatNumber(monthlyEquivalent, 2)} ${translations[lang].unitKWH}`;
                 meterAmperesElem.textContent = `${formatNumber(avgAmperes, 2)} ${translations[lang].unitA}`;
                 meterAvgRateElem.textContent = `${formatNumber(avgRate, 2)} ${translations[lang].iqdPerKwh}`;
 
                 // Apply flashing animation
-                [meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem].forEach(elem => {
+                [meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem, meterMonthlyEquivalentElem].forEach(elem => {
                     elem.classList.remove('flash-animation');
                     void elem.offsetWidth;
                     elem.classList.add('flash-animation');
@@ -1910,6 +1928,8 @@
                 });
 
                 row.addEventListener('click', () => handleTableRowClick(row, Array.from(deviceTableBody.children).indexOf(row)));
+
+                if (!data.on) row.classList.add('inactive'); 
             };
 
             const handleTableRowClick = (row, index) => {
@@ -1984,6 +2004,9 @@
                     bill = calculateCostForCategory(kwh, category);
                     amperes = kwhToAmperes(kwh, daysVal);
                     avgRate = kwh > 0 ? bill / kwh : 0;
+                    // NEW: Monthly equivalent calculation
+                    const dailyAverage = kwh / daysVal;
+                    const monthlyEquivalent = dailyAverage * 30;
 
                     reportHtml += `<div class="report-section-title">${translations[lang].meterCalculationSummary}</div>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].category}:</span> <span class="report-item-value">${translations[lang][category.toLowerCase() + 'Option'] || category}</span></p>`;
@@ -1992,6 +2015,7 @@
                     reportHtml += `<p><span class="report-item-label">${translations[lang].days}:</span> <span class="report-item-value">${formatNumber(daysVal, 0, false, true)}</span></p>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].billLabel}:</span> <span class="report-item-value">${formatNumber(bill, 0, true)} ${translations[lang].unitIQD}</span></p>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].consumptionLabel}:</span> <span class="report-item-value">${formatNumber(kwh, 2)} ${translations[lang].unitKWH}</span></p>`;
+                    reportHtml += `<p><span class="report-item-label">${translations[lang].monthlyEquivalentLabel}:</span> <span class="report-item-value">${formatNumber(monthlyEquivalent, 2)} ${translations[lang].unitKWH}</span></p>`; // NEW
                     reportHtml += `<p><span class="report-item-label">${translations[lang].avgAmperesLabel}:</span> <span class="report-item-value">${formatNumber(amperes, 2)} ${translations[lang].unitA}</span></p>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].avgRateLabel}:</span> <span class="report-item-value">${formatNumber(avgRate, 2)} ${translations[lang].iqdPerKwh}</span></p>`;
                 }
