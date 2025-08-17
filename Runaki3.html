@@ -51,8 +51,8 @@
             /* Dynamic colors for result displays */
             --manual-result-color: #fef08a;
             --manual-highlight-color: #fbbf24;
-            --meter-result-color: #bbf7d0;
-            --meter-highlight-color: #86efac;
+            --meter-result-color: #d9f99d;  /* Changed to light green */
+            --meter-highlight-color: #a3e635; /* Changed to bright green */
             --device-result-color: #a7f3d0;
             --device-highlight-color: #5eead4;
             --optimization-result-color: #bfdbfe;
@@ -70,6 +70,7 @@
             height: 100%;
             width: 100%;
             overflow-x: hidden;
+            font-size: 18px; /* Increased base font size */
         }
 
         body {
@@ -90,7 +91,6 @@
         body.rtl {
             direction: rtl;
         }
-        body.rtl h1,
         body.rtl h2,
         body.rtl .section-card,
         body.rtl footer {
@@ -107,13 +107,14 @@
             left: 1rem;
         }
         
-        /* Language selector styling */
+        /* Language selector styling - Fixed position */
         .lang-btn {
             transition: background-color 0.2s, border-color 0.2s;
             border: 2px solid transparent;
             width: 3rem;
             height: 3rem;
             font-weight: bold;
+            font-size: 1.2rem; /* Larger font for buttons */
         }
         .lang-btn.active {
             border-color: var(--primary-blue);
@@ -125,20 +126,36 @@
             color: var(--text-medium-light);
         }
 
+        /* Language selector container - fixed position */
+        #languageSelectorTop {
+            position: fixed;
+            top: 0.5rem;
+            right: 0.5rem;
+            z-index: 100;
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background-color: rgba(45, 55, 72, 0.8);
+            border-radius: 0.5rem;
+            backdrop-filter: blur(4px);
+        }
+
         h1 {
             color: white;
             font-weight: 800;
             margin: 0.5rem 0;
             text-align: center;
-            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            font-size: clamp(1.8rem, 6vw, 2.8rem); /* Larger font for title */
             padding: 0 0.5rem;
+            margin-top: 3.5rem; /* Added space for fixed language buttons */
         }
 
         h2 {
             color: var(--text-light);
             font-weight: 700;
             margin-bottom: 0.75rem;
-            font-size: clamp(1.2rem, 4vw, 1.6rem);
+            font-size: clamp(1.4rem, 5vw, 1.8rem); /* Larger font for headings */
+            text-align: center; /* Center headings */
         }
 
         .main-container {
@@ -169,13 +186,14 @@
             align-items: center;
             gap: 0.5rem;
             margin-bottom: 1rem;
+            justify-content: center; /* Center inputs */
         }
 
         label {
             font-weight: 600;
             color: var(--text-medium-light);
             flex-shrink: 0;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(1rem, 3vw, 1.2rem); /* Larger labels */
         }
 
         input[type="text"],
@@ -184,7 +202,7 @@
             padding: 0.5rem;
             border: 1px solid var(--input-dark-border);
             border-radius: 0.5rem;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(1rem, 3vw, 1.2rem); /* Larger inputs */
             text-align: center;
             background-color: var(--input-dark-bg);
             color: var(--text-light);
@@ -207,7 +225,7 @@
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
             border: none;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(1rem, 3vw, 1.2rem); /* Larger buttons */
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
@@ -238,9 +256,9 @@
 
         .result-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); /* Wider for larger text */
             gap: 0.5rem;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(1rem, 3vw, 1.2rem); /* Larger result text */
             margin-top: 0.5rem;
             width: 100%;
         }
@@ -258,13 +276,13 @@
             color: var(--text-medium-light);
             margin-bottom: 0.2rem;
             font-weight: 500;
-            font-size: clamp(0.7rem, 3vw, 0.9rem);
+            font-size: clamp(0.8rem, 3vw, 1rem);
         }
 
         .result-value {
             font-weight: 800;
             color: var(--current-result-color); 
-            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            font-size: clamp(1.1rem, 4vw, 1.4rem); /* Larger result values */
             transition: color 0.2s ease-in-out;
         }
 
@@ -316,7 +334,7 @@
             padding: 0.5rem;
             border-bottom: 1px solid var(--input-dark-border);
             text-align: center;
-            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem); /* Larger table text */
         }
 
         .device-table th {
@@ -344,14 +362,14 @@
             border: 1px solid var(--input-dark-border);
             border-radius: 0.3rem;
             text-align: center;
-            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem); /* Larger table inputs */
             background-color: var(--input-dark-bg);
             color: var(--text-light);
         }
 
         .device-table input[type="checkbox"] {
-            width: 1rem;
-            height: 1rem;
+            width: 1.2rem;
+            height: 1.2rem;
             cursor: pointer;
             border-radius: 0.2rem;
             accent-color: var(--primary-blue-darker);
@@ -437,8 +455,7 @@
             border-radius: 0.5rem;
             overflow-x: auto;
             font-family: 'Cascadia Code', 'Fira Code', monospace;
-            font-size: 0.8rem;
-            color: #a0aec0;
+            font-size: 0.9rem; /* Larger code text */
         }
         
         /* Footer */
@@ -451,7 +468,7 @@
             align-items: center;
             gap: 0.25rem;
             padding: 0.5rem;
-            font-size: clamp(0.7rem, 3vw, 0.9rem);
+            font-size: clamp(0.8rem, 3vw, 1rem); /* Larger footer text */
         }
 
         /* Message Box Styling */
@@ -468,7 +485,7 @@
             transition: opacity 0.3s ease-out, transform 0.3s ease-out;
             color: white;
             max-width: 90%;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(0.9rem, 3vw, 1.1rem); /* Larger message text */
         }
 
         #appMessage.show {
@@ -482,7 +499,7 @@
 
         /* Report Modal Specific Styles */
         .report-section-title {
-            font-size: 1.2rem;
+            font-size: 1.3rem; /* Larger report title */
             font-weight: 700;
             color: var(--primary-blue-darker);
             margin-top: 1rem;
@@ -495,18 +512,18 @@
             font-weight: 600;
             color: var(--text-medium-light);
             margin-right: 0.25rem;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(1rem, 3vw, 1.2rem); /* Larger report text */
         }
 
         .report-item-value {
             font-weight: 700;
             color: var(--text-light);
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(1rem, 3vw, 1.2rem); /* Larger report values */
         }
 
         .report-breakdown-item {
             margin-left: 0.5rem;
-            font-size: clamp(0.7rem, 3vw, 0.9rem);
+            font-size: clamp(0.8rem, 3vw, 1rem); /* Larger breakdown text */
             color: var(--text-medium-light);
         }
 
@@ -517,7 +534,7 @@
             background-color: var(--input-dark-bg);
             border-radius: 0.5rem;
             overflow: hidden;
-            font-size: clamp(0.7rem, 3vw, 0.9rem);
+            font-size: clamp(0.8rem, 3vw, 1rem); /* Larger table text */
         }
 
         .report-table th, .report-table td {
@@ -587,13 +604,13 @@
 </head>
 <body>
 
-    <h1 class="text-3xl lg:text-4xl" data-lang-key="mainTitle">Runaki Bill Assistant</h1>
-
-    <div id="languageSelectorTop" class="mb-4 flex justify-center gap-2">
+    <div id="languageSelectorTop" class="mb-4 flex gap-2">
         <button id="lang-en" class="lang-btn">EN</button>
         <button id="lang-ar" class="lang-btn">AR</button>
         <button id="lang-ku" class="lang-btn">KU</button>
     </div>
+
+    <h1 class="text-3xl lg:text-4xl" data-lang-key="mainTitle">Runaki Bill Assistant</h1>
 
     <div class="main-container">
         <!-- Main content now in a single column -->
@@ -1402,24 +1419,35 @@
                     const num = parseFloat(value);
                     if (isNaN(num)) return String(value);
                     const lang = currentLang;
-                    // Use 'ar-IQ' for Arabic, 'en-US' for English and Kurdish (as Kurdish typically uses Western numerals for numbers)
-                    const locale = lang === 'ar' ? 'ar-IQ' : 'en-US'; 
-
-                    const options = {
-                        minimumFractionDigits: decimalPlaces,
-                        maximumFractionDigits: decimalPlaces,
-                        useGrouping: false // Disable thousands separators (commas)
-                    };
-
+                    
+                    // Format number with locale-specific formatting
+                    let formatted;
                     if (isCurrency) {
-                        // For currency, we want no decimals, and no grouping
-                        return Math.round(num).toLocaleString(locale, { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                        formatted = Math.round(num).toLocaleString(lang === 'ar' ? 'ar-IQ' : 'en-US', { 
+                            useGrouping: false, 
+                            minimumFractionDigits: 0, 
+                            maximumFractionDigits: 0 
+                        });
+                    } else if (removeTrailingZeroDecimal && num === parseInt(num)) {
+                        formatted = parseInt(num).toLocaleString(lang === 'ar' ? 'ar-IQ' : 'en-US', { 
+                            useGrouping: false, 
+                            minimumFractionDigits: 0, 
+                            maximumFractionDigits: 0 
+                        });
+                    } else {
+                        formatted = num.toLocaleString(lang === 'ar' ? 'ar-IQ' : 'en-US', {
+                            minimumFractionDigits: decimalPlaces,
+                            maximumFractionDigits: decimalPlaces,
+                            useGrouping: false
+                        });
                     }
-                    if (removeTrailingZeroDecimal && num === parseInt(num)) {
-                        // For integers that should be displayed without decimals, and no grouping
-                        return parseInt(num).toLocaleString(locale, { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                    
+                    // For Arabic/Kurdish, replace decimal point with comma
+                    if ((lang === 'ar' || lang === 'ku') && formatted.includes('.')) {
+                        formatted = formatted.replace('.', ',');
                     }
-                    return num.toLocaleString(locale, options);
+                    
+                    return formatted;
                 } catch (e) {
                     console.error("Error formatting number:", e);
                     return String(value);
@@ -2233,14 +2261,14 @@
                 const isVisible = deviceTableSection.style.display === 'block';
                 deviceTableSection.style.display = isVisible ? 'none' : 'block';
                 toggleTableButton.textContent = 
-                    isVisible ? translations[currentLang].showDeviceTable : translations[currentLang].hideDeviceTable;
+                    isVisible ? translations[currentLang].hideDeviceTable : translations[currentLang].showDeviceTable;
             });
 
             toggleBudgetOptimizationButton.addEventListener('click', () => {
                 const isVisible = budgetOptimizationSection.style.display === 'block';
                 budgetOptimizationSection.style.display = isVisible ? 'none' : 'block';
                 toggleBudgetOptimizationButton.textContent = 
-                    isVisible ? translations[currentLang].showBudgetOptimization : translations[currentLang].hideBudgetOptimization;
+                    isVisible ? translations[currentLang].hideBudgetOptimization : translations[currentLang].showBudgetOptimization;
             });
 
             const showTariffDetails = () => {
