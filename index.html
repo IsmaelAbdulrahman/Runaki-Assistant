@@ -16,11 +16,6 @@
     <!-- Chart.js CDN for plotting -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
     <style>
-        /* Reduced base font size for better mobile fit */
-        html {
-            font-size: 16px;
-        }
-        
         /* Define a custom color palette using CSS variables for consistency */
         :root {
             --primary-blue: #3b82f6;
@@ -56,8 +51,8 @@
             /* Dynamic colors for result displays */
             --manual-result-color: #fef08a;
             --manual-highlight-color: #fbbf24;
-            --meter-result-color: #bbf7d0;
-            --meter-highlight-color: #86efac;
+            --meter-result-color: #d9f99d;  /* Changed to light green */
+            --meter-highlight-color: #a3e635; /* Changed to bright green */
             --device-result-color: #a7f3d0;
             --device-highlight-color: #5eead4;
             --optimization-result-color: #bfdbfe;
@@ -75,6 +70,7 @@
             height: 100%;
             width: 100%;
             overflow-x: hidden;
+            font-size: 18px; /* Increased base font size */
         }
 
         body {
@@ -89,15 +85,12 @@
             touch-action: pan-x pan-y;
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
-            /* Reduced font size clamp */
-            font-size: clamp(0.85rem, 3.5vw, 1rem);
         }
 
         /* RTL specific styles */
         body.rtl {
             direction: rtl;
         }
-        body.rtl h1,
         body.rtl h2,
         body.rtl .section-card,
         body.rtl footer {
@@ -114,15 +107,14 @@
             left: 1rem;
         }
         
-        /* Language selector styling */
+        /* Language selector styling - Fixed position */
         .lang-btn {
             transition: background-color 0.2s, border-color 0.2s;
             border: 2px solid transparent;
-            width: 4rem; /* Increased width for language text */
+            width: 3rem;
             height: 3rem;
             font-weight: bold;
-            /* Reduced font size */
-            font-size: 1rem;
+            font-size: 1.2rem; /* Larger font for buttons */
         }
         .lang-btn.active {
             border-color: var(--primary-blue);
@@ -134,35 +126,46 @@
             color: var(--text-medium-light);
         }
 
+        /* Language selector container - fixed position */
+        #languageSelectorTop {
+            position: fixed;
+            top: 0.5rem;
+            right: 0.5rem;
+            z-index: 100;
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background-color: rgba(45, 55, 72, 0.8);
+            border-radius: 0.5rem;
+            backdrop-filter: blur(4px);
+        }
+
         h1 {
             color: white;
             font-weight: 800;
-            /* Reduced margin */
-            margin: 1rem 0;
+            margin: 0.5rem 0;
             text-align: center;
-            /* Reduced font size */
-            font-size: clamp(1.6rem, 6vw, 2.5rem);
-            padding: 0.5rem 0;
+            font-size: clamp(1.8rem, 6vw, 2.8rem); /* Larger font for title */
+            padding: 0 0.5rem;
+            margin-top: 3.5rem; /* Added space for fixed language buttons */
         }
 
         h2 {
             color: var(--text-light);
             font-weight: 700;
-            /* Reduced margin */
-            margin-bottom: 0.5rem;
-            /* Reduced font size */
-            font-size: clamp(1.2rem, 5vw, 1.6rem);
+            margin-bottom: 0.75rem;
+            font-size: clamp(1.4rem, 5vw, 1.8rem); /* Larger font for headings */
+            text-align: center; /* Center headings */
         }
 
         .main-container {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem; /* Reduced gap */
+            gap: 1rem;
             width: 100%;
             max-width: 100%;
             background-color: var(--card-dark);
-            /* Reduced padding */
-            padding: 0.75rem;
+            padding: 1rem;
             flex: 1;
             box-sizing: border-box;
         }
@@ -171,8 +174,7 @@
             background-color: var(--card-dark);
             border: 1px solid var(--input-dark-border);
             border-radius: 0.75rem;
-            /* Reduced padding */
-            padding: 0.75rem;
+            padding: 1rem;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
             width: 100%;
             box-sizing: border-box;
@@ -182,26 +184,25 @@
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 0.4rem; /* Reduced gap */
-            margin-bottom: 0.75rem; /* Reduced margin */
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            justify-content: center; /* Center inputs */
         }
 
         label {
             font-weight: 600;
             color: var(--text-medium-light);
             flex-shrink: 0;
-            /* Reduced font size */
-            font-size: clamp(0.85rem, 3.5vw, 1rem);
+            font-size: clamp(1rem, 3vw, 1.2rem); /* Larger labels */
         }
 
         input[type="text"],
         input[type="number"],
         select {
-            padding: 0.4rem; /* Reduced padding */
+            padding: 0.5rem;
             border: 1px solid var(--input-dark-border);
             border-radius: 0.5rem;
-            /* Reduced font size */
-            font-size: clamp(0.85rem, 3.5vw, 1rem);
+            font-size: clamp(1rem, 3vw, 1.2rem); /* Larger inputs */
             text-align: center;
             background-color: var(--input-dark-bg);
             color: var(--text-light);
@@ -221,11 +222,10 @@
 
         /* General button styling */
         button {
-            padding: 0.4rem 0.8rem; /* Reduced padding */
+            padding: 0.5rem 1rem;
             border-radius: 0.5rem;
             border: none;
-            /* Reduced font size */
-            font-size: clamp(0.85rem, 3.5vw, 1rem);
+            font-size: clamp(1rem, 3vw, 1.2rem); /* Larger buttons */
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
@@ -256,10 +256,9 @@
 
         .result-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); /* Wider items */
-            gap: 0.4rem; /* Reduced gap */
-            /* Reduced font size */
-            font-size: clamp(0.85rem, 3.5vw, 1rem);
+            grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); /* Wider for larger text */
+            gap: 0.5rem;
+            font-size: clamp(1rem, 3vw, 1.2rem); /* Larger result text */
             margin-top: 0.5rem;
             width: 100%;
         }
@@ -268,7 +267,7 @@
             background-color: var(--result-item-dark-bg);
             border: 1px solid var(--result-item-dark-border);
             border-radius: 0.5rem;
-            padding: 0.6rem; /* Reduced padding */
+            padding: 0.75rem;
             text-align: center;
             box-shadow: inset 0 1px 4px rgba(0,0,0,0.07);
         }
@@ -277,23 +276,14 @@
             color: var(--text-medium-light);
             margin-bottom: 0.2rem;
             font-weight: 500;
-            /* Reduced font size */
-            font-size: clamp(0.75rem, 3.5vw, 0.9rem);
+            font-size: clamp(0.8rem, 3vw, 1rem);
         }
 
         .result-value {
             font-weight: 800;
             color: var(--current-result-color); 
-            /* Reduced font size */
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+            font-size: clamp(1.1rem, 4vw, 1.4rem); /* Larger result values */
             transition: color 0.2s ease-in-out;
-            /* Alignment adjustments */
-            text-align: left;
-        }
-        
-        /* RTL alignment for values */
-        body.rtl .result-value {
-            text-align: right;
         }
 
         /* Flashing animation for result values */
@@ -314,7 +304,7 @@
         /* Chart container styling */
         .chart-container {
             width: 100%;
-            height: 200px; /* Reduced height */
+            height: 250px;
             margin-top: 1rem; 
             background-color: var(--card-dark); 
             border-radius: 0.75rem;
@@ -325,7 +315,7 @@
         /* Device Table Styling */
         .device-table-container {
             overflow-x: auto;
-            max-height: 350px; /* Reduced max-height */
+            max-height: 400px;
             border: 1px solid var(--input-dark-border);
             border-radius: 0.75rem;
             margin-bottom: 1rem;
@@ -341,12 +331,10 @@
         }
 
         .device-table th, .device-table td {
-            /* Reduced padding */
-            padding: 0.4rem;
+            padding: 0.5rem;
             border-bottom: 1px solid var(--input-dark-border);
             text-align: center;
-            /* Reduced font size */
-            font-size: clamp(0.75rem, 3vw, 0.9rem);
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem); /* Larger table text */
         }
 
         .device-table th {
@@ -370,20 +358,18 @@
         .device-table input[type="text"],
         .device-table input[type="number"] {
             width: 100%;
-            /* Reduced padding */
-            padding: 0.25rem;
+            padding: 0.3rem;
             border: 1px solid var(--input-dark-border);
             border-radius: 0.3rem;
             text-align: center;
-            /* Reduced font size */
-            font-size: clamp(0.75rem, 3vw, 0.9rem);
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem); /* Larger table inputs */
             background-color: var(--input-dark-bg);
             color: var(--text-light);
         }
 
         .device-table input[type="checkbox"] {
-            width: 1.1rem; /* Slightly reduced */
-            height: 1.1rem; /* Slightly reduced */
+            width: 1.2rem;
+            height: 1.2rem;
             cursor: pointer;
             border-radius: 0.2rem;
             accent-color: var(--primary-blue-darker);
@@ -409,13 +395,6 @@
             .section-card {
                 padding: 0.75rem;
             }
-            
-            /* Adjust language buttons on small screens */
-            .lang-btn {
-                width: 3.5rem;
-                height: 2.5rem;
-                font-size: 0.9rem;
-            }
         }
 
         /* Custom Modal for Tariff Details */
@@ -437,8 +416,7 @@
 
         .modal-content {
             background-color: var(--card-dark);
-            /* Reduced padding */
-            padding: 0.75rem;
+            padding: 1rem;
             border-radius: 0.75rem;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
             max-width: 100%;
@@ -465,8 +443,7 @@
         }
 
         .modal-content h3 {
-            /* Reduced font size */
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary-blue-darker);
             margin-bottom: 0.75rem;
@@ -478,8 +455,7 @@
             border-radius: 0.5rem;
             overflow-x: auto;
             font-family: 'Cascadia Code', 'Fira Code', monospace;
-            font-size: 0.85rem; /* Reduced font size */
-            color: #a0aec0;
+            font-size: 0.9rem; /* Larger code text */
         }
         
         /* Footer */
@@ -492,8 +468,7 @@
             align-items: center;
             gap: 0.25rem;
             padding: 0.5rem;
-            /* Reduced font size */
-            font-size: clamp(0.75rem, 3.5vw, 0.9rem);
+            font-size: clamp(0.8rem, 3vw, 1rem); /* Larger footer text */
         }
 
         /* Message Box Styling */
@@ -501,7 +476,7 @@
             position: fixed;
             top: env(safe-area-inset-top);
             right: 0.5rem;
-            padding: 0.4rem 0.8rem; /* Reduced padding */
+            padding: 0.5rem 1rem;
             border-radius: 0.5rem;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             z-index: 1100;
@@ -510,8 +485,7 @@
             transition: opacity 0.3s ease-out, transform 0.3s ease-out;
             color: white;
             max-width: 90%;
-            /* Reduced font size */
-            font-size: clamp(0.85rem, 3.5vw, 1rem);
+            font-size: clamp(0.9rem, 3vw, 1.1rem); /* Larger message text */
         }
 
         #appMessage.show {
@@ -525,8 +499,7 @@
 
         /* Report Modal Specific Styles */
         .report-section-title {
-            /* Reduced font size */
-            font-size: 1.1rem;
+            font-size: 1.3rem; /* Larger report title */
             font-weight: 700;
             color: var(--primary-blue-darker);
             margin-top: 1rem;
@@ -539,21 +512,18 @@
             font-weight: 600;
             color: var(--text-medium-light);
             margin-right: 0.25rem;
-            /* Reduced font size */
-            font-size: clamp(0.85rem, 3.5vw, 1rem);
+            font-size: clamp(1rem, 3vw, 1.2rem); /* Larger report text */
         }
 
         .report-item-value {
             font-weight: 700;
             color: var(--text-light);
-            /* Reduced font size */
-            font-size: clamp(0.85rem, 3.5vw, 1rem);
+            font-size: clamp(1rem, 3vw, 1.2rem); /* Larger report values */
         }
 
         .report-breakdown-item {
             margin-left: 0.5rem;
-            /* Reduced font size */
-            font-size: clamp(0.75rem, 3.5vw, 0.9rem);
+            font-size: clamp(0.8rem, 3vw, 1rem); /* Larger breakdown text */
             color: var(--text-medium-light);
         }
 
@@ -564,12 +534,11 @@
             background-color: var(--input-dark-bg);
             border-radius: 0.5rem;
             overflow: hidden;
-            /* Reduced font size */
-            font-size: clamp(0.75rem, 3.5vw, 0.9rem);
+            font-size: clamp(0.8rem, 3vw, 1rem); /* Larger table text */
         }
 
         .report-table th, .report-table td {
-            padding: 0.4rem; /* Reduced padding */
+            padding: 0.5rem;
             border: 1px solid var(--input-dark-border);
             text-align: left;
             color: var(--text-light);
@@ -589,9 +558,9 @@
         .toggle-buttons-container {
             display: flex;
             flex-direction: column;
-            gap: 0.4rem; /* Reduced gap */
+            gap: 0.5rem;
             margin-top: 0.5rem;
-            padding: 0.4rem; /* Reduced padding */
+            padding: 0.5rem;
             border: 1px solid var(--input-dark-border);
             border-radius: 0.5rem;
             width: 100%;
@@ -615,27 +584,12 @@
             }
             
             .modal-content {
-                padding: 0.5rem;
+                padding: 0.75rem;
             }
             
             .lang-btn {
-                width: 3rem;
+                width: 2.5rem;
                 height: 2.5rem;
-                font-size: 0.9rem;
-            }
-            
-            /* Further reduce font sizes on very small screens */
-            h1 {
-                font-size: clamp(1.4rem, 6vw, 2rem);
-            }
-            
-            h2 {
-                font-size: clamp(1.1rem, 5vw, 1.4rem);
-            }
-            
-            /* Reduce chart height */
-            .chart-container {
-                height: 180px;
             }
         }
         
@@ -646,25 +600,17 @@
                 min-height: -webkit-fill-available;
             }
         }
-
-        /* NEW: Language selector positioning */
-        #languageSelectorTop {
-            position: relative;
-            margin: 0 auto 1rem auto; /* Reduced bottom margin */
-            width: fit-content;
-        }
     </style>
 </head>
 <body>
 
-    <h1 class="text-3xl lg:text-4xl" data-lang-key="mainTitle">Runaki Bill Assistant</h1>
-
-    <!-- UPDATED: Added mb-6 class for spacing -->
-    <div id="languageSelectorTop" class="mb-4 flex justify-center gap-2"> <!-- Reduced bottom margin -->
-        <button id="lang-en" class="lang-btn">En</button>
-        <button id="lang-ar" class="lang-btn">عربي</button>
-        <button id="lang-ku" class="lang-btn">کوردی</button>
+    <div id="languageSelectorTop" class="mb-4 flex gap-2">
+        <button id="lang-en" class="lang-btn">EN</button>
+        <button id="lang-ar" class="lang-btn">AR</button>
+        <button id="lang-ku" class="lang-btn">KU</button>
     </div>
+
+    <h1 class="text-3xl lg:text-4xl" data-lang-key="mainTitle">Runaki Bill Assistant</h1>
 
     <div class="main-container">
         <!-- Main content now in a single column -->
@@ -721,8 +667,7 @@
                     <label for="meterCurrReading" data-lang-key="currReadingLabel">Curr Reading:</label>
                     <input type="number" id="meterCurrReading" value="31910" class="w-24">
                     <label for="daysInput" data-lang-key="daysLabel">Days:</label>
-                    <!-- UPDATED: Added readonly attribute -->
-                    <input type="number" id="daysInput" value="30" min="1" max="365" class="w-16" readonly>
+                    <input type="number" id="daysInput" value="30" min="1" max="365" class="w-16">
                 </div>
                 <button id="calculateMeterButton" class="btn btn-action" data-lang-key="calculateBillButton">Calculate Bill</button>
                 <div class="result-grid" id="meterResultGrid">
@@ -733,10 +678,6 @@
                     <div class="result-item">
                         <div class="result-label" data-lang-key="consumptionLabel">Consumption</div>
                         <div class="result-value" id="meterKwh">0.00 kWh</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label" data-lang-key="monthlyEquivalentLabel">Monthly Equivalent</div>
-                        <div class="result-value" id="meterMonthlyEquivalent">0.00 kWh</div>
                     </div>
                     <div class="result-item">
                         <div class="result-label" data-lang-key="avgAmperesLabel">Avg Amperes</div>
@@ -759,29 +700,9 @@
                 <button id="showTariffDetailsButton" class="btn" data-lang-key="showTariffDetails">Show Tariff Details</button>
             </div>
 
-            <!-- 3. Budget Optimization -->
-            <div class="section-card" id="budgetOptimizationSection" style="display: none;">
-                <h2 class="text-xl" data-lang-key="budgetOptimizationTitle">3. Budget Optimization</h2>
-                <div class="input-group">
-                    <select id="optimizationTargetDropdown" class="p-2 border rounded-md">
-                        <option value="Target Cost" data-lang-key="targetCostOption">Target Cost</option>
-                        <option value="Target Amperes" data-lang-key="targetAmperesOption">Target Amperes</option>
-                        <option value="Target kWh" data-lang-key="targetKwhOption">Target kWh</option>
-                    </select>
-                    <input type="number" id="budgetLimitInput" value="100000" class="w-32">
-                </div>
-                <button id="optimizeBudgetButton" class="btn btn-action" data-lang-key="optimizeTargetButton">Optimize Target</button>
-                <div class="result-grid" id="budgetOptimizationResultGrid">
-                    <div class="result-item col-span-full">
-                        <div class="result-label" data-lang-key="optimizationResultLabel">Optimization Result</div>
-                        <div class="result-value" id="budgetResultLabel" data-lang-key="notOptimized">Not Optimized</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4. Device Consumption Table -->
+            <!-- 5. Device Consumption Table -->
             <div class="section-card flex-grow" id="deviceTableSection" style="display: none;">
-                <h2 class="text-xl" data-lang-key="deviceConsumptionTableTitle">4. Device Consumption Table</h2>
+                <h2 class="text-xl" data-lang-key="deviceConsumptionTableTitle">5. Device Consumption Table</h2>
                 <div class="device-table-container">
                     <table id="deviceTable" class="device-table">
                         <thead>
@@ -812,11 +733,32 @@
                 <button id="deviceReportButton" class="btn btn-action mt-4" data-lang-key="generateReportButton">Generate Report</button>
             </div>
 
+            <!-- 3. Budget Optimization -->
+            <div class="section-card" id="budgetOptimizationSection" style="display: none;">
+                <h2 class="text-xl" data-lang-key="budgetOptimizationTitle">3. Budget Optimization</h2>
+                <div class="input-group">
+                    <select id="optimizationTargetDropdown" class="p-2 border rounded-md">
+                        <option value="Target Cost" data-lang-key="targetCostOption">Target Cost</option>
+                        <option value="Target Amperes" data-lang-key="targetAmperesOption">Target Amperes</option>
+                        <option value="Target kWh" data-lang-key="targetKwhOption">Target kWh</option>
+                    </select>
+                    <input type="number" id="budgetLimitInput" value="100000" class="w-32">
+                </div>
+                <button id="optimizeBudgetButton" class="btn btn-action" data-lang-key="optimizeTargetButton">Optimize Target</button>
+                <div class="result-grid" id="budgetOptimizationResultGrid">
+                    <div class="result-item col-span-full">
+                        <div class="result-label" data-lang-key="optimizationResultLabel">Optimization Result</div>
+                        <div class="result-value" id="budgetResultLabel" data-lang-key="notOptimized">Not Optimized</div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <footer class="mt-4 text-center text-neutral-gray-medium text-sm">
-        <button id="aboutButton" class="btn" data-lang-key="aboutButton">About</button>
+        <p data-lang-key="footerText">Created by Dr. Ismael Abdulrahman</p>
+        <p class="text-sm">ismael.abdulrahman@epu.edu.iq</p>
     </footer>
 
     <!-- Custom Modal for Tariff Details -->
@@ -834,16 +776,6 @@
                 <canvas id="otherCategoriesTariffChart"></canvas>
             </div>
             <pre id="tariffDetailsModalContent"></pre>
-        </div>
-    </div>
-
-    <!-- About Modal -->
-    <div id="aboutModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <button class="modal-close-button" id="closeAboutModal">&times;</button>
-            <h3 data-lang-key="aboutModalTitle">About</h3>
-            <p data-lang-key="createdBy">Created by Dr. Ismael Abdulrahman</p>
-            <p class="text-sm">ismael.abdulrahman@epu.edu.iq</p>
         </div>
     </div>
 
@@ -881,7 +813,6 @@
                     calculateBillButton: "Calculate Bill",
                     billLabel: "Bill",
                     consumptionLabel: "Consumption",
-                    monthlyEquivalentLabel: "Monthly Equivalent", // NEW
                     avgAmperesLabel: "Avg Amperes",
                     avgRateLabel: "Avg Rate",
                     generateReportButton: "Generate Report",
@@ -898,7 +829,7 @@
                     showBudgetOptimization: "Show Budget Optimization",
                     hideBudgetOptimization: "Hide Budget Optimization",
                     showTariffDetails: "Show Tariff Details",
-                    deviceConsumptionTableTitle: "4. Device Consumption Table", // UPDATED
+                    deviceConsumptionTableTitle: "5. Device Consumption Table",
                     deviceHeader: "Device",
                     wattHeader: "Watt",
                     hoursHeader: "Hours",
@@ -913,16 +844,16 @@
                     saveDataCSVButton: "Save Data (CSV)",
                     loadDataCSVButton: "Load Data (CSV)",
                     clearAllButton: "Clear All",
-                    budgetOptimizationTitle: "3. Budget Optimization", // UPDATED
+                    budgetOptimizationTitle: "3. Budget Optimization",
                     targetCostOption: "Target Cost",
                     targetAmperesOption: "Target Amperes",
                     targetKwhOption: "Target kWh",
                     optimizeTargetButton: "Optimize Target",
                     optimizationResultLabel: "Optimization Result",
                     notOptimized: "Not Optimized",
-                    aboutButton: "About", // NEW
-                    aboutModalTitle: "About", // NEW
-                    createdBy: "Created by Dr. Ismael Abdulrahman", // NEW
+                    footerText: "Created by Dr. Ismael Abdulrahman",
+                    tariffDetailsModalTitle: "Electricity Tariff Details",
+                    reportModalTitle: "Report",
                     // Messages
                     enterValidNumeric: "Please enter a valid numeric value for consumption.",
                     currentReadingLessThanPrevious: "Current reading cannot be less than previous reading.",
@@ -1027,7 +958,6 @@
                     calculateBillButton: "حساب الفاتورة",
                     billLabel: "الفاتورة",
                     consumptionLabel: "الاستهلاك",
-                    monthlyEquivalentLabel: "المعادل الشهري", // NEW
                     avgAmperesLabel: "متوسط الأمبير",
                     avgRateLabel: "متوسط السعر",
                     generateReportButton: "إنشاء تقرير",
@@ -1044,7 +974,7 @@
                     showBudgetOptimization: "إظهار تحسين الميزانية",
                     hideBudgetOptimization: "إخفاء تحسين الميزانية",
                     showTariffDetails: "إظهار تفاصيل التعرفة",
-                    deviceConsumptionTableTitle: "4. جدول استهلاك الأجهزة", // UPDATED
+                    deviceConsumptionTableTitle: "5. جدول استهلاك الأجهزة",
                     deviceHeader: "الجهاز",
                     wattHeader: "واط",
                     hoursHeader: "الساعات",
@@ -1059,16 +989,16 @@
                     saveDataCSVButton: "حفظ البيانات (CSV)",
                     loadDataCSVButton: "تحميل البيانات (CSV)",
                     clearAllButton: "مسح الكل",
-                    budgetOptimizationTitle: "3. تحسين الميزانية", // UPDATED
+                    budgetOptimizationTitle: "3. تحسين الميزانية",
                     targetCostOption: "التكلفة المستهدفة",
                     targetAmperesOption: "الأمبير المستهدف",
                     targetKwhOption: "كيلوواط ساعة المستهدفة",
                     optimizeTargetButton: "تحسين الهدف",
                     optimizationResultLabel: "نتيجة التحسين",
                     notOptimized: "لم يتم التحسين",
-                    aboutButton: "حول", // NEW
-                    aboutModalTitle: "حول", // NEW
-                    createdBy: "تم الإنشاء بواسطة د. إسماعيل خورشيد عبدالرحمن", // NEW
+                    footerText: "تم الإنشاء بواسطة د. إسماعيل عبدالرحمن",
+                    tariffDetailsModalTitle: "تفاصيل تعرفة الكهرباء",
+                    reportModalTitle: "التقرير",
                     // Messages
                     enterValidNumeric: "الرجاء إدخال قيمة رقمية صالحة للاستهلاك.",
                     currentReadingLessThanPrevious: "لا يمكن أن تكون القراءة الحالية أقل من القراءة السابقة.",
@@ -1169,11 +1099,10 @@
                     inputLabel: "دانان:",
                     kwhOption: "کیلۆوات کاتژمێر",
                     avgAmperesOption: "تێکڕای ئەمپێر",
-                    givenBillOption: "بیلی دراو (دينار عراقي)",
+                    givenBillOption: "بیلی دراو (د.ع)",
                     calculateBillButton: "ژماردنی بیل",
                     billLabel: "بیل",
                     consumptionLabel: "بەکارهێنان",
-                    monthlyEquivalentLabel: "هاوتای مانگانە", // NEW
                     avgAmperesLabel: "تێکڕای ئەمپێر",
                     avgRateLabel: "تێکڕای نرخ",
                     generateReportButton: "دروستکردنی ڕاپۆرت",
@@ -1190,14 +1119,14 @@
                     showBudgetOptimization: "پیشاندانی باشترکردنی بودجە",
                     hideBudgetOptimization: "شاردنەوەی باشترکردنی بودجە",
                     showTariffDetails: "پیشاندانی وردەکارییەکانی تاریف",
-                    deviceConsumptionTableTitle: "4. خشتەی بەکارهێنانی ئامێر", // UPDATED
+                    deviceConsumptionTableTitle: "5. خشتەی بەکارهێنانی ئامێر",
                     deviceHeader: "ئامێر",
                     wattHeader: "وات",
                     hoursHeader: "کاتژمێر",
                     dayHeader: "ڕۆژ",
                     countHeader: "ژمارە",
                     kwhHeader: "کیلۆوات کاتژمێر",
-                    iqdHeader: "دينار عراقي",
+                    iqdHeader: "د.ع",
                     onHeader: "کارا",
                     fixedHeader: "جێگیر",
                     addRowButton: "زیادکردنی ڕیز",
@@ -1205,16 +1134,16 @@
                     saveDataCSVButton: "پاشەکەوتکردنی داتا (CSV)",
                     loadDataCSVButton: "بارکردنی داتا (CSV)",
                     clearAllButton: "پاککردنەوەی هەموو",
-                    budgetOptimizationTitle: "3. باشترکردنی بودجە", // UPDATED
+                    budgetOptimizationTitle: "3. باشترکردنی بودجە",
                     targetCostOption: "تێچووی ئامانج",
                     targetAmperesOption: "ئەمپێری ئامانج",
                     targetKwhOption: "کیلۆوات کاتژمێری ئامانج",
                     optimizeTargetButton: "باشترکردنی ئامانج",
                     optimizationResultLabel: "ئەنجامی باشترکردن",
                     notOptimized: "باشتر نەکراوە",
-                    aboutButton: "زیاتر", // NEW
-                    aboutModalTitle: "زیاتر", // NEW
-                    createdBy: "دروستکراوە لەلایەن د. إسماعیل خورشيد عبدالرحمن", // NEW
+                    footerText: "دروستکراوە لەلایەن د. ئیسماعیل عبدالرحمن",
+                    tariffDetailsModalTitle: "وردەکارییەکانی تاریفی کارەبا",
+                    reportModalTitle: "ڕاپۆرت",
                     // Messages
                     enterValidNumeric: "تکایە بەهایەکی ژمارەیی دروست بۆ بەکارهێنان بنووسە.",
                     currentReadingLessThanPrevious: "خوێندنەوەی ئێستا ناتوانێت کەمتر بێت لە خوێندنەوەی پێشوو.",
@@ -1226,10 +1155,10 @@
                     deviceDataSaved: "داتای ئامێر بە سەرکەوتوویی پاشەکەوت کرا بۆ CSV!",
                     deviceDataLoaded: "تم تحميل بيانات الجهاز من CSV بنجاح!",
                     errorLoadingData: "هەڵە لە بارکردنی داتا: {error}. تکایە دڵنیا بە لەوەی فایلی CSV دروستە.",
-                    selectRowToDelete: "الرجاء تحديد صف لحذفه.",
+                    selectRowToDelete: "تکایە ڕیزێک هەڵبژێرە بۆ سڕینەوە.",
                     allDeviceDataCleared: "هەموو داتای ئامێر پاککرایەوە و گەڕێنرایەوە بۆ باری بنەڕەتی.",
                     invalidTarget: "ئامانجی نادروست",
-                    withinTarget: "النتيجة: ضمن الهدف!",
+                    withinTarget: "ئەنجام: لەناو ئامانجدا!",
                     currentStatusWithinTarget: "دۆخی ئێستات لەناو ئامانجی دیاریکراودا پاشەکەوت کراوە!",
                     optimizationCompleted: "باشترکردن بە سەرکەوتوویی تەواو بوو!",
                     unreachable: "ئەنجام: ناتوانرێت پێی بگات",
@@ -1246,28 +1175,28 @@
                     daysPerMonth: "ڕۆژ/مانگ",
                     count: "ژمارە",
                     kwhPerMonth: "کیلۆوات کاتژمێر",
-                    iqdPerMonth: "دينار عراقي",
+                    iqdPerMonth: "د.ع",
                     onQuestion: "کارا؟",
                     fixedQuestion: "جێگیر؟",
                     category: "پۆلێن",
-                    previousReading: "القراءة السابقة",
-                    currentReading: "القراءة الحالية",
+                    previousReading: "خوێندنەوەی پێشوو",
+                    currentReading: "خوێندنەوەی ئێستا",
                     days: "ڕۆژەکان",
                     totalBill: "کۆی بیل",
                     totalConsumption: "کۆی بەکارهێنان",
                     averageAmperes: "تێکڕای ئەمپێر",
                     averageRate: "تێکڕای نرخ",
                     // Tariff details
-                    householdTariffRates: "نرخی تاریفی ماڵان (دينار عراقي/کیلۆوات کاتژمێر)",
-                    commercialTariffRates: "نرخی تاریفی بازرگانی (دينار عراقي/کیلۆوات کاتژمێر)",
-                    otherCategoriesTariffRates: "نرخی تاریفی پۆلێنەکانی تر (دينار عراقي/کیلۆوات کاتژمێر)",
-                    rate: "نرخ (دينار عراقي/کیلۆوات کاتژمێر)",
+                    householdTariffRates: "نرخی تاریفی ماڵان (د.ع/کیلۆوات کاتژمێر)",
+                    commercialTariffRates: "نرخی تاریفی بازرگانی (د.ع/کیلۆوات کاتژمێر)",
+                    otherCategoriesTariffRates: "نرخی تاریفی پۆلێنەکانی تر (د.ع/کیلۆوات کاتژمێر)",
+                    rate: "نرخ (د.ع/کیلۆوات کاتژمێر)",
                     consumptionTiers: "پلەکانی بەکارهێنان",
                     consumption: "بەکارهێنان",
-                    iqdPerKwh: "دينار عراقي/کیلۆوات کاتژمێر",
+                    iqdPerKwh: "د.ع/کیلۆوات کاتژمێر",
                     slab: "شریحه",
                     // Units
-                    unitIQD: "دينار عراقي",
+                    unitIQD: "د.ع",
                     unitKWH: "کیلۆوات کاتژمێر",
                     unitA: "ئەمپێر",
                     yes: "بەڵێ",
@@ -1418,7 +1347,6 @@
             const daysInput = document.getElementById('daysInput');
 
             const meterKwhElem = document.getElementById('meterKwh');
-            const meterMonthlyEquivalentElem = document.getElementById('meterMonthlyEquivalent'); // NEW
             const meterAmperesElem = document.getElementById('meterAmperes');
             const meterBillElem = document.getElementById('meterBill');
             const meterAvgRateElem = document.getElementById('meterAvgRate');
@@ -1475,11 +1403,6 @@
             const reportModalTitle = document.getElementById('reportModalTitle');
             const reportModalContent = document.getElementById('reportModalContent');
 
-            // About modal elements
-            const aboutModal = document.getElementById('aboutModal');
-            const closeAboutModal = document.getElementById('closeAboutModal');
-            const aboutButton = document.getElementById('aboutButton');
-
             // Message box element
             const appMessage = document.getElementById('appMessage');
 
@@ -1496,24 +1419,35 @@
                     const num = parseFloat(value);
                     if (isNaN(num)) return String(value);
                     const lang = currentLang;
-                    // UPDATED: Use 'ar-IQ' for both Arabic and Kurdish
-                    const locale = (lang === 'ar' || lang === 'ku') ? 'ar-IQ' : 'en-US'; 
-
-                    const options = {
-                        minimumFractionDigits: decimalPlaces,
-                        maximumFractionDigits: decimalPlaces,
-                        useGrouping: false // Disable thousands separators (commas)
-                    };
-
+                    
+                    // Format number with locale-specific formatting
+                    let formatted;
                     if (isCurrency) {
-                        // For currency, we want no decimals, and no grouping
-                        return Math.round(num).toLocaleString(locale, { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                        formatted = Math.round(num).toLocaleString(lang === 'ar' ? 'ar-IQ' : 'en-US', { 
+                            useGrouping: false, 
+                            minimumFractionDigits: 0, 
+                            maximumFractionDigits: 0 
+                        });
+                    } else if (removeTrailingZeroDecimal && num === parseInt(num)) {
+                        formatted = parseInt(num).toLocaleString(lang === 'ar' ? 'ar-IQ' : 'en-US', { 
+                            useGrouping: false, 
+                            minimumFractionDigits: 0, 
+                            maximumFractionDigits: 0 
+                        });
+                    } else {
+                        formatted = num.toLocaleString(lang === 'ar' ? 'ar-IQ' : 'en-US', {
+                            minimumFractionDigits: decimalPlaces,
+                            maximumFractionDigits: decimalPlaces,
+                            useGrouping: false
+                        });
                     }
-                    if (removeTrailingZeroDecimal && num === parseInt(num)) {
-                        // For integers that should be displayed without decimals, and no grouping
-                        return parseInt(num).toLocaleString(locale, { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                    
+                    // For Arabic/Kurdish, replace decimal point with comma
+                    if ((lang === 'ar' || lang === 'ku') && formatted.includes('.')) {
+                        formatted = formatted.replace('.', ',');
                     }
-                    return num.toLocaleString(locale, options);
+                    
+                    return formatted;
                 } catch (e) {
                     console.error("Error formatting number:", e);
                     return String(value);
@@ -1757,25 +1691,8 @@
                 const totalBill = calculateCostForCategory(consumption, category);
                 const avgAmperes = kwhToAmperes(consumption, daysVal);
                 const avgRate = consumption > 0 ? totalBill / consumption : 0;
-                
-                // NEW: Monthly equivalent calculation
-                const dailyAverage = consumption / daysVal;
-                const monthlyEquivalent = dailyAverage * 30;
 
-                // Update display with all values
-                const lang = currentLang;
-                meterBillElem.textContent = `${formatNumber(totalBill, 0, true)} ${translations[lang].unitIQD}`;
-                meterKwhElem.textContent = `${formatNumber(consumption, 2)} ${translations[lang].unitKWH}`;
-                meterMonthlyEquivalentElem.textContent = `${formatNumber(monthlyEquivalent, 2)} ${translations[lang].unitKWH}`;
-                meterAmperesElem.textContent = `${formatNumber(avgAmperes, 2)} ${translations[lang].unitA}`;
-                meterAvgRateElem.textContent = `${formatNumber(avgRate, 2)} ${translations[lang].iqdPerKwh}`;
-
-                // Apply flashing animation
-                [meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem, meterMonthlyEquivalentElem].forEach(elem => {
-                    elem.classList.remove('flash-animation');
-                    void elem.offsetWidth;
-                    elem.classList.add('flash-animation');
-                });
+                updateResultDisplay(consumption, avgAmperes, totalBill, avgRate, meterKwhElem, meterAmperesElem, meterBillElem, meterAvgRateElem, meterResultGrid, 'meter');
             };
 
             const calculateDeviceConsumption = () => {
@@ -2052,9 +1969,6 @@
                     bill = calculateCostForCategory(kwh, category);
                     amperes = kwhToAmperes(kwh, daysVal);
                     avgRate = kwh > 0 ? bill / kwh : 0;
-                    // NEW: Monthly equivalent calculation
-                    const dailyAverage = kwh / daysVal;
-                    const monthlyEquivalent = dailyAverage * 30;
 
                     reportHtml += `<div class="report-section-title">${translations[lang].meterCalculationSummary}</div>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].category}:</span> <span class="report-item-value">${translations[lang][category.toLowerCase() + 'Option'] || category}</span></p>`;
@@ -2063,7 +1977,6 @@
                     reportHtml += `<p><span class="report-item-label">${translations[lang].days}:</span> <span class="report-item-value">${formatNumber(daysVal, 0, false, true)}</span></p>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].billLabel}:</span> <span class="report-item-value">${formatNumber(bill, 0, true)} ${translations[lang].unitIQD}</span></p>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].consumptionLabel}:</span> <span class="report-item-value">${formatNumber(kwh, 2)} ${translations[lang].unitKWH}</span></p>`;
-                    reportHtml += `<p><span class="report-item-label">${translations[lang].monthlyEquivalentLabel}:</span> <span class="report-item-value">${formatNumber(monthlyEquivalent, 2)} ${translations[lang].unitKWH}</span></p>`; // NEW
                     reportHtml += `<p><span class="report-item-label">${translations[lang].avgAmperesLabel}:</span> <span class="report-item-value">${formatNumber(amperes, 2)} ${translations[lang].unitA}</span></p>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].avgRateLabel}:</span> <span class="report-item-value">${formatNumber(avgRate, 2)} ${translations[lang].iqdPerKwh}</span></p>`;
                 }
@@ -2121,7 +2034,7 @@
 
                 let reportHtml = `
                     <div class="report-section-title">${translations[lang].overallConsumptionSummary}</div>
-                    <p><span class="report-item-label">${translations[lang].category}:</span> <span class="report-item-value">${translations[lang][category.toLowerCase() + 'Option'] || category}</span></p>`; // UPDATED
+                    <p><span class="report-item-label">${translations[lang].category}:</span> <span class="report-item-value">${translations[lang][category.toLowerCase() + 'Option'] || category}</span></p>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].totalBill}:</span> <span class="report-item-value">${formatNumber(finalTotalBill, 0, true)} ${translations[lang].unitIQD}</span></p>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].totalConsumption}:</span> <span class="report-item-value">${formatNumber(totalKwh, 2)} ${translations[lang].unitKWH}</span></p>`;
                     reportHtml += `<p><span class="report-item-label">${translations[lang].averageAmperes}:</span> <span class="report-item-value">${formatNumber(finalAvgAmperes, 2)} ${translations[lang].unitA}</span></p>`;
@@ -2318,15 +2231,6 @@
             closeReportModal.addEventListener('click', () => {
                 reportModal.style.display = 'none';
             });
-            
-            // About modal
-            aboutButton.addEventListener('click', () => {
-                aboutModal.style.display = 'flex';
-            });
-            
-            closeAboutModal.addEventListener('click', () => {
-                aboutModal.style.display = 'none';
-            });
 
             // Close modals when clicking outside
             window.addEventListener('click', (e) => {
@@ -2335,9 +2239,6 @@
                 }
                 if (e.target === reportModal) {
                     reportModal.style.display = 'none';
-                }
-                if (e.target === aboutModal) {
-                    aboutModal.style.display = 'none';
                 }
             });
 
