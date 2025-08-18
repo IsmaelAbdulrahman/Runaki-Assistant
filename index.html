@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title data-lang-key="appTitle">Runaki Bill Assistant</title>
+    <title data-lang-key="appTitle">Iraqi Electricity Tariff Calculator</title>
     <!-- PWA Manifest Link -->
     <link rel="manifest" href="/Runaki-Assistant/manifest.json">
     <!-- Theme color for address bar -->
@@ -594,7 +594,7 @@
 </head>
 <body>
 
-    <h1 class="text-2xl lg:text-3xl" data-lang-key="mainTitle">Runaki Bill Assistant</h1>
+    <h1 class="text-2xl lg:text-3xl" data-lang-key="mainTitle">Iraqi Electricity Tariff Calculator</h1>
 
     <div class="main-container">
         <!-- Main content now in a single column -->
@@ -786,8 +786,8 @@
             // --- LANGUAGE TRANSLATION ---
             const translations = {
                 en: {
-                    appTitle: "Runaki Bill Assistant",
-                    mainTitle: "Runaki Bill Assistant",
+                    appTitle: "Iraqi Electricity Tariff Calculator",
+                    mainTitle: "Iraqi Electricity Tariff Calculator",
                     manualCalculationTitle: "1. Manual Calculation",
                     categoryLabel: "Category:",
                     householdOption: "Household",
@@ -931,8 +931,8 @@
                     }
                 },
                 ar: {
-                    appTitle: "مساعد فواتير روناكي",
-                    mainTitle: "مساعد فواتير روناكي",
+                    appTitle: "حاسبة تعرفة الكهرباء العراقية",
+                    mainTitle: "حاسبة تعرفة الكهرباء العراقية",
                     manualCalculationTitle: "1. الحساب اليدوي",
                     categoryLabel: "الفئة:",
                     householdOption: "منزلي",
@@ -1076,8 +1076,8 @@
                     }
                 },
                 ku: {
-                    appTitle: "یارمەتیدەری بیلی روناکی",
-                    mainTitle: "یارمەتیدەری بیلی روناکی",
+                    appTitle: "هه‌ژمێری نرخی کارەبای عێراقی",
+                    mainTitle: "هه‌ژمێری نرخی کارەبای عێراقی",
                     manualCalculationTitle: "1. ژماردنی دەستی",
                     categoryLabel: "پۆلێن:",
                     householdOption: "ماڵان",
@@ -1414,19 +1414,19 @@
                     // Format number with locale-specific formatting
                     let formatted;
                     if (isCurrency) {
-                        formatted = Math.round(num).toLocaleString(lang === 'ar' ? 'ar-IQ' : 'en-US', { 
+                        formatted = Math.round(num).toLocaleString(lang === 'ar' || lang === 'ku' ? 'ar-IQ' : 'en-US', { 
                             useGrouping: false, 
                             minimumFractionDigits: 0, 
                             maximumFractionDigits: 0 
                         });
                     } else if (removeTrailingZeroDecimal && num === parseInt(num)) {
-                        formatted = parseInt(num).toLocaleString(lang === 'ar' ? 'ar-IQ' : 'en-US', { 
+                        formatted = parseInt(num).toLocaleString(lang === 'ar' || lang === 'ku' ? 'ar-IQ' : 'en-US', { 
                             useGrouping: false, 
                             minimumFractionDigits: 0, 
                             maximumFractionDigits: 0 
                         });
                     } else {
-                        formatted = num.toLocaleString(lang === 'ar' ? 'ar-IQ' : 'en-US', {
+                        formatted = num.toLocaleString(lang === 'ar' || lang === 'ku' ? 'ar-IQ' : 'en-US', {
                             minimumFractionDigits: decimalPlaces,
                             maximumFractionDigits: decimalPlaces,
                             useGrouping: false
@@ -1504,7 +1504,7 @@
                 }, 3000); // Message disappears after 3 seconds
             };
 
-            // --- TARIFF CALCULATION LOGIC (IRAQI SYSTEM) ---
+            // --- IRAQI TARIFF CALCULATION LOGIC ---
             const getIraqiTariffDetails = (kWh, category) => {
                 const lang = currentLang;
                 let totalCost = 0;
@@ -1514,29 +1514,28 @@
                 let tiers, rates, slabNames;
 
                 if (category === 'Household') {
-                    // Updated household rates
-                    tiers = [400, 800, 1200, 1600];
-                    rates = [72, 108, 175, 265, 350];
-                    slabNames = ["0-400 kWh", "401-800 kWh", "801-1200 kWh", "1201-1600 kWh", "1601+ kWh"];
+                    // Iraqi household rates
+                    tiers = [1500, 3000, 4000];
+                    rates = [10, 35, 80, 120];
+                    slabNames = ["0-1500 kWh", "1501-3000 kWh", "3001-4000 kWh", "4001+ kWh"];
                 } else if (category === 'Commercial') {
-                    // Updated business rate (flat)
-                    tiers = [];
-                    rates = [185];
-                    slabNames = ["All consumption"];
+                    // Iraqi commercial rates
+                    tiers = [1000, 2000];
+                    rates = [60, 80, 120];
+                    slabNames = ["0-1000 kWh", "1001-2000 kWh", "2001+ kWh"];
                 } else {
                     // Handle other categories with flat rates
                     let rate = 0;
                     if (category === 'Agriculture') rate = 60;
-                    else if (category === 'Industrial') rate = 160;
-                    else if (category === 'Government') rate = 160;
-                    // Add Heavy Industry if needed (you may need to add it to your category dropdown)
+                    else if (category === 'Industrial') rate = 60;
+                    else if (category === 'Government') rate = 120;
 
                     totalCost = kWh * rate;
                     breakdown.push(`  - ${translations[lang].consumption}: ${formatNumber(kWh, 2)} ${translations[lang].unitKWH} @ ${formatNumber(rate, 2)} ${translations[lang].iqdPerKwh} = ${formatNumber(totalCost, 0, true)} ${translations[lang].unitIQD}`);
                     return { totalCost, breakdown: breakdown.join("\n") };
                 }
 
-                // Progressive calculation for tiered rates (household)
+                // Progressive calculation for tiered rates (household and commercial)
                 let previousSlabLimit = 0;
                 for (let i = 0; i < rates.length; i++) {
                     if (remainingKwh <= 0) break;
@@ -2110,7 +2109,7 @@
                 const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = 'devices_runaki.csv';
+                link.download = 'devices_electricity.csv';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -2275,13 +2274,13 @@
                 
                 if (category === 'Household') {
                     householdTariffChartContainer.style.display = 'block';
-                    const tiers = [400, 800, 1200, 1600];
-                    const rates = [72, 108, 175, 265, 350];
+                    const tiers = [1500, 3000, 4000];
+                    const rates = [10, 35, 80, 120];
                     
                     householdTariffChartInstance = new Chart(householdTariffChartCanvas, {
                         type: 'bar',
                         data: {
-                            labels: ['0-400', '401-800', '801-1200', '1201-1600', '1601+'],
+                            labels: ['0-1500', '1501-3000', '3001-4000', '4001+'],
                             datasets: [{
                                 label: translations[currentLang].iqdPerKwh,
                                 data: rates,
@@ -2289,8 +2288,7 @@
                                     '#3b82f6',
                                     '#22c55e',
                                     '#f97316',
-                                    '#8b5cf6',
-                                    '#ec4899'
+                                    '#8b5cf6'
                                 ]
                             }]
                         },
@@ -2339,16 +2337,21 @@
                     }
                 } else if (category === 'Commercial') {
                     commercialTariffChartContainer.style.display = 'block';
-                    const rate = 185;
+                    const tiers = [1000, 2000];
+                    const rates = [60, 80, 120];
                     
                     commercialTariffChartInstance = new Chart(commercialTariffChartCanvas, {
                         type: 'bar',
                         data: {
-                            labels: [translations[currentLang].commercialOption],
+                            labels: ['0-1000', '1001-2000', '2001+'],
                             datasets: [{
                                 label: translations[currentLang].iqdPerKwh,
-                                data: [rate],
-                                backgroundColor: '#22c55e'
+                                data: rates,
+                                backgroundColor: [
+                                    '#3b82f6',
+                                    '#22c55e',
+                                    '#f97316'
+                                ]
                             }]
                         },
                         options: {
@@ -2374,6 +2377,11 @@
                                     }
                                 },
                                 x: {
+                                    title: {
+                                        display: true,
+                                        text: translations[currentLang].consumptionTiers + ' (kWh)',
+                                        color: 'white'   // White axis title
+                                    },
                                     ticks: {
                                         color: 'white'   // White ticks
                                     }
@@ -2382,13 +2390,19 @@
                         }
                     });
                     
-                    tariffDetailsText = `${translations[currentLang].commercialTariffRates}\n  - ${rate} ${translations[currentLang].iqdPerKwh}`;
+                    tariffDetailsText = translations[currentLang].commercialTariffRates + '\n';
+                    for (let i = 0; i < rates.length; i++) {
+                        const slab = i < tiers.length ? 
+                            `${i === 0 ? 0 : tiers[i-1]+1}-${tiers[i]} kWh` : 
+                            `${tiers[tiers.length-1]+1}+ kWh`;
+                        tariffDetailsText += `  - ${slab}: ${rates[i]} ${translations[currentLang].iqdPerKwh}\n`;
+                    }
                 } else {
                     otherCategoriesTariffChartContainer.style.display = 'block';
                     let rate = 0;
                     if (category === 'Agriculture') rate = 60;
-                    else if (category === 'Industrial') rate = 160;
-                    else if (category === 'Government') rate = 160;
+                    else if (category === 'Industrial') rate = 60;
+                    else if (category === 'Government') rate = 120;
                     
                     otherCategoriesTariffChartInstance = new Chart(otherCategoriesTariffChartCanvas, {
                         type: 'bar',
@@ -2448,4 +2462,3 @@
     </script>
 </body>
 </html>
-
