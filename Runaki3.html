@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1414,23 +1415,48 @@
                     // Format number with locale-specific formatting
                     let formatted;
                     if (isCurrency) {
-                        formatted = Math.round(num).toLocaleString(lang === 'ar' ? 'ar-IQ' : 'en-US', { 
-                            useGrouping: false, 
-                            minimumFractionDigits: 0, 
-                            maximumFractionDigits: 0 
-                        });
+                        if (lang === 'ar' || lang === 'ku') {
+                            // Use Arabic locale for both Arabic and Kurdish to get Eastern Arabic numerals
+                            formatted = Math.round(num).toLocaleString('ar-IQ', { 
+                                useGrouping: false, 
+                                minimumFractionDigits: 0, 
+                                maximumFractionDigits: 0 
+                            });
+                        } else {
+                            formatted = Math.round(num).toLocaleString('en-US', { 
+                                useGrouping: false, 
+                                minimumFractionDigits: 0, 
+                                maximumFractionDigits: 0 
+                            });
+                        }
                     } else if (removeTrailingZeroDecimal && num === parseInt(num)) {
-                        formatted = parseInt(num).toLocaleString(lang === 'ar' ? 'ar-IQ' : 'en-US', { 
-                            useGrouping: false, 
-                            minimumFractionDigits: 0, 
-                            maximumFractionDigits: 0 
-                        });
+                        if (lang === 'ar' || lang === 'ku') {
+                            formatted = parseInt(num).toLocaleString('ar-IQ', { 
+                                useGrouping: false, 
+                                minimumFractionDigits: 0, 
+                                maximumFractionDigits: 0 
+                            });
+                        } else {
+                            formatted = parseInt(num).toLocaleString('en-US', { 
+                                useGrouping: false, 
+                                minimumFractionDigits: 0, 
+                                maximumFractionDigits: 0 
+                            });
+                        }
                     } else {
-                        formatted = num.toLocaleString(lang === 'ar' ? 'ar-IQ' : 'en-US', {
-                            minimumFractionDigits: decimalPlaces,
-                            maximumFractionDigits: decimalPlaces,
-                            useGrouping: false
-                        });
+                        if (lang === 'ar' || lang === 'ku') {
+                            formatted = num.toLocaleString('ar-IQ', {
+                                minimumFractionDigits: decimalPlaces,
+                                maximumFractionDigits: decimalPlaces,
+                                useGrouping: false
+                            });
+                        } else {
+                            formatted = num.toLocaleString('en-US', {
+                                minimumFractionDigits: decimalPlaces,
+                                maximumFractionDigits: decimalPlaces,
+                                useGrouping: false
+                            });
+                        }
                     }
                     
                     // For Arabic/Kurdish, replace decimal point with comma
