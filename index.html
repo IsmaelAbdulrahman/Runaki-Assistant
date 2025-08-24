@@ -13,12 +13,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
     <style>
         :root {
-            --primary-blue: #3b82f6;--secondary-green: #22c55e;--accent-orange: #f97316;--accent-purple: #8b5cf6;--neutral-gray-dark: #374151;--neutral-gray-medium: #6b7280;--neutral-gray-light: #e5e7eb;--background-light: #f9fafb;--card-background: #ffffff;--highlight-yellow: #facc15;--error-red: #ef4444;--button-light-gray: #e0e0e0;--button-hover-gray: #d1d1d1;--button-active-gray: #c0c0c0;--button-dark-text: #333f48;--background-dark: #1a202c;--card-dark: #2d3748;--text-light: #e2e8f0;--text-medium-light: #a0aec0;--input-dark-bg: #4a5568;--input-dark-border: #6b7280;--result-item-dark-bg: #3c4a5c;--result-item-dark-border: #5a6a7c;--primary-blue-darker: #2563eb;--highlight-yellow-dark: #fbbf24;--manual-result-color: #fef08a;--manual-highlight-color: #fbbf24;--meter-result-color: #d9f99d;--meter-highlight-color: #a3e635;--device-result-color: #a7f3d0;--device-highlight-color: #5eead4;--menu-section-color: #e6c200;--device-name-color: #4f46e5;--device-name-color-night: #818cf8;--action-button-text-day: #000000;--action-button-text-night: #22c55e;--action-button-text-hover-day: #333333;--action-button-text-hover-night: #16a34a;--action-button-text-active-day: #555555;--action-button-text-active-night: #15803d;
+            --primary-blue: #3b82f6;--secondary-green: #22c55e;--accent-orange: #f97316;--accent-purple: #8b5cf6;--neutral-gray-dark: #000000;--neutral-gray-medium: #6b7280;--neutral-gray-light: #e5e7eb;--background-light: #f9fafb;--card-background: #ffffff;--highlight-yellow: #facc15;--error-red: #ef4444;--button-light-gray: #e0e0e0;--button-hover-gray: #d1d1d1;--button-active-gray: #c0c0c0;--button-dark-text: #000000;--background-dark: #1a202c;--card-dark: #2d3748;--text-light: #e2e8f0;--text-medium-light: #a0aec0;--input-dark-bg: #4a5568;--input-dark-border: #6b7280;--result-item-dark-bg: #3c4a5c;--result-item-dark-border: #5a6a7c;--primary-blue-darker: #2563eb;--highlight-yellow-dark: #fbbf24;--manual-result-color: #fef08a;--manual-highlight-color: #fbbf24;--meter-result-color: #d9f99d;--meter-highlight-color: #a3e635;--device-result-color: #a7f3d0;--device-highlight-color: #5eead4;--menu-section-color: #e6c200;--device-name-color: #4f46e5;--device-name-color-night: #818cf8;--action-button-text-day: #000000;--action-button-text-night: #22c55e;--action-button-text-hover-day: #333333;--action-button-text-hover-night: #16a34a;--action-button-text-active-day: #555555;--action-button-text-active-night: #15803d;
         }
 
         * {box-sizing: border-box;margin: 0;padding: 0;}
         html, body {height: 100%;width: 100%;overflow-x: hidden;font-size: 18px;}
-        body {font-family: 'Inter', sans-serif;background-color: var(--background-light);margin: 0;padding: 0;color: var(--neutral-gray-dark);display: flex;flex-direction: column;min-height: 100vh;touch-action: pan-x pan-y;padding-top: env(safe-area-inset-top);padding-bottom: env(safe-area-inset-bottom);transition: background-color 0.3s, color 0.3s;}
+        body {font-family: 'Inter', sans-serif;background-color: var(--background-light);margin: 0;padding: 0;color: var(--neutral-gray-dark);display: flex;flex-direction: column;min-height: 100vh;touch-action: pan-x pan-y;padding-top: env(safe-area-inset-top);padding-bottom: env(safe-area-inset-bottom);transition: background-color 0.3s, color 0.3s;overscroll-behavior: none;}
         body.night-mode {background-color: var(--background-dark);color: var(--text-light);}
         .header-bar {position: relative;display: flex;justify-content: space-between;align-items: center;padding: 10px;width: 100%;z-index: 40;}
         .main-title {color: var(--highlight-yellow);font-weight: normal;font-size: clamp(1.4rem, 5.5vw, 2.4rem);text-align: center;flex-grow: 1;transition: color 0.3s;}
@@ -56,7 +56,7 @@
         input[type="text"]:focus, input[type="number"]:focus, select:focus {border-color: var(--primary-blue);box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);outline: none;}
         button {padding: 0.5rem 1rem;border-radius: 0.5rem;border: none;font-size: clamp(1rem, 3vw, 1.2rem);font-weight: 700;cursor: pointer;transition: all 0.2s ease-in-out;box-shadow: 0 2px 4px rgba(0,0,0,0.1);white-space: nowrap;color: var(--button-dark-text);margin: 0.25rem;background-color: var(--button-light-gray);width: 100%;height: 42px;}
         body.night-mode button {background-color: var(--input-dark-bg);color: var(--text-light);}
-        button.btn-action {color: var(--highlight-yellow);}
+        button.btn-action {color: var(--button-dark-text);}
         body.night-mode button.btn-action {color: var(--highlight-yellow-dark);}
         button.device-action {background-color: var(--button-light-gray);color: var(--action-button-text-day);font-weight: 600;}
         body.night-mode button.device-action {background-color: var(--input-dark-bg);color: var(--action-button-text-night);}
@@ -139,7 +139,7 @@
         .tariff-tier:last-child {border-bottom: none;}
         .tier-range {font-weight: 600;color: var(--neutral-gray-dark);}
         body.night-mode .tier-range {color: var(--text-light);}
-        .tier-price {font-weight: 700;color: var(--accent-orange);font-size: 1.1rem;}
+        .tier-price {font-weight: normal;color: var(--secondary-green);font-size: 1.1rem;}
         .disclaimer {margin-top: 1.5rem;padding: 1rem;background-color: rgba(59, 130, 246, 0.1);border-radius: 0.5rem;border-left: 3px solid var(--primary-blue);font-size: clamp(0.9rem, 2.5vw, 1rem);color: var(--neutral-gray-medium);text-align: left;}
         body.night-mode .disclaimer {background-color: rgba(59, 130, 246, 0.2);color: var(--text-medium-light);}
         @media (max-width: 480px) {
@@ -989,7 +989,14 @@
             updateDeviceTotals();
             
             domElements.addRowButton.addEventListener('click', () => {
-                domElements.deviceTableBody.appendChild(createDeviceRow());
+                const newRow = createDeviceRow();
+                const totalsRow = domElements.deviceTableBody.querySelector('.totals-row');
+                
+                if (totalsRow) {
+                    domElements.deviceTableBody.insertBefore(newRow, totalsRow);
+                } else {
+                    domElements.deviceTableBody.appendChild(newRow);
+                }
                 updateDeviceTotals();
             });
             
@@ -1166,6 +1173,37 @@
             
             // Tariff charts
             function createTariffCharts() {
+                const isNightMode = domElements.body.classList.contains('night-mode');
+                
+                // Define colors for different modes
+                const householdColors = isNightMode ? [
+                    'rgba(59, 130, 246, 0.5)',
+                    'rgba(59, 130, 246, 0.6)',
+                    'rgba(59, 130, 246, 0.7)',
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(59, 130, 246, 0.9)'
+                ] : [
+                    'rgba(34, 197, 94, 0.7)',   // Green for day mode
+                    'rgba(34, 197, 94, 0.8)',
+                    'rgba(34, 197, 94, 0.9)',
+                    'rgba(34, 139, 94, 0.7)',
+                    'rgba(34, 139, 94, 0.8)'
+                ];
+                
+                const otherCategoriesColors = isNightMode ? [
+                    'rgba(139, 92, 246, 0.5)',
+                    'rgba(139, 92, 246, 0.6)',
+                    'rgba(139, 92, 246, 0.7)',
+                    'rgba(139, 92, 246, 0.8)',
+                    'rgba(139, 92, 246, 0.9)'
+                ] : [
+                    'rgba(99, 102, 241, 0.7)',   // Indigo for day mode
+                    'rgba(99, 102, 241, 0.8)',
+                    'rgba(99, 102, 241, 0.9)',
+                    'rgba(79, 70, 229, 0.7)',
+                    'rgba(79, 70, 229, 0.8)'
+                ];
+                
                 const householdCtx = document.getElementById('householdTariffChart').getContext('2d');
                 new Chart(householdCtx, {
                     type: 'bar',
@@ -1174,19 +1212,19 @@
                         datasets: [{
                             label: 'Tariff Rate (IQD/kWh)',
                             data: [72, 108, 175, 265, 350],
-                            backgroundColor: [
-                                'rgba(59, 130, 246, 0.5)',
-                                'rgba(59, 130, 246, 0.6)',
-                                'rgba(59, 130, 246, 0.7)',
-                                'rgba(59, 130, 246, 0.8)',
-                                'rgba(59, 130, 246, 0.9)'
-                            ],
-                            borderColor: [
+                            backgroundColor: householdColors,
+                            borderColor: isNightMode ? [
                                 'rgba(59, 130, 246, 1)',
                                 'rgba(59, 130, 246, 1)',
                                 'rgba(59, 130, 246, 1)',
                                 'rgba(59, 130, 246, 1)',
                                 'rgba(59, 130, 246, 1)'
+                            ] : [
+                                'rgba(34, 197, 94, 1)',
+                                'rgba(34, 197, 94, 1)',
+                                'rgba(34, 197, 94, 1)',
+                                'rgba(34, 139, 94, 1)',
+                                'rgba(34, 139, 94, 1)'
                             ],
                             borderWidth: 1
                         }]
@@ -1232,19 +1270,19 @@
                         datasets: [{
                             label: 'Tariff Rate (IQD/kWh)',
                             data: [185, 125, 160, 160, 60],
-                            backgroundColor: [
-                                'rgba(249, 115, 22, 0.5)',
-                                'rgba(249, 115, 22, 0.6)',
-                                'rgba(249, 115, 22, 0.7)',
-                                'rgba(249, 115, 22, 0.8)',
-                                'rgba(249, 115, 22, 0.9)'
-                            ],
-                            borderColor: [
-                                'rgba(249, 115, 22, 1)',
-                                'rgba(249, 115, 22, 1)',
-                                'rgba(249, 115, 22, 1)',
-                                'rgba(249, 115, 22, 1)',
-                                'rgba(249, 115, 22, 1)'
+                            backgroundColor: otherCategoriesColors,
+                            borderColor: isNightMode ? [
+                                'rgba(139, 92, 246, 1)',
+                                'rgba(139, 92, 246, 1)',
+                                'rgba(139, 92, 246, 1)',
+                                'rgba(139, 92, 246, 1)',
+                                'rgba(139, 92, 246, 1)'
+                            ] : [
+                                'rgba(99, 102, 241, 1)',
+                                'rgba(99, 102, 241, 1)',
+                                'rgba(99, 102, 241, 1)',
+                                'rgba(79, 70, 229, 1)',
+                                'rgba(79, 70, 229, 1)'
                             ],
                             borderWidth: 1
                         }]
