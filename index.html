@@ -6,985 +6,156 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Runaki Bill Assistant</title>
-    <!-- PWA Manifest Link -->
     <link rel="manifest" href="/Runaki-Assistant/manifest.json">
-    <!-- Theme color for address bar -->
     <meta name="theme-color" content="#3b82f6"/>
     
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN for plotting -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
     <style>
-        /* Define a custom color palette using CSS variables for consistency */
         :root {
-            --primary-blue: #3b82f6;
-            --secondary-green: #22c55e;
-            --accent-orange: #f97316;
-            --accent-purple: #8b5cf6;
-            --neutral-gray-dark: #374151;
-            --neutral-gray-medium: #6b7280;
-            --neutral-gray-light: #e5e7eb;
-            --background-light: #f9fafb;
-            --card-background: #ffffff;
-            --highlight-yellow: #facc15;
-            --error-red: #ef4444;
-
-            /* New light gray button colors */
-            --button-light-gray: #e0e0e0;
-            --button-hover-gray: #d1d1d1;
-            --button-active-gray: #c0c0c0;
-            --button-dark-text: #333f48;
-
-            /* Night mode specific colors */
-            --background-dark: #1a202c;
-            --card-dark: #2d3748;
-            --text-light: #e2e8f0;
-            --text-medium-light: #a0aec0;
-            --input-dark-bg: #4a5568;
-            --input-dark-border: #6b7280;
-            --result-item-dark-bg: #3c4a5c;
-            --result-item-dark-border: #5a6a7c;
-            --primary-blue-darker: #2563eb;
-            --highlight-yellow-dark: #fbbf24;
-            
-            /* Dynamic colors for result displays */
-            --manual-result-color: #fef08a;
-            --manual-highlight-color: #fbbf24;
-            --meter-result-color: #d9f99d;  /* Changed to light green */
-            --meter-highlight-color: #a3e635; /* Changed to bright green */
-            --device-result-color: #a7f3d0;
-            --device-highlight-color: #5eead4;
-            
-            /* Menu specific colors */
-            --menu-section-color: #e6c200; /* Slightly dark yellow for section names */
-            
-            /* Device name colors */
-            --device-name-color: #4f46e5; /* Indigo for day mode */
-            --device-name-color-night: #818cf8; /* Light indigo for night mode */
-            
-            /* Action button colors (for device table buttons) */
-            --action-button-text-day: #000000; /* Black text for day mode */
-            --action-button-text-night: #22c55e; /* Light green text for night mode */
-            --action-button-text-hover-day: #333333;
-            --action-button-text-hover-night: #16a34a;
-            --action-button-text-active-day: #555555;
-            --action-button-text-active-night: #15803d;
-        }
-
-        /* Custom styles for better aesthetics and responsiveness */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html, body {
-            height: 100%;
-            width: 100%;
-            overflow-x: hidden;
-            font-size: 18px; /* Increased base font size */
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--background-light);
-            margin: 0;
-            padding: 0;
-            color: var(--neutral-gray-dark);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            touch-action: pan-x pan-y;
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        body.night-mode {
-            background-color: var(--background-dark);
-            color: var(--text-light);
-        }
-
-        /* Header bar with title and controls */
-        .header-bar {
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            width: 100%;
-            z-index: 40;
-        }
-
-        /* Main title styling */
-        .main-title {
-            color: var(--highlight-yellow);
-            font-weight: normal; /* Changed from bold to normal */
-            font-size: clamp(1.4rem, 5.5vw, 2.4rem); /* Reduced by 2 points */
-            text-align: center;
-            flex-grow: 1;
-            transition: color 0.3s;
-        }
-
-        body.night-mode .main-title {
-            color: var(--highlight-yellow-dark);
-        }
-
-        /* Menu toggle button */
-        .menu-toggle {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            background-color: var(--button-light-gray);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        body.night-mode .menu-toggle {
-            background-color: var(--input-dark-bg);
-        }
-
-        .menu-toggle span {
-            display: block;
-            width: 20px;
-            height: 2px;
-            background-color: var(--button-dark-text);
-            margin: 2px 0;
-            transition: all 0.3s ease;
-        }
-
-        body.night-mode .menu-toggle span {
-            background-color: var(--text-light);
-        }
-
-        /* Night mode toggle button */
-        .night-mode-toggle {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            background-color: var(--button-light-gray);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        body.night-mode .night-mode-toggle {
-            background-color: var(--input-dark-bg);
-        }
-
-        .night-mode-toggle svg {
-            width: 20px;
-            height: 20px;
-            fill: var(--button-dark-text);
-            transition: fill 0.3s ease;
-        }
-
-        body.night-mode .night-mode-toggle svg {
-            fill: var(--highlight-yellow-dark);
-        }
-
-        /* Menu overlay */
-        .menu-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 75%; /* Changed from 66.666% */
-            max-width: 75%; /* Ensure it doesn't exceed 75% */
-            height: 100%;
-            background-color: var(--card-background);
-            display: none;
-            flex-direction: column;
-            z-index: 100;
-            padding: 1rem;
-            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s ease;
-        }
-
-        body.night-mode .menu-overlay {
-            background-color: var(--card-dark);
-        }
-
-        .menu-overlay.open {
-            display: flex;
-        }
-
-        .menu-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--neutral-gray-dark);
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--neutral-gray-light);
-            margin-bottom: 0.5rem;
-        }
-
-        body.night-mode .menu-title {
-            color: var(--text-light);
-            border-bottom-color: var(--input-dark-border);
-        }
-
-        .menu-items {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .menu-item {
-            font-size: 1.1rem; /* Increased by 1 point */
-            color: var(--neutral-gray-dark);
-            padding: 1rem; /* Increased from 0.8rem */
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            background-color: transparent;
-            border-bottom: 1px solid var(--neutral-gray-light); /* Added border */
-        }
-
-        body.night-mode .menu-item {
-            color: var(--highlight-yellow-dark);
-            border-bottom-color: var(--input-dark-border); /* Added for night mode */
-        }
-
-        .menu-item:last-child {
-            border-bottom: none; /* Remove border from last item */
-        }
-
-        .menu-item:hover {
-            background-color: var(--primary-blue);
-            color: white;
-        }
-
-        .menu-item.active {
-            background-color: var(--primary-blue);
-            color: white;
-        }
-
-        /* Main container styles */
-        .main-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            width: 100%;
-            max-width: 100%;
-            background-color: var(--card-background);
-            padding: 1rem;
-            flex: 1;
-            box-sizing: border-box;
-        }
-
-        body.night-mode .main-container {
-            background-color: var(--card-dark);
-        }
-
-        .section-card {
-            background-color: var(--card-background);
-            border: 1px solid var(--neutral-gray-light);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            width: 100%;
-            box-sizing: border-box;
-            display: none;
-        }
-
-        body.night-mode .section-card {
-            background-color: var(--card-dark);
-            border-color: var(--input-dark-border);
-        }
-
-        .section-card.active {
-            display: block;
-        }
-
-        h2 {
-            color: var(--neutral-gray-dark);
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            font-size: clamp(1.4rem, 5vw, 1.8rem);
-            text-align: center;
-        }
-
-        body.night-mode h2 {
-            color: var(--text-light);
-        }
-
-        .input-group {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            justify-content: center;
-        }
-
-        label {
-            font-weight: 600;
-            color: var(--neutral-gray-medium);
-            flex-shrink: 0;
-            font-size: clamp(1rem, 3vw, 1.2rem);
-        }
-
-        body.night-mode label {
-            color: var(--text-medium-light);
-        }
-
-        input[type="text"],
-        input[type="number"],
-        select {
-            padding: 0.5rem;
-            border: 1px solid var(--neutral-gray-light);
-            border-radius: 0.5rem;
-            font-size: clamp(1rem, 3vw, 1.2rem);
-            text-align: center;
-            background-color: var(--card-background);
-            color: var(--neutral-gray-dark);
-            flex-grow: 1;
-            min-width: 5rem;
-            transition: all 0.2s ease-in-out;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-            height: 42px; /* Added fixed height */
-        }
-
-        body.night-mode input[type="text"],
-        body.night-mode input[type="number"],
-        body.night-mode select {
-            background-color: var(--input-dark-bg);
-            color: var(--text-light);
-            border-color: var(--input-dark-border);
-        }
-
-        input[type="text"]:focus,
-        input[type="number"]:focus,
-        select:focus {
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
-            outline: none;
-        }
-
-        /* General button styling */
-        button {
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            border: none;
-            font-size: clamp(1rem, 3vw, 1.2rem);
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            white-space: nowrap;
-            color: var(--button-dark-text);
-            margin: 0.25rem;
-            background-color: var(--button-light-gray);
-            width: 100%;
-            height: 42px; /* Added to match input height */
-        }
-
-        body.night-mode button {
-            background-color: var(--input-dark-bg);
-            color: var(--text-light);
-        }
-
-        button.btn-action {
-            color: var(--highlight-yellow);
-        }
-
-        body.night-mode button.btn-action {
-            color: var(--highlight-yellow-dark);
-        }
-
-        /* Action buttons styling (for device table buttons) - TEXT ONLY */
-        button.device-action {
-            background-color: var(--button-light-gray);
-            color: var(--action-button-text-day);
-            font-weight: 600;
-        }
-
-        body.night-mode button.device-action {
-            background-color: var(--input-dark-bg);
-            color: var(--action-button-text-night);
-        }
-
-        button.device-action:hover {
-            background-color: var(--button-hover-gray);
-            color: var(--action-button-text-hover-day);
-        }
-
-        body.night-mode button.device-action:hover {
-            background-color: var(--neutral-gray-medium);
-            color: var(--action-button-text-hover-night);
-        }
-
-        button.device-action:active {
-            background-color: var(--button-active-gray);
-            color: var(--action-button-text-active-day);
-        }
-
-        body.night-mode button.device-action:active {
-            background-color: var(--neutral-gray-dark);
-            color: var(--action-button-text-active-night);
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            opacity: 0.95;
-            background-color: var(--button-hover-gray);
-        }
-
-        body.night-mode button:hover {
-            background-color: var(--neutral-gray-medium);
-        }
-
-        button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            background-color: var(--button-active-gray);
-        }
-
-        body.night-mode button:active {
-            background-color: var(--neutral-gray-dark);
-        }
-
-        .result-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
-            gap: 0.5rem;
-            font-size: clamp(1rem, 3vw, 1.2rem);
-            margin-top: 0.5rem;
-            width: 100%;
-        }
-
-        .result-item {
-            background-color: var(--card-background);
-            border: 1px solid var(--neutral-gray-light);
-            border-radius: 0.5rem;
-            padding: 0.75rem;
-            text-align: center;
-            box-shadow: inset 0 1px 4px rgba(0,0,0,0.07);
-        }
-
-        body.night-mode .result-item {
-            background-color: var(--result-item-dark-bg);
-            border-color: var(--result-item-dark-border);
-        }
-
-        .result-label {
-            color: var(--neutral-gray-medium);
-            margin-bottom: 0.2rem;
-            font-weight: 500;
-            font-size: clamp(0.8rem, 3vw, 1rem);
-        }
-
-        body.night-mode .result-label {
-            color: var(--text-medium-light);
-        }
-
-        .result-value {
-            font-weight: 800;
-            color: var(--neutral-gray-dark); /* Darker color for better visibility */
-            font-size: clamp(1.1rem, 4vw, 1.4rem);
-            transition: color 0.2s ease-in-out;
-        }
-
-        body.night-mode .result-value {
-            color: var(--text-light);
-        }
-
-        /* Flashing animation for result values */
-        @keyframes flashEffect {
-            0% { color: var(--current-result-color); }
-            16.6% { color: var(--current-highlight-color); }
-            33.3% { color: var(--current-result-color); }
-            50% { color: var(--current-highlight-color); }
-            66.6% { color: var(--current-result-color); }
-            83.3% { color: var(--current-highlight-color); }
-            100% { color: var(--current-result-color); }
-        }
-
-        .flash-animation {
-            animation: flashEffect 1.8s ease-out;
-        }
-
-        /* Chart container styling */
-        .chart-container {
-            width: 100%;
-            height: 250px;
-            margin-top: 1rem;
-            background-color: var(--card-background);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        body.night-mode .chart-container {
-            background-color: var(--card-dark);
-        }
-
-        /* Device Table Styling */
-        .device-table-container {
-            overflow-x: auto;
-            max-height: 400px;
-            border: 1px solid var(--neutral-gray-light);
-            border-radius: 0.75rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        body.night-mode .device-table-container {
-            border-color: var(--input-dark-border);
-        }
-
-        .device-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 600px;
-        }
-
-        .device-table th, .device-table td {
-            padding: 0.5rem;
-            border-bottom: 1px solid var(--neutral-gray-light);
-            text-align: center;
-            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-        }
-
-        body.night-mode .device-table th, 
-        body.night-mode .device-table td {
-            border-bottom-color: var(--input-dark-border);
-        }
-
-        .device-table th {
-            background-color: var(--button-light-gray);
-            font-weight: 700;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            color: var(--neutral-gray-dark);
-        }
-
-        body.night-mode .device-table th {
-            background-color: var(--input-dark-bg);
-            color: var(--text-light);
-        }
-
-        .device-table tbody tr:hover {
-            background-color: rgba(59, 130, 246, 0.1);
-        }
-
-        body.night-mode .device-table tbody tr:hover {
-            background-color: rgba(59, 130, 246, 0.2);
-        }
-
-        .device-table tbody tr.selected-row {
-            background-color: rgba(59, 130, 246, 0.2);
-            box-shadow: inset 0 0 0 3px var(--primary-blue);
-        }
-
-        .device-table input[type="text"],
-        .device-table input[type="number"] {
-            width: 100%;
-            padding: 0.3rem;
-            border: 1px solid var(--neutral-gray-light);
-            border-radius: 0.3rem;
-            text-align: center;
-            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-            background-color: var(--card-background);
-            color: var(--neutral-gray-dark);
-        }
-
-        body.night-mode .device-table input[type="text"],
-        body.night-mode .device-table input[type="number"] {
-            background-color: var(--input-dark-bg);
-            color: var(--text-light);
-            border-color: var(--input-dark-border);
-        }
-
-        .device-table input[type="checkbox"] {
-            width: 1.2rem;
-            height: 1.2rem;
-            cursor: pointer;
-            border-radius: 0.2rem;
-            accent-color: var(--primary-blue);
-        }
-
-        .device-table .output-cell {
-            background-color: rgba(59, 130, 246, 0.1);
-            font-weight: 600;
-            color: var(--primary-blue);
-        }
-
-        body.night-mode .device-table .output-cell {
-            background-color: rgba(59, 130, 246, 0.2);
-            color: var(--primary-blue-darker);
-        }
-
-        /* Device name styling */
-        .device-name {
-            color: var(--device-name-color);
-            font-weight: 600;
-        }
-
-        body.night-mode .device-name {
-            color: var(--device-name-color-night);
-        }
-
-        /* Custom Modal for Tariff Details */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 1rem;
-            box-sizing: border-box;
-            overflow-y: auto;
-        }
-
-        .modal-content {
-            background-color: var(--card-background);
-            padding: 1rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-            max-width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            color: var(--neutral-gray-dark);
-            position: relative;
-            width: 100%;
-        }
-
-        body.night-mode .modal-content {
-            background-color: var(--card-dark);
-            color: var(--text-light);
-        }
-
-        .modal-close-button {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--neutral-gray-dark);
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        body.night-mode .modal-close-button {
-            color: var(--text-light);
-        }
-
-        .modal-close-button:hover {
-            color: var(--primary-blue);
-        }
-
-        .modal-content h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-blue);
-            margin-bottom: 0.75rem;
-        }
-
-        body.night-mode .modal-content h3 {
-            color: var(--primary-blue-darker);
-        }
-
-        .modal-content pre {
-            background-color: var(--button-light-gray);
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-            font-family: 'Cascadia Code', 'Fira Code', monospace;
-            font-size: 0.9rem;
-        }
-
-        body.night-mode .modal-content pre {
-            background-color: var(--input-dark-bg);
-        }
-        
-        /* Footer */
-        footer {
-            color: var(--neutral-gray-medium);
-            margin-top: auto;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.5rem;
-            font-size: clamp(0.8rem, 3vw, 1rem);
-        }
-
-        body.night-mode footer {
-            color: var(--text-medium-light);
-        }
-
-        /* Message Box Styling */
-        #appMessage {
-            position: fixed;
-            top: env(safe-area-inset-top);
-            right: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            z-index: 1100;
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-            color: white;
-            max-width: 90%;
-            font-size: clamp(0.9rem, 3vw, 1.1rem);
-        }
-
-        #appMessage.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        #appMessage.info { background-color: var(--primary-blue); }
-        #appMessage.success { background-color: var(--secondary-green); }
-        #appMessage.error { background-color: var(--error-red); }
-
-        /* Report Modal Specific Styles */
-        .report-section-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--primary-blue);
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-            border-bottom: 2px solid var(--primary-blue);
-            padding-bottom: 0.25rem;
-        }
-
-        body.night-mode .report-section-title {
-            color: var(--primary-blue-darker);
-            border-bottom-color: var(--primary-blue-darker);
-        }
-
-        .report-item-label {
-            font-weight: 600;
-            color: var(--neutral-gray-medium);
-            margin-right: 0.25rem;
-            font-size: clamp(1rem, 3vw, 1.2rem);
-        }
-
-        body.night-mode .report-item-label {
-            color: var(--text-medium-light);
-        }
-
-        .report-item-value {
-            font-weight: 700;
-            color: var(--neutral-gray-dark);
-            font-size: clamp(1rem, 3vw, 1.2rem);
-        }
-
-        body.night-mode .report-item-value {
-            color: var(--text-light);
-        }
-
-        .report-breakdown-item {
-            margin-left: 0.5rem;
-            font-size: clamp(0.8rem, 3vw, 1rem);
-            color: var(--neutral-gray-medium);
-        }
-
-        body.night-mode .report-breakdown-item {
-            color: var(--text-medium-light);
-        }
-
-        .report-table-container {
-            overflow-x: auto;
-            margin-top: 0.5rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            max-width: 100%;
-        }
-
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: var(--button-light-gray);
-            border-radius: 0.5rem;
-            overflow: hidden;
-            font-size: clamp(0.7rem, 2vw, 0.85rem); /* Reduced font size */
-            table-layout: fixed; /* Fixed layout to control column widths */
-        }
-
-        body.night-mode .report-table {
-            background-color: var(--input-dark-bg);
-        }
-
-        .report-table th, .report-table td {
-            padding: 0.3rem; /* Reduced padding */
-            border: 1px solid var(--neutral-gray-light);
-            text-align: left;
-            color: var(--neutral-gray-dark);
-            white-space: normal; /* Allow text to wrap */
-            word-wrap: break-word; /* Break long words */
-            overflow: hidden; /* Hide overflow */
-            text-overflow: ellipsis; /* Add ellipsis for overflow text */
-        }
-
-        body.night-mode .report-table th, 
-        body.night-mode .report-table td {
-            border-color: var(--input-dark-border);
-            color: var(--text-light);
-        }
-
-        .report-table th {
-            background-color: var(--primary-blue);
-            color: white;
-            font-weight: 700;
-            position: sticky;
-            top: 0;
-            white-space: normal; /* Allow header text to wrap */
-            word-wrap: break-word; /* Break long words in headers */
-            padding: 0.4rem; /* Slightly more padding for headers */
-        }
-
-        .report-table tbody tr:nth-child(even) {
-            background-color: rgba(59, 130, 246, 0.1);
-        }
-
-        body.night-mode .report-table tbody tr:nth-child(even) {
-            background-color: rgba(59, 130, 246, 0.2);
-        }
-        
-        /* Tariff Card Styles */
-        .tariff-card {
-            background-color: var(--card-background);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid var(--primary-blue);
-        }
-
-        body.night-mode .tariff-card {
-            background-color: var(--card-dark);
-        }
-
-        .tariff-card h4 {
-            color: var(--primary-blue);
-            font-size: 1.2rem;
-            margin-bottom: 0.75rem;
-            display: flex;
-            align-items: center;
-        }
-
-        body.night-mode .tariff-card h4 {
-            color: var(--primary-blue-darker);
-        }
-
-        .tariff-icon {
-            width: 24px;
-            height: 24px;
-            margin-right: 0.5rem;
-            fill: var(--primary-blue);
-        }
-
-        body.night-mode .tariff-icon {
-            fill: var(--primary-blue-darker);
-        }
-
-        .tariff-tier {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px dashed var(--neutral-gray-light);
-        }
-
-        .tariff-tier:last-child {
-            border-bottom: none;
-        }
-
-        .tier-range {
-            font-weight: 600;
-            color: var(--neutral-gray-dark);
-        }
-
-        body.night-mode .tier-range {
-            color: var(--text-light);
-        }
-
-        .tier-price {
-            font-weight: 700;
-            color: var(--accent-orange);
-            font-size: 1.1rem;
-        }
-
-        .disclaimer {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            background-color: rgba(59, 130, 246, 0.1);
-            border-radius: 0.5rem;
-            border-left: 3px solid var(--primary-blue);
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
-            color: var(--neutral-gray-medium);
-            text-align: left;
-        }
-
-        body.night-mode .disclaimer {
-            background-color: rgba(59, 130, 246, 0.2);
-            color: var(--text-medium-light);
-        }
-        
-        /* Responsive adjustments for very small screens */
+            --primary-blue: #3b82f6;--secondary-green: #22c55e;--accent-orange: #f97316;--accent-purple: #8b5cf6;--neutral-gray-dark: #374151;--neutral-gray-medium: #6b7280;--neutral-gray-light: #e5e7eb;--background-light: #f9fafb;--card-background: #ffffff;--highlight-yellow: #facc15;--error-red: #ef4444;--button-light-gray: #e0e0e0;--button-hover-gray: #d1d1d1;--button-active-gray: #c0c0c0;--button-dark-text: #333f48;--background-dark: #1a202c;--card-dark: #2d3748;--text-light: #e2e8f0;--text-medium-light: #a0aec0;--input-dark-bg: #4a5568;--input-dark-border: #6b7280;--result-item-dark-bg: #3c4a5c;--result-item-dark-border: #5a6a7c;--primary-blue-darker: #2563eb;--highlight-yellow-dark: #fbbf24;--manual-result-color: #fef08a;--manual-highlight-color: #fbbf24;--meter-result-color: #d9f99d;--meter-highlight-color: #a3e635;--device-result-color: #a7f3d0;--device-highlight-color: #5eead4;--menu-section-color: #e6c200;--device-name-color: #4f46e5;--device-name-color-night: #818cf8;--action-button-text-day: #000000;--action-button-text-night: #22c55e;--action-button-text-hover-day: #333333;--action-button-text-hover-night: #16a34a;--action-button-text-active-day: #555555;--action-button-text-active-night: #15803d;
+        }
+
+        * {box-sizing: border-box;margin: 0;padding: 0;}
+        html, body {height: 100%;width: 100%;overflow-x: hidden;font-size: 18px;}
+        body {font-family: 'Inter', sans-serif;background-color: var(--background-light);margin: 0;padding: 0;color: var(--neutral-gray-dark);display: flex;flex-direction: column;min-height: 100vh;touch-action: pan-x pan-y;padding-top: env(safe-area-inset-top);padding-bottom: env(safe-area-inset-bottom);transition: background-color 0.3s, color 0.3s;}
+        body.night-mode {background-color: var(--background-dark);color: var(--text-light);}
+        .header-bar {position: relative;display: flex;justify-content: space-between;align-items: center;padding: 10px;width: 100%;z-index: 40;}
+        .main-title {color: var(--highlight-yellow);font-weight: normal;font-size: clamp(1.4rem, 5.5vw, 2.4rem);text-align: center;flex-grow: 1;transition: color 0.3s;}
+        body.night-mode .main-title {color: var(--highlight-yellow-dark);}
+        .menu-toggle {width: 40px;height: 40px;border-radius: 8px;background-color: var(--button-light-gray);display: flex;flex-direction: column;justify-content: center;align-items: center;cursor: pointer;transition: all 0.3s ease;}
+        body.night-mode .menu-toggle {background-color: var(--input-dark-bg);}
+        .menu-toggle span {display: block;width: 20px;height: 2px;background-color: var(--button-dark-text);margin: 2px 0;transition: all 0.3s ease;}
+        body.night-mode .menu-toggle span {background-color: var(--text-light);}
+        .night-mode-toggle {width: 40px;height: 40px;border-radius: 8px;background-color: var(--button-light-gray);display: flex;justify-content: center;align-items: center;cursor: pointer;transition: all 0.3s ease;}
+        body.night-mode .night-mode-toggle {background-color: var(--input-dark-bg);}
+        .night-mode-toggle svg {width: 20px;height: 20px;fill: var(--button-dark-text);transition: fill 0.3s ease;}
+        body.night-mode .night-mode-toggle svg {fill: var(--highlight-yellow-dark);}
+        .menu-overlay {position: fixed;top: 0;left: 0;width: 75%;max-width: 75%;height: 100%;background-color: var(--card-background);display: none;flex-direction: column;z-index: 100;padding: 1rem;box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);transition: background-color 0.3s ease;}
+        body.night-mode .menu-overlay {background-color: var(--card-dark);}
+        .menu-overlay.open {display: flex;}
+        .menu-title {font-size: 1.3rem;font-weight: 700;color: var(--neutral-gray-dark);padding: 1rem;text-align: left;border-bottom: 1px solid var(--neutral-gray-light);margin-bottom: 0.5rem;}
+        body.night-mode .menu-title {color: var(--text-light);border-bottom-color: var(--input-dark-border);}
+        .menu-items {flex: 1;display: flex;flex-direction: column;}
+        .menu-item {font-size: 1.1rem;color: var(--neutral-gray-dark);padding: 1rem;text-align: left;cursor: pointer;transition: all 0.3s ease;border-radius: 8px;margin-bottom: 0.5rem;background-color: transparent;border-bottom: 1px solid var(--neutral-gray-light);}
+        body.night-mode .menu-item {color: var(--highlight-yellow-dark);border-bottom-color: var(--input-dark-border);}
+        .menu-item:last-child {border-bottom: none;}
+        .menu-item:hover, .menu-item.active {background-color: var(--primary-blue);color: white;}
+        .main-container {display: flex;flex-direction: column;gap: 1rem;width: 100%;max-width: 100%;background-color: var(--card-background);padding: 1rem;flex: 1;box-sizing: border-box;}
+        body.night-mode .main-container {background-color: var(--card-dark);}
+        .section-card {background-color: var(--card-background);border: 1px solid var(--neutral-gray-light);border-radius: 0.75rem;padding: 1rem;box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);width: 100%;box-sizing: border-box;display: none;}
+        body.night-mode .section-card {background-color: var(--card-dark);border-color: var(--input-dark-border);}
+        .section-card.active {display: block;}
+        h2 {color: var(--neutral-gray-dark);font-weight: 700;margin-bottom: 0.75rem;font-size: clamp(1.4rem, 5vw, 1.8rem);text-align: center;}
+        body.night-mode h2 {color: var(--text-light);}
+        .input-group {display: flex;flex-wrap: wrap;align-items: center;gap: 0.5rem;margin-bottom: 1rem;justify-content: center;}
+        label {font-weight: 600;color: var(--neutral-gray-medium);flex-shrink: 0;font-size: clamp(1rem, 3vw, 1.2rem);}
+        body.night-mode label {color: var(--text-medium-light);}
+        input[type="text"], input[type="number"], select {padding: 0.5rem;border: 1px solid var(--neutral-gray-light);border-radius: 0.5rem;font-size: clamp(1rem, 3vw, 1.2rem);text-align: center;background-color: var(--card-background);color: var(--neutral-gray-dark);flex-grow: 1;min-width: 5rem;transition: all 0.2s ease-in-out;box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);height: 42px;}
+        body.night-mode input[type="text"], body.night-mode input[type="number"], body.night-mode select {background-color: var(--input-dark-bg);color: var(--text-light);border-color: var(--input-dark-border);}
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {border-color: var(--primary-blue);box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);outline: none;}
+        button {padding: 0.5rem 1rem;border-radius: 0.5rem;border: none;font-size: clamp(1rem, 3vw, 1.2rem);font-weight: 700;cursor: pointer;transition: all 0.2s ease-in-out;box-shadow: 0 2px 4px rgba(0,0,0,0.1);white-space: nowrap;color: var(--button-dark-text);margin: 0.25rem;background-color: var(--button-light-gray);width: 100%;height: 42px;}
+        body.night-mode button {background-color: var(--input-dark-bg);color: var(--text-light);}
+        button.btn-action {color: var(--highlight-yellow);}
+        body.night-mode button.btn-action {color: var(--highlight-yellow-dark);}
+        button.device-action {background-color: var(--button-light-gray);color: var(--action-button-text-day);font-weight: 600;}
+        body.night-mode button.device-action {background-color: var(--input-dark-bg);color: var(--action-button-text-night);}
+        button.device-action:hover {background-color: var(--button-hover-gray);color: var(--action-button-text-hover-day);}
+        body.night-mode button.device-action:hover {background-color: var(--neutral-gray-medium);color: var(--action-button-text-hover-night);}
+        button.device-action:active {background-color: var(--button-active-gray);color: var(--action-button-text-active-day);}
+        body.night-mode button.device-action:active {background-color: var(--neutral-gray-dark);color: var(--action-button-text-active-night);}
+        button:hover {transform: translateY(-2px);box-shadow: 0 4px 8px rgba(0,0,0,0.2);opacity: 0.95;background-color: var(--button-hover-gray);}
+        body.night-mode button:hover {background-color: var(--neutral-gray-medium);}
+        button:active {transform: translateY(0);box-shadow: 0 2px 4px rgba(0,0,0,0.1);background-color: var(--button-active-gray);}
+        body.night-mode button:active {background-color: var(--neutral-gray-dark);}
+        .result-grid {display: grid;grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));gap: 0.5rem;font-size: clamp(1rem, 3vw, 1.2rem);margin-top: 0.5rem;width: 100%;}
+        .result-item {background-color: var(--card-background);border: 1px solid var(--neutral-gray-light);border-radius: 0.5rem;padding: 0.75rem;text-align: center;box-shadow: inset 0 1px 4px rgba(0,0,0,0.07);}
+        body.night-mode .result-item {background-color: var(--result-item-dark-bg);border-color: var(--result-item-dark-border);}
+        .result-label {color: var(--neutral-gray-medium);margin-bottom: 0.2rem;font-weight: 500;font-size: clamp(0.8rem, 3vw, 1rem);}
+        body.night-mode .result-label {color: var(--text-medium-light);}
+        .result-value {font-weight: 800;color: var(--neutral-gray-dark);font-size: clamp(1.1rem, 4vw, 1.4rem);transition: color 0.2s ease-in-out;}
+        body.night-mode .result-value {color: var(--text-light);}
+        @keyframes flashEffect {0% {color: var(--current-result-color);}16.6% {color: var(--current-highlight-color);}33.3% {color: var(--current-result-color);}50% {color: var(--current-highlight-color);}66.6% {color: var(--current-result-color);}83.3% {color: var(--current-highlight-color);}100% {color: var(--current-result-color);}}
+        .flash-animation {animation: flashEffect 1.8s ease-out;}
+        .chart-container {width: 100%;height: 250px;margin-top: 1rem;background-color: var(--card-background);border-radius: 0.75rem;padding: 1rem;box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);}
+        body.night-mode .chart-container {background-color: var(--card-dark);}
+        .device-table-container {overflow-x: auto;max-height: 400px;border: 1px solid var(--neutral-gray-light);border-radius: 0.75rem;margin-bottom: 1rem;box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);width: 100%;-webkit-overflow-scrolling: touch;}
+        body.night-mode .device-table-container {border-color: var(--input-dark-border);}
+        .device-table {width: 100%;border-collapse: collapse;min-width: 600px;}
+        .device-table th, .device-table td {padding: 0.5rem;border-bottom: 1px solid var(--neutral-gray-light);text-align: center;font-size: clamp(0.9rem, 2.5vw, 1.1rem);}
+        body.night-mode .device-table th, body.night-mode .device-table td {border-bottom-color: var(--input-dark-border);}
+        .device-table th {background-color: var(--button-light-gray);font-weight: 700;position: sticky;top: 0;z-index: 10;color: var(--neutral-gray-dark);}
+        body.night-mode .device-table th {background-color: var(--input-dark-bg);color: var(--text-light);}
+        .device-table tbody tr:hover {background-color: rgba(59, 130, 246, 0.1);}
+        body.night-mode .device-table tbody tr:hover {background-color: rgba(59, 130, 246, 0.2);}
+        .device-table tbody tr.selected-row {background-color: rgba(59, 130, 246, 0.2);box-shadow: inset 0 0 0 3px var(--primary-blue);}
+        .device-table input[type="text"], .device-table input[type="number"] {width: 100%;padding: 0.3rem;border: 1px solid var(--neutral-gray-light);border-radius: 0.3rem;text-align: center;font-size: clamp(0.9rem, 2.5vw, 1.1rem);background-color: var(--card-background);color: var(--neutral-gray-dark);}
+        body.night-mode .device-table input[type="text"], body.night-mode .device-table input[type="number"] {background-color: var(--input-dark-bg);color: var(--text-light);border-color: var(--input-dark-border);}
+        .device-table input[type="checkbox"] {width: 1.2rem;height: 1.2rem;cursor: pointer;border-radius: 0.2rem;accent-color: var(--primary-blue);}
+        .device-table .output-cell {background-color: rgba(59, 130, 246, 0.1);font-weight: 600;color: var(--primary-blue);}
+        body.night-mode .device-table .output-cell {background-color: rgba(59, 130, 246, 0.2);color: var(--primary-blue-darker);}
+        .device-name {color: var(--device-name-color);font-weight: 600;}
+        body.night-mode .device-name {color: var(--device-name-color-night);}
+        .modal-overlay {position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(0, 0, 0, 0.7);display: flex;justify-content: center;align-items: center;z-index: 1000;padding: 1rem;box-sizing: border-box;overflow-y: auto;}
+        .modal-content {background-color: var(--card-background);padding: 1rem;border-radius: 0.75rem;box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);max-width: 100%;max-height: 90vh;overflow-y: auto;color: var(--neutral-gray-dark);position: relative;width: 100%;}
+        body.night-mode .modal-content {background-color: var(--card-dark);color: var(--text-light);}
+        .modal-close-button {position: absolute;top: 0.5rem;right: 0.5rem;background: none;border: none;font-size: 1.5rem;color: var(--neutral-gray-dark);cursor: pointer;z-index: 10;}
+        body.night-mode .modal-close-button {color: var(--text-light);}
+        .modal-close-button:hover {color: var(--primary-blue);}
+        .modal-content h3 {font-size: 1.5rem;font-weight: 700;color: var(--primary-blue);margin-bottom: 0.75rem;}
+        body.night-mode .modal-content h3 {color: var(--primary-blue-darker);}
+        .modal-content pre {background-color: var(--button-light-gray);padding: 0.75rem;border-radius: 0.5rem;overflow-x: auto;font-family: 'Cascadia Code', 'Fira Code', monospace;font-size: 0.9rem;}
+        body.night-mode .modal-content pre {background-color: var(--input-dark-bg);}
+        footer {color: var(--neutral-gray-medium);margin-top: auto;width: 100%;display: flex;flex-direction: column;align-items: center;gap: 0.25rem;padding: 0.5rem;font-size: clamp(0.8rem, 3vw, 1rem);}
+        body.night-mode footer {color: var(--text-medium-light);}
+        #appMessage {position: fixed;top: env(safe-area-inset-top);right: 0.5rem;padding: 0.5rem 1rem;border-radius: 0.5rem;box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);z-index: 1100;opacity: 0;transform: translateY(-20px);transition: opacity 0.3s ease-out, transform 0.3s ease-out;color: white;max-width: 90%;font-size: clamp(0.9rem, 3vw, 1.1rem);}
+        #appMessage.show {opacity: 1;transform: translateY(0);}
+        #appMessage.info {background-color: var(--primary-blue);}
+        #appMessage.success {background-color: var(--secondary-green);}
+        #appMessage.error {background-color: var(--error-red);}
+        .report-section-title {font-size: 1.3rem;font-weight: 700;color: var(--primary-blue);margin-top: 1rem;margin-bottom: 0.5rem;border-bottom: 2px solid var(--primary-blue);padding-bottom: 0.25rem;}
+        body.night-mode .report-section-title {color: var(--primary-blue-darker);border-bottom-color: var(--primary-blue-darker);}
+        .report-item-label {font-weight: 600;color: var(--neutral-gray-medium);margin-right: 0.25rem;font-size: clamp(1rem, 3vw, 1.2rem);}
+        body.night-mode .report-item-label {color: var(--text-medium-light);}
+        .report-item-value {font-weight: 700;color: var(--neutral-gray-dark);font-size: clamp(1rem, 3vw, 1.2rem);}
+        body.night-mode .report-item-value {color: var(--text-light);}
+        .report-breakdown-item {margin-left: 0.5rem;font-size: clamp(0.8rem, 3vw, 1rem);color: var(--neutral-gray-medium);}
+        body.night-mode .report-breakdown-item {color: var(--text-medium-light);}
+        .report-table-container {overflow-x: auto;margin-top: 0.5rem;border-radius: 0.5rem;box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);max-width: 100%;}
+        .report-table {width: 100%;border-collapse: collapse;background-color: var(--button-light-gray);border-radius: 0.5rem;overflow: hidden;font-size: clamp(0.7rem, 2vw, 0.85rem);table-layout: fixed;}
+        body.night-mode .report-table {background-color: var(--input-dark-bg);}
+        .report-table th, .report-table td {padding: 0.3rem;border: 1px solid var(--neutral-gray-light);text-align: left;color: var(--neutral-gray-dark);white-space: normal;word-wrap: break-word;overflow: hidden;text-overflow: ellipsis;}
+        body.night-mode .report-table th, body.night-mode .report-table td {border-color: var(--input-dark-border);color: var(--text-light);}
+        .report-table th {background-color: var(--primary-blue);color: white;font-weight: 700;position: sticky;top: 0;white-space: normal;word-wrap: break-word;padding: 0.4rem;}
+        .report-table tbody tr:nth-child(even) {background-color: rgba(59, 130, 246, 0.1);}
+        body.night-mode .report-table tbody tr:nth-child(even) {background-color: rgba(59, 130, 246, 0.2);}
+        .tariff-card {background-color: var(--card-background);border-radius: 0.75rem;padding: 1rem;margin-bottom: 1rem;box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);border-left: 4px solid var(--primary-blue);}
+        body.night-mode .tariff-card {background-color: var(--card-dark);}
+        .tariff-card h4 {color: var(--primary-blue);font-size: 1.2rem;margin-bottom: 0.75rem;display: flex;align-items: center;}
+        body.night-mode .tariff-card h4 {color: var(--primary-blue-darker);}
+        .tariff-icon {width: 24px;height: 24px;margin-right: 0.5rem;fill: var(--primary-blue);}
+        body.night-mode .tariff-icon {fill: var(--primary-blue-darker);}
+        .tariff-tier {display: flex;justify-content: space-between;padding: 0.5rem 0;border-bottom: 1px dashed var(--neutral-gray-light);}
+        .tariff-tier:last-child {border-bottom: none;}
+        .tier-range {font-weight: 600;color: var(--neutral-gray-dark);}
+        body.night-mode .tier-range {color: var(--text-light);}
+        .tier-price {font-weight: 700;color: var(--accent-orange);font-size: 1.1rem;}
+        .disclaimer {margin-top: 1.5rem;padding: 1rem;background-color: rgba(59, 130, 246, 0.1);border-radius: 0.5rem;border-left: 3px solid var(--primary-blue);font-size: clamp(0.9rem, 2.5vw, 1rem);color: var(--neutral-gray-medium);text-align: left;}
+        body.night-mode .disclaimer {background-color: rgba(59, 130, 246, 0.2);color: var(--text-medium-light);}
         @media (max-width: 480px) {
-            .result-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .input-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            input[type="text"],
-            input[type="number"],
-            select {
-                width: 100%;
-            }
-            
-            .modal-content {
-                padding: 0.75rem;
-            }
-            
-            .report-table {
-                font-size: 0.65rem; /* Even smaller font size on very small screens */
-            }
-            
-            .report-table th, .report-table td {
-                padding: 0.25rem; /* Even smaller padding on very small screens */
-            }
+            .result-grid {grid-template-columns: repeat(2, 1fr);}
+            .input-group {flex-direction: column;align-items: stretch;}
+            input[type="text"], input[type="number"], select {width: 100%;}
+            .modal-content {padding: 0.75rem;}
+            .report-table {font-size: 0.65rem;}
+            .report-table th, .report-table td {padding: 0.25rem;}
         }
-        
-        /* iOS specific fixes */
         @supports (-webkit-touch-callout: none) {
-            body {
-                /* Fix for iOS address bar */
-                min-height: -webkit-fill-available;
-            }
+            body {min-height: -webkit-fill-available;}
         }
     </style>
 </head>
 <body>
-    <!-- Header Bar -->
     <div class="header-bar">
         <button id="menuToggle" class="menu-toggle">
             <span></span>
@@ -1001,7 +172,6 @@
         </button>
     </div>
     
-    <!-- Menu Overlay -->
     <div id="menuOverlay" class="menu-overlay">
         <div class="menu-title">Menu</div>
         <div class="menu-items">
@@ -1014,10 +184,7 @@
     </div>
 
     <div class="main-container">
-        <!-- Main content now in a single column -->
         <div class="flex flex-col w-full space-y-4">
-
-            <!-- 1. Manual Calculation -->
             <div class="section-card active" id="manualCalculationSection">
                 <h2 class="text-xl">Manual Calculation</h2>
                 <div class="input-group">
@@ -1060,7 +227,6 @@
                 <button id="manualReportButton" class="btn btn-action mt-4">Generate Report</button>
             </div>
 
-            <!-- 2. By Meter Calculation -->
             <div class="section-card" id="meterCalculationSection">
                 <h2 class="text-xl">By Meter Calculation</h2>
                 <div class="input-group">
@@ -1093,7 +259,6 @@
                 <button id="meterReportButton" class="btn btn-action mt-4">Generate Report</button>
             </div>
 
-            <!-- 5. Device Consumption Table -->
             <div class="section-card flex-grow" id="deviceTableSection">
                 <h2 class="text-xl">Device Consumption Table</h2>
                 <div class="device-table-container">
@@ -1112,7 +277,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Device rows will be populated here by JavaScript -->
                         </tbody>
                     </table>
                 </div>
@@ -1126,7 +290,6 @@
                 <button id="deviceReportButton" class="btn btn-action mt-4">Generate Report</button>
             </div>
             
-            <!-- About Section -->
             <div class="section-card" id="aboutSection">
                 <h2 class="text-xl">About</h2>
                 <div style="margin-top: 1rem;">
@@ -1138,18 +301,15 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- Custom Modal for Tariff Details -->
     <div id="tariffDetailsModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <button class="modal-close-button" id="closeTariffDetailsModal">&times;</button>
             <h3 id="tariffDetailsModalTitle">Electricity Tariffs</h3>
             
             <div style="margin-top: 1.5rem;">
-                <!-- Residential Tariffs Card -->
                 <div class="tariff-card">
                     <h4>
                         <svg class="tariff-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1180,7 +340,6 @@
                     </div>
                 </div>
                 
-                <!-- Other Segments Tariffs Card -->
                 <div class="tariff-card">
                     <h4>
                         <svg class="tariff-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1224,7 +383,6 @@
         </div>
     </div>
 
-    <!-- Custom Modal for Reports -->
     <div id="reportModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <button class="modal-close-button" id="closeReportModal">&times;</button>
@@ -1233,74 +391,430 @@
         </div>
     </div>
 
-    <!-- Custom Message Box -->
     <div id="appMessage" class=""></div>
 
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- MENU FUNCTIONALITY ---
-            const menuToggle = document.getElementById('menuToggle');
-            const menuOverlay = document.getElementById('menuOverlay');
-            const menuItems = document.querySelectorAll('.menu-item[data-section]');
-            const sections = document.querySelectorAll('.section-card');
+        // Pre-cache DOM elements for better performance
+        const domElements = {
+            menuToggle: document.getElementById('menuToggle'),
+            menuOverlay: document.getElementById('menuOverlay'),
+            menuItems: document.querySelectorAll('.menu-item[data-section]'),
+            sections: document.querySelectorAll('.section-card'),
+            nightModeToggle: document.getElementById('nightModeToggle'),
+            body: document.body,
+            tariffDetailsModal: document.getElementById('tariffDetailsModal'),
+            closeTariffDetailsModal: document.getElementById('closeTariffDetailsModal'),
+            reportModal: document.getElementById('reportModal'),
+            closeReportModal: document.getElementById('closeReportModal'),
+            appMessage: document.getElementById('appMessage'),
+            manualCategoryDropdown: document.getElementById('categoryDropdown'),
+            manualInputTypeDropdown: document.getElementById('manualInputTypeDropdown'),
+            manualInput: document.getElementById('manualInput'),
+            manualBill: document.getElementById('manualBill'),
+            manualKwh: document.getElementById('manualKwh'),
+            manualAmperes: document.getElementById('manualAmperes'),
+            manualAvgRate: document.getElementById('manualAvgRate'),
+            calculateManualButton: document.getElementById('calculateManualButton'),
+            manualReportButton: document.getElementById('manualReportButton'),
+            meterPrevReading: document.getElementById('meterPrevReading'),
+            meterCurrReading: document.getElementById('meterCurrReading'),
+            daysInput: document.getElementById('daysInput'),
+            meterBill: document.getElementById('meterBill'),
+            meterKwh: document.getElementById('meterKwh'),
+            meterAmperes: document.getElementById('meterAmperes'),
+            meterAvgRate: document.getElementById('meterAvgRate'),
+            calculateMeterButton: document.getElementById('calculateMeterButton'),
+            meterReportButton: document.getElementById('meterReportButton'),
+            deviceTable: document.getElementById('deviceTable'),
+            deviceTableBody: document.querySelector('#deviceTable tbody'),
+            addRowButton: document.getElementById('addRowButton'),
+            deleteRowButton: document.getElementById('deleteRowButton'),
+            saveTableButton: document.getElementById('saveTableButton'),
+            loadFileInput: document.getElementById('loadFileInput'),
+            clearAllButton: document.getElementById('clearAllButton'),
+            deviceReportButton: document.getElementById('deviceReportButton'),
+            reportModalTitle: document.getElementById('reportModalTitle'),
+            reportModalContent: document.getElementById('reportModalContent')
+        };
+
+        // Tariff data - precomputed for faster access
+        const tariffData = {
+            Household: [
+                { min: 1, max: 400, rate: 72 },
+                { min: 401, max: 800, rate: 108 },
+                { min: 801, max: 1200, rate: 175 },
+                { min: 1201, max: 1600, rate: 265 },
+                { min: 1601, max: Infinity, rate: 350 }
+            ],
+            Commercial: [{ min: 1, max: Infinity, rate: 185 }],
+            Agriculture: [{ min: 1, max: Infinity, rate: 60 }],
+            Industrial: [{ min: 1, max: Infinity, rate: 160 }],
+            Government: [{ min: 1, max: Infinity, rate: 160 }],
+            'Heavy industries': [{ min: 1, max: Infinity, rate: 125 }]
+        };
+
+        // Device name mapping for proper display
+        const deviceNameMap = {
+            'ledTv': 'LED TV',
+            'refrigerator': 'Refrigerator',
+            'washingMachine': 'Washing Machine',
+            'ledLighting': 'LED Lighting',
+            'freezer': 'Freezer',
+            'waterPump': 'Water Pump',
+            'waterHeater': 'Water Heater',
+            'airCooler': 'Air Cooler',
+            'fan': 'Fan',
+            'dishwasher': 'Dishwasher',
+            'waterDispenser': 'Water Dispenser',
+            'splitAc1Ton': 'Split AC 1 Ton',
+            'splitAc1_5Ton': 'Split AC 1.5 Ton',
+            'splitAc2Ton': 'Split AC 2 Ton',
+            'towerAc': 'Tower AC',
+            'electricHeater': 'Electric Heater',
+            'iron': 'Iron',
+            'microwave': 'Microwave',
+            'electricKettle': 'Electric Kettle',
+            'hairDryer': 'Hair Dryer',
+            'vacuumCleaner': 'Vacuum Cleaner',
+            'electricOven': 'Electric Oven',
+            'phoneCharger': 'Phone Charger',
+            'desktopPc': 'Desktop PC',
+            'pcMonitor': 'PC Monitor'
+        };
+
+        // Sample devices for initialization
+        const sampleDevices = [
+            { nameKey: 'ledTv', watt: '100', hours: '8', day: '30', count: '1', on: true, fixed: false },
+            { nameKey: 'refrigerator', watt: '175', hours: '24', day: '30', count: '1', on: true, fixed: true },
+            { nameKey: 'washingMachine', watt: '2000', hours: '2', day: '4', count: '1', on: true, fixed: false },
+            { nameKey: 'ledLighting', watt: '12', hours: '12', day: '30', count: '20', on: true, fixed: false },
+            { nameKey: 'freezer', watt: '150', hours: '24', day: '30', count: '1', on: true, fixed: true },
+            { nameKey: 'waterPump', watt: '500', hours: '1', day: '30', count: '1', on: true, fixed: false },
+            { nameKey: 'waterHeater', watt: '2500', hours: '1', day: '15', count: '1', on: false, fixed: false },
+            { nameKey: 'airCooler', watt: '250', hours: '18', day: '30', count: '1', on: true, fixed: false },
+            { nameKey: 'fan', watt: '75', hours: '18', day: '30', count: '1', on: true, fixed: false },
+            { nameKey: 'dishwasher', watt: '1800', hours: '2', day: '15', count: '1', on: true, fixed: false },
+            { nameKey: 'waterDispenser', watt: '175', hours: '2', day: '15', count: '1', on: true, fixed: false },
+            { nameKey: 'splitAc1Ton', watt: '1000', hours: '4', day: '30', count: '1', on: true, fixed: false },
+            { nameKey: 'splitAc1_5Ton', watt: '1500', hours: '4', day: '30', count: '1', on: false, fixed: false },
+            { nameKey: 'splitAc2Ton', watt: '2000', hours: '4', day: '30', count: '1', on: false, fixed: false },
+            { nameKey: 'towerAc', watt: '3000', hours: '4', day: '30', count: '1', on: false, fixed: false },
+            { nameKey: 'electricHeater', watt: '2000', hours: '6', day: '20', count: '1', on: false, fixed: false },
+            { nameKey: 'iron', watt: '1500', hours: '1', day: '8', count: '1', on: false, fixed: false },
+            { nameKey: 'microwave', watt: '1000', hours: '0.5', day: '15', count: '1', on: false, fixed: false },
+            { nameKey: 'electricKettle', watt: '1800', hours: '0.2', day: '30', count: '1', on: false, fixed: false },
+            { nameKey: 'hairDryer', watt: '1600', hours: '0.2', day: '10', count: '1', on: false, fixed: false },
+            { nameKey: 'vacuumCleaner', watt: '1400', hours: '0.5', day: '4', count: '1', on: false, fixed: false },
+            { nameKey: 'electricOven', watt: '2500', hours: '1', day: '10', count: '1', on: false, fixed: false },
+            { nameKey: 'phoneCharger', watt: '10', hours: '8', day: '30', count: '2', on: false, fixed: true },
+            { nameKey: 'desktopPc', watt: '150', hours: '6', day: '30', count: '1', on: true, fixed: false },
+            { nameKey: 'pcMonitor', watt: '40', hours: '6', day: '30', count: '1', on: false, fixed: false },
+        ];
+
+        // Optimized calculation function
+        function calculateBill(category, inputValue, inputType) {
+            let kWh = 0, bill = 0, avgAmperes = 0;
             
-            // Toggle menu
-            menuToggle.addEventListener('click', () => {
-                menuOverlay.classList.toggle('open');
-            });
+            if (inputType === 'kWh') {
+                kWh = parseFloat(inputValue);
+            } else if (inputType === 'Avg Amperes') {
+                avgAmperes = parseFloat(inputValue);
+                kWh = avgAmperes * 220 * 24 * 30 / 1000;
+            } else if (inputType === 'Given Bill') {
+                bill = parseFloat(inputValue);
+                const rates = tariffData[category];
+                let totalKWh = 0, remainingBill = bill;
+                
+                for (const tier of rates) {
+                    const tierRange = tier.max - tier.min + 1;
+                    const maxTierBill = tierRange * tier.rate;
+                    
+                    if (remainingBill >= maxTierBill) {
+                        totalKWh += tierRange;
+                        remainingBill -= maxTierBill;
+                    } else {
+                        totalKWh += remainingBill / tier.rate;
+                        break;
+                    }
+                }
+                
+                kWh = totalKWh;
+            }
             
-            // Close menu when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!menuOverlay.contains(e.target) && !menuToggle.contains(e.target)) {
-                    menuOverlay.classList.remove('open');
+            if (inputType !== 'Given Bill') {
+                const rates = tariffData[category];
+                let remainingKWh = kWh;
+                
+                for (const tier of rates) {
+                    if (remainingKWh <= 0) break;
+                    
+                    const tierRange = Math.min(remainingKWh, tier.max - tier.min + 1);
+                    bill += tierRange * tier.rate;
+                    remainingKWh -= tierRange;
+                }
+            }
+            
+            if (inputType !== 'Avg Amperes') {
+                avgAmperes = kWh * 1000 / (220 * 24 * 30);
+            }
+            
+            const avgRate = kWh > 0 ? bill / kWh : 0;
+            
+            return {
+                bill: Math.round(bill),
+                kWh: parseFloat(kWh.toFixed(2)),
+                avgAmperes: parseFloat(avgAmperes.toFixed(2)),
+                avgRate: parseFloat(avgRate.toFixed(2))
+            };
+        }
+
+        // Optimized device consumption calculation
+        function calculateDeviceConsumption(device) {
+            if (!device.on) return { kWh: 0, cost: 0 };
+            
+            const kWh = (device.watt * device.hours * device.day * device.count) / 1000;
+            const category = domElements.manualCategoryDropdown.value;
+            const result = calculateBill(category, kWh, 'kWh');
+            
+            return {
+                kWh: parseFloat(kWh.toFixed(2)),
+                cost: result.bill
+            };
+        }
+
+        // Create device row with event delegation
+        function createDeviceRow(device = {}) {
+            const row = document.createElement('tr');
+            
+            device.nameKey = device.nameKey || '';
+            device.watt = device.watt || 0;
+            device.hours = device.hours || 0;
+            device.day = device.day || 30;
+            device.count = device.count || 1;
+            device.on = device.on !== undefined ? device.on : true;
+            device.fixed = device.fixed !== undefined ? device.fixed : false;
+            
+            const consumption = calculateDeviceConsumption(device);
+            const displayName = deviceNameMap[device.nameKey] || device.nameKey;
+            
+            row.innerHTML = `
+                <td><input type="text" class="device-name" value="${displayName}" data-namekey="${device.nameKey}" placeholder="Device name"></td>
+                <td><input type="number" class="device-watt" value="${device.watt}" min="0"></td>
+                <td><input type="number" class="device-hours" value="${device.hours}" min="0" max="24"></td>
+                <td><input type="number" class="device-day" value="${device.day}" min="1" max="365"></td>
+                <td><input type="number" class="device-count" value="${device.count}" min="1"></td>
+                <td class="output-cell">${consumption.kWh}</td>
+                <td class="output-cell">${consumption.cost} IQD</td>
+                <td><input type="checkbox" class="device-on" ${device.on ? 'checked' : ''}></td>
+                <td><input type="checkbox" class="device-fixed" ${device.fixed ? 'checked' : ''}></td>
+            `;
+            
+            // Use event delegation instead of individual event listeners
+            row.addEventListener('input', updateDeviceRow);
+            row.addEventListener('change', updateDeviceRow);
+            
+            row.addEventListener('click', (e) => {
+                if (e.target.type !== 'checkbox' && e.target.type !== 'text' && e.target.type !== 'number') {
+                    row.classList.toggle('selected-row');
                 }
             });
             
-            // Handle menu item clicks
-            menuItems.forEach(item => {
+            return row;
+        }
+
+        // Update device row with throttling
+        let updateTimeout;
+        function updateDeviceRow() {
+            clearTimeout(updateTimeout);
+            updateTimeout = setTimeout(() => {
+                const row = this.closest('tr');
+                const nameInput = row.querySelector('.device-name');
+                const nameKey = nameInput.getAttribute('data-namekey') || nameInput.value;
+                const watt = parseFloat(row.querySelector('.device-watt').value) || 0;
+                const hours = parseFloat(row.querySelector('.device-hours').value) || 0;
+                const day = parseFloat(row.querySelector('.device-day').value) || 30;
+                const count = parseFloat(row.querySelector('.device-count').value) || 1;
+                const on = row.querySelector('.device-on').checked;
+                
+                const device = { nameKey, watt, hours, day, count, on };
+                const consumption = calculateDeviceConsumption(device);
+                
+                row.querySelectorAll('.output-cell')[0].textContent = consumption.kWh;
+                row.querySelectorAll('.output-cell')[1].textContent = `${consumption.cost} IQD`;
+                
+                updateDeviceTotals();
+            }, 100);
+        }
+
+        // Update device totals with optimization
+        function updateDeviceTotals() {
+            const rows = domElements.deviceTableBody.querySelectorAll('tr:not(.totals-row)');
+            let totalKWh = 0, totalCost = 0;
+            
+            rows.forEach(row => {
+                const kWhCell = row.querySelectorAll('.output-cell')[0];
+                const costCell = row.querySelectorAll('.output-cell')[1];
+                
+                if (kWhCell && costCell) {
+                    totalKWh += parseFloat(kWhCell.textContent) || 0;
+                    totalCost += parseFloat(costCell.textContent) || 0;
+                }
+            });
+            
+            let totalsRow = domElements.deviceTableBody.querySelector('.totals-row');
+            
+            if (!totalsRow) {
+                totalsRow = document.createElement('tr');
+                totalsRow.className = 'totals-row';
+                totalsRow.innerHTML = `
+                    <td colspan="5" style="text-align: right; font-weight: 700;">Total:</td>
+                    <td class="output-cell" style="font-weight: 700;">0</td>
+                    <td class="output-cell" style="font-weight: 700;">0 IQD</td>
+                    <td colspan="2"></td>
+                `;
+                domElements.deviceTableBody.appendChild(totalsRow);
+            }
+            
+            totalsRow.querySelectorAll('.output-cell')[0].textContent = totalKWh.toFixed(2);
+            totalsRow.querySelectorAll('.output-cell')[1].textContent = `${Math.round(totalCost)} IQD`;
+        }
+
+        // Show message with optimization
+        function showMessage(message, type = 'info') {
+            domElements.appMessage.textContent = message;
+            domElements.appMessage.className = 'show ' + type;
+            
+            setTimeout(() => {
+                domElements.appMessage.classList.remove('show');
+            }, 3000);
+        }
+
+        // Generate report with optimized DOM manipulation
+        function generateReport(title, category, inputType, inputValue, result) {
+            domElements.reportModalTitle.textContent = title;
+            
+            const currentDate = new Date().toLocaleDateString();
+            const rates = tariffData[category];
+            let remainingKWh = parseFloat(result.kWh);
+            
+            let content = `
+                <div class="report-section-title">Calculation Details</div>
+                <p><span class="report-item-label">Date:</span> <span class="report-item-value">${currentDate}</span></p>
+                <p><span class="report-item-label">Category:</span> <span class="report-item-value">${category}</span></p>
+                <p><span class="report-item-label">Input Type:</span> <span class="report-item-value">${inputType}</span></p>
+                <p><span class="report-item-label">Input Value:</span> <span class="report-item-value">${inputValue}</span></p>
+                
+                <div class="report-section-title">Results</div>
+                <p><span class="report-item-label">Bill Amount:</span> <span class="report-item-value">${result.bill}</span></p>
+                <p><span class="report-item-label">Consumption:</span> <span class="report-item-value">${result.kWh}</span></p>
+                <p><span class="report-item-label">Average Amperes:</span> <span class="report-item-value">${result.avgAmperes}</span></p>
+                <p><span class="report-item-label">Average Rate:</span> <span class="report-item-value">${result.avgRate}</span></p>
+                
+                <div class="report-section-title">Tariff Breakdown</div>
+                <div class="report-table-container"><table class="report-table"><thead><tr><th>Tier (kWh)</th><th>Rate (IQD)</th><th>Consumption (kWh)</th><th>Cost (IQD)</th></tr></thead><tbody>
+            `;
+            
+            for (const tier of rates) {
+                if (remainingKWh <= 0) break;
+                
+                const tierRange = Math.min(remainingKWh, tier.max - tier.min + 1);
+                const tierCost = tierRange * tier.rate;
+                
+                content += `<tr><td>${tier.min}-${tier.max === Infinity ? '∞' : tier.max}</td><td>${tier.rate}</td><td>${tierRange.toFixed(2)}</td><td>${Math.round(tierCost)}</td></tr>`;
+                
+                remainingKWh -= tierRange;
+            }
+            
+            content += '</tbody></table></div>';
+            domElements.reportModalContent.innerHTML = content;
+            domElements.reportModal.style.display = 'flex';
+        }
+
+        // Generate device report with optimized DOM manipulation
+        function generateDeviceReport(title, devices, result) {
+            domElements.reportModalTitle.textContent = title;
+            
+            const currentDate = new Date().toLocaleDateString();
+            
+            let content = `
+                <div class="report-section-title">Calculation Details</div>
+                <p><span class="report-item-label">Date:</span> <span class="report-item-value">${currentDate}</span></p>
+                <p><span class="report-item-label">Category:</span> <span class="report-item-value">${domElements.manualCategoryDropdown.value}</span></p>
+                
+                <div class="report-section-title">Results</div>
+                <p><span class="report-item-label">Total Bill:</span> <span class="report-item-value">${result.bill}</span></p>
+                <p><span class="report-item-label">Total Consumption:</span> <span class="report-item-value">${result.kWh}</span></p>
+                <p><span class="report-item-label">Average Amperes:</span> <span class="report-item-value">${result.avgAmperes}</span></p>
+                <p><span class="report-item-label">Average Rate:</span> <span class="report-item-value">${result.avgRate}</span></p>
+                
+                <div class="report-section-title">Device Breakdown</div>
+                <div class="report-table-container"><table class="report-table"><thead><tr><th>Device</th><th>Watt</th><th>Hours/Day</th><th>Days</th><th>Count</th><th>kWh</th><th>Cost (IQD)</th></tr></thead><tbody>
+            `;
+            
+            devices.forEach(device => {
+                content += `<tr>
+                    <td>${device.name}</td>
+                    <td>${device.watt}</td>
+                    <td>${device.hours}</td>
+                    <td>${device.day}</td>
+                    <td>${device.count}</td>
+                    <td>${device.kWh.toFixed(2)}</td>
+                    <td>${Math.round(device.cost)}</td>
+                </tr>`;
+            });
+            
+            content += '</tbody></table></div>';
+            domElements.reportModalContent.innerHTML = content;
+            domElements.reportModal.style.display = 'flex';
+        }
+
+        // Initialize the application
+        function initApp() {
+            // Menu functionality
+            domElements.menuToggle.addEventListener('click', () => {
+                domElements.menuOverlay.classList.toggle('open');
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!domElements.menuOverlay.contains(e.target) && !domElements.menuToggle.contains(e.target)) {
+                    domElements.menuOverlay.classList.remove('open');
+                }
+            });
+            
+            domElements.menuItems.forEach(item => {
                 item.addEventListener('click', () => {
                     const sectionId = item.getAttribute('data-section');
                     
-                    // If it's a modal, handle differently
                     if (sectionId === 'tariffDetailsModal') {
-                        document.getElementById(sectionId).style.display = 'flex';
-                        menuOverlay.classList.remove('open');
+                        domElements.tariffDetailsModal.style.display = 'flex';
+                        domElements.menuOverlay.classList.remove('open');
                         return;
                     }
                     
-                    // Hide all sections
-                    sections.forEach(section => {
+                    domElements.sections.forEach(section => {
                         section.classList.remove('active');
                     });
                     
-                    // Show selected section
                     const selectedSection = document.getElementById(sectionId);
                     if (selectedSection) {
                         selectedSection.classList.add('active');
                     }
                     
-                    // Update active menu item
-                    menuItems.forEach(mi => {
+                    domElements.menuItems.forEach(mi => {
                         mi.classList.remove('active');
                     });
                     item.classList.add('active');
                     
-                    // Close menu
-                    menuOverlay.classList.remove('open');
+                    domElements.menuOverlay.classList.remove('open');
                 });
             });
             
-            // --- NIGHT MODE TOGGLE ---
-            const nightModeToggle = document.getElementById('nightModeToggle');
-            const body = document.body;
-            
-            // Check for saved night mode preference
+            // Night mode toggle
             const isNightMode = localStorage.getItem('nightMode') === 'true';
             if (isNightMode) {
-                body.classList.add('night-mode');
-                // Update icon to sun
-                nightModeToggle.innerHTML = `
+                domElements.body.classList.add('night-mode');
+                domElements.nightModeToggle.innerHTML = `
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="5"></circle>
                         <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -1315,21 +829,19 @@
                 `;
             }
             
-            nightModeToggle.addEventListener('click', () => {
-                if (body.classList.contains('night-mode')) {
-                    body.classList.remove('night-mode');
+            domElements.nightModeToggle.addEventListener('click', () => {
+                if (domElements.body.classList.contains('night-mode')) {
+                    domElements.body.classList.remove('night-mode');
                     localStorage.setItem('nightMode', 'false');
-                    // Update icon to moon
-                    nightModeToggle.innerHTML = `
+                    domElements.nightModeToggle.innerHTML = `
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                         </svg>
                     `;
                 } else {
-                    body.classList.add('night-mode');
+                    domElements.body.classList.add('night-mode');
                     localStorage.setItem('nightMode', 'true');
-                    // Update icon to sun
-                    nightModeToggle.innerHTML = `
+                    domElements.nightModeToggle.innerHTML = `
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="5"></circle>
                             <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -1338,150 +850,36 @@
                             <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
                             <line x1="1" y1="12" x2="3" y2="12"></line>
                             <line x1="21" y1="12" x2="23" y2="12"></line>
-                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2='18.36'></line>
                             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                `;
+                        </svg>
+                    `;
                 }
             });
             
-            // --- MODAL FUNCTIONALITY ---
-            const tariffDetailsModal = document.getElementById('tariffDetailsModal');
-            const closeTariffDetailsModal = document.getElementById('closeTariffDetailsModal');
-            const reportModal = document.getElementById('reportModal');
-            const closeReportModal = document.getElementById('closeReportModal');
-            
-            // Close tariff details modal
-            closeTariffDetailsModal.addEventListener('click', () => {
-                tariffDetailsModal.style.display = 'none';
+            // Modal functionality
+            domElements.closeTariffDetailsModal.addEventListener('click', () => {
+                domElements.tariffDetailsModal.style.display = 'none';
             });
             
-            // Close report modal
-            closeReportModal.addEventListener('click', () => {
-                reportModal.style.display = 'none';
+            domElements.closeReportModal.addEventListener('click', () => {
+                domElements.reportModal.style.display = 'none';
             });
             
-            // Close modals when clicking outside
             window.addEventListener('click', (e) => {
-                if (e.target === tariffDetailsModal) {
-                    tariffDetailsModal.style.display = 'none';
+                if (e.target === domElements.tariffDetailsModal) {
+                    domElements.tariffDetailsModal.style.display = 'none';
                 }
-                if (e.target === reportModal) {
-                    reportModal.style.display = 'none';
+                if (e.target === domElements.reportModal) {
+                    domElements.reportModal.style.display = 'none';
                 }
             });
             
-            // --- MESSAGE BOX FUNCTIONALITY ---
-            const appMessage = document.getElementById('appMessage');
-            
-            function showMessage(message, type = 'info') {
-                appMessage.textContent = message;
-                appMessage.className = 'show ' + type;
-                
-                setTimeout(() => {
-                    appMessage.classList.remove('show');
-                }, 3000);
-            }
-            
-            // --- TARIFF DATA ---
-            const tariffData = {
-                Household: [
-                    { min: 1, max: 400, rate: 72 },
-                    { min: 401, max: 800, rate: 108 },
-                    { min: 801, max: 1200, rate: 175 },
-                    { min: 1201, max: 1600, rate: 265 },
-                    { min: 1601, max: Infinity, rate: 350 }
-                ],
-                Commercial: [{ min: 1, max: Infinity, rate: 185 }],
-                Agriculture: [{ min: 1, max: Infinity, rate: 60 }],
-                Industrial: [{ min: 1, max: Infinity, rate: 160 }],
-                Government: [{ min: 1, max: Infinity, rate: 160 }],
-                'Heavy industries': [{ min: 1, max: Infinity, rate: 125 }]
-            };
-            
-            // --- CALCULATION FUNCTIONS ---
-            function calculateBill(category, inputValue, inputType) {
-                let kWh = 0;
-                let bill = 0;
-                let avgAmperes = 0;
-                
-                // Convert input to kWh based on input type
-                if (inputType === 'kWh') {
-                    kWh = parseFloat(inputValue);
-                } else if (inputType === 'Avg Amperes') {
-                    // Convert Amperes to kWh (assuming 220V and 30 days)
-                    avgAmperes = parseFloat(inputValue);
-                    kWh = avgAmperes * 220 * 24 * 30 / 1000;
-                } else if (inputType === 'Given Bill') {
-                    // For given bill, we need to estimate kWh
-                    bill = parseFloat(inputValue);
-                    
-                    // Simple estimation: use average rate to estimate kWh
-                    const rates = tariffData[category];
-                    let totalKWh = 0;
-                    let remainingBill = bill;
-                    
-                    for (const tier of rates) {
-                        const tierRange = tier.max - tier.min + 1;
-                        const maxTierBill = tierRange * tier.rate;
-                        
-                        if (remainingBill >= maxTierBill) {
-                            totalKWh += tierRange;
-                            remainingBill -= maxTierBill;
-                        } else {
-                            totalKWh += remainingBill / tier.rate;
-                            break;
-                        }
-                    }
-                    
-                    kWh = totalKWh;
-                }
-                
-                // Calculate bill based on kWh and category
-                if (inputType !== 'Given Bill') {
-                    const rates = tariffData[category];
-                    let remainingKWh = kWh;
-                    
-                    for (const tier of rates) {
-                        if (remainingKWh <= 0) break;
-                        
-                        const tierRange = Math.min(remainingKWh, tier.max - tier.min + 1);
-                        bill += tierRange * tier.rate;
-                        remainingKWh -= tierRange;
-                    }
-                }
-                
-                // Calculate average amperes if not provided
-                if (inputType !== 'Avg Amperes') {
-                    avgAmperes = kWh * 1000 / (220 * 24 * 30);
-                }
-                
-                // Calculate average rate
-                const avgRate = kWh > 0 ? bill / kWh : 0;
-                
-                return {
-                    bill: Math.round(bill),
-                    kWh: parseFloat(kWh.toFixed(2)),
-                    avgAmperes: parseFloat(avgAmperes.toFixed(2)),
-                    avgRate: parseFloat(avgRate.toFixed(2))
-                };
-            }
-            
-            // --- MANUAL CALCULATION ---
-            const calculateManualButton = document.getElementById('calculateManualButton');
-            const manualCategoryDropdown = document.getElementById('categoryDropdown');
-            const manualInputTypeDropdown = document.getElementById('manualInputTypeDropdown');
-            const manualInput = document.getElementById('manualInput');
-            const manualBill = document.getElementById('manualBill');
-            const manualKwh = document.getElementById('manualKwh');
-            const manualAmperes = document.getElementById('manualAmperes');
-            const manualAvgRate = document.getElementById('manualAvgRate');
-            const manualReportButton = document.getElementById('manualReportButton');
-            
-            calculateManualButton.addEventListener('click', () => {
-                const category = manualCategoryDropdown.value;
-                const inputType = manualInputTypeDropdown.value;
-                const inputValue = manualInput.value;
+            // Manual calculation
+            domElements.calculateManualButton.addEventListener('click', () => {
+                const category = domElements.manualCategoryDropdown.value;
+                const inputType = domElements.manualInputTypeDropdown.value;
+                const inputValue = domElements.manualInput.value;
                 
                 if (!inputValue || isNaN(inputValue) || parseFloat(inputValue) <= 0) {
                     showMessage('Please enter a valid input value', 'error');
@@ -1490,61 +888,46 @@
                 
                 const result = calculateBill(category, inputValue, inputType);
                 
-                // Update UI with animation
-                manualBill.textContent = `${result.bill} IQD`;
-                manualKwh.textContent = `${result.kWh} kWh`;
-                manualAmperes.textContent = `${result.avgAmperes} A`;
-                manualAvgRate.textContent = `${result.avgRate} IQD/kWh`;
+                domElements.manualBill.textContent = `${result.bill} IQD`;
+                domElements.manualKwh.textContent = `${result.kWh} kWh`;
+                domElements.manualAmperes.textContent = `${result.avgAmperes} A`;
+                domElements.manualAvgRate.textContent = `${result.avgRate} IQD/kWh`;
                 
-                // Set CSS variables for animation colors
                 document.documentElement.style.setProperty('--current-result-color', 'var(--manual-result-color)');
                 document.documentElement.style.setProperty('--current-highlight-color', 'var(--manual-highlight-color)');
                 
-                // Add flash animation
-                manualBill.classList.add('flash-animation');
-                manualKwh.classList.add('flash-animation');
-                manualAmperes.classList.add('flash-animation');
-                manualAvgRate.classList.add('flash-animation');
+                domElements.manualBill.classList.add('flash-animation');
+                domElements.manualKwh.classList.add('flash-animation');
+                domElements.manualAmperes.classList.add('flash-animation');
+                domElements.manualAvgRate.classList.add('flash-animation');
                 
-                // Remove animation class after animation completes
                 setTimeout(() => {
-                    manualBill.classList.remove('flash-animation');
-                    manualKwh.classList.remove('flash-animation');
-                    manualAmperes.classList.remove('flash-animation');
-                    manualAvgRate.classList.remove('flash-animation');
+                    domElements.manualBill.classList.remove('flash-animation');
+                    domElements.manualKwh.classList.remove('flash-animation');
+                    domElements.manualAmperes.classList.remove('flash-animation');
+                    domElements.manualAvgRate.classList.remove('flash-animation');
                 }, 1800);
             });
             
-            // Generate manual report
-            manualReportButton.addEventListener('click', () => {
-                const category = manualCategoryDropdown.value;
-                const inputType = manualInputTypeDropdown.value;
-                const inputValue = manualInput.value;
+            domElements.manualReportButton.addEventListener('click', () => {
+                const category = domElements.manualCategoryDropdown.value;
+                const inputType = domElements.manualInputTypeDropdown.value;
+                const inputValue = domElements.manualInput.value;
                 const result = {
-                    bill: manualBill.textContent,
-                    kWh: manualKwh.textContent,
-                    avgAmperes: manualAmperes.textContent,
-                    avgRate: manualAvgRate.textContent
+                    bill: domElements.manualBill.textContent,
+                    kWh: domElements.manualKwh.textContent,
+                    avgAmperes: domElements.manualAmperes.textContent,
+                    avgRate: domElements.manualAvgRate.textContent
                 };
                 
                 generateReport('Manual Calculation Report', category, inputType, inputValue, result);
             });
             
-            // --- METER CALCULATION ---
-            const calculateMeterButton = document.getElementById('calculateMeterButton');
-            const meterPrevReading = document.getElementById('meterPrevReading');
-            const meterCurrReading = document.getElementById('meterCurrReading');
-            const daysInput = document.getElementById('daysInput');
-            const meterBill = document.getElementById('meterBill');
-            const meterKwh = document.getElementById('meterKwh');
-            const meterAmperes = document.getElementById('meterAmperes');
-            const meterAvgRate = document.getElementById('meterAvgRate');
-            const meterReportButton = document.getElementById('meterReportButton');
-            
-            calculateMeterButton.addEventListener('click', () => {
-                const prevReading = parseFloat(meterPrevReading.value);
-                const currReading = parseFloat(meterCurrReading.value);
-                const days = parseFloat(daysInput.value);
+            // Meter calculation
+            domElements.calculateMeterButton.addEventListener('click', () => {
+                const prevReading = parseFloat(domElements.meterPrevReading.value);
+                const currReading = parseFloat(domElements.meterCurrReading.value);
+                const days = parseFloat(domElements.daysInput.value);
                 
                 if (isNaN(prevReading) || isNaN(currReading) || prevReading >= currReading) {
                     showMessage('Please enter valid meter readings', 'error');
@@ -1552,51 +935,45 @@
                 }
                 
                 const kWh = currReading - prevReading;
-                const category = manualCategoryDropdown.value; // Use the same category as manual calculation
+                const category = domElements.manualCategoryDropdown.value;
                 const result = calculateBill(category, kWh, 'kWh');
                 
-                // Adjust for actual days if not 30
                 const dayFactor = 30 / days;
                 const adjustedBill = Math.round(result.bill * dayFactor);
                 const adjustedKWh = parseFloat((result.kWh * dayFactor).toFixed(2));
                 const adjustedAvgAmperes = parseFloat((result.avgAmperes * dayFactor).toFixed(2));
                 
-                // Update UI with animation
-                meterBill.textContent = `${adjustedBill} IQD`;
-                meterKwh.textContent = `${adjustedKWh} kWh`;
-                meterAmperes.textContent = `${adjustedAvgAmperes} A`;
-                meterAvgRate.textContent = `${result.avgRate} IQD/kWh`;
+                domElements.meterBill.textContent = `${adjustedBill} IQD`;
+                domElements.meterKwh.textContent = `${adjustedKWh} kWh`;
+                domElements.meterAmperes.textContent = `${adjustedAvgAmperes} A`;
+                domElements.meterAvgRate.textContent = `${result.avgRate} IQD/kWh`;
                 
-                // Set CSS variables for animation colors
                 document.documentElement.style.setProperty('--current-result-color', 'var(--meter-result-color)');
                 document.documentElement.style.setProperty('--current-highlight-color', 'var(--meter-highlight-color)');
                 
-                // Add flash animation
-                meterBill.classList.add('flash-animation');
-                meterKwh.classList.add('flash-animation');
-                meterAmperes.classList.add('flash-animation');
-                meterAvgRate.classList.add('flash-animation');
+                domElements.meterBill.classList.add('flash-animation');
+                domElements.meterKwh.classList.add('flash-animation');
+                domElements.meterAmperes.classList.add('flash-animation');
+                domElements.meterAvgRate.classList.add('flash-animation');
                 
-                // Remove animation class after animation completes
                 setTimeout(() => {
-                    meterBill.classList.remove('flash-animation');
-                    meterKwh.classList.remove('flash-animation');
-                    meterAmperes.classList.remove('flash-animation');
-                    meterAvgRate.classList.remove('flash-animation');
+                    domElements.meterBill.classList.remove('flash-animation');
+                    domElements.meterKwh.classList.remove('flash-animation');
+                    domElements.meterAmperes.classList.remove('flash-animation');
+                    domElements.meterAvgRate.classList.remove('flash-animation');
                 }, 1800);
             });
             
-            // Generate meter report
-            meterReportButton.addEventListener('click', () => {
-                const prevReading = parseFloat(meterPrevReading.value);
-                const currReading = parseFloat(meterCurrReading.value);
-                const days = parseFloat(daysInput.value);
-                const category = manualCategoryDropdown.value;
+            domElements.meterReportButton.addEventListener('click', () => {
+                const prevReading = parseFloat(domElements.meterPrevReading.value);
+                const currReading = parseFloat(domElements.meterCurrReading.value);
+                const days = parseFloat(domElements.daysInput.value);
+                const category = domElements.manualCategoryDropdown.value;
                 const result = {
-                    bill: meterBill.textContent,
-                    kWh: meterKwh.textContent,
-                    avgAmperes: meterAmperes.textContent,
-                    avgRate: meterAvgRate.textContent
+                    bill: domElements.meterBill.textContent,
+                    kWh: domElements.meterKwh.textContent,
+                    avgAmperes: domElements.meterAmperes.textContent,
+                    avgRate: domElements.meterAvgRate.textContent
                 };
                 
                 const inputType = `Meter Reading (${prevReading} to ${currReading} in ${days} days)`;
@@ -1605,208 +982,19 @@
                 generateReport('Meter Calculation Report', category, inputType, inputValue, result);
             });
             
-            // --- DEVICE TABLE ---
-            const deviceTable = document.getElementById('deviceTable');
-            const deviceTableBody = deviceTable.querySelector('tbody');
-            const addRowButton = document.getElementById('addRowButton');
-            const deleteRowButton = document.getElementById('deleteRowButton');
-            const saveTableButton = document.getElementById('saveTableButton');
-            const loadFileInput = document.getElementById('loadFileInput');
-            const clearAllButton = document.getElementById('clearAllButton');
-            const deviceReportButton = document.getElementById('deviceReportButton');
-            
-            // Device name mapping for proper display
-            const deviceNameMap = {
-                'ledTv': 'LED TV',
-                'refrigerator': 'Refrigerator',
-                'washingMachine': 'Washing Machine',
-                'ledLighting': 'LED Lighting',
-                'freezer': 'Freezer',
-                'waterPump': 'Water Pump',
-                'waterHeater': 'Water Heater',
-                'airCooler': 'Air Cooler',
-                'fan': 'Fan',
-                'dishwasher': 'Dishwasher',
-                'waterDispenser': 'Water Dispenser',
-                'splitAc1Ton': 'Split AC 1 Ton',
-                'splitAc1_5Ton': 'Split AC 1.5 Ton',
-                'splitAc2Ton': 'Split AC 2 Ton',
-                'towerAc': 'Tower AC',
-                'electricHeater': 'Electric Heater',
-                'iron': 'Iron',
-                'microwave': 'Microwave',
-                'electricKettle': 'Electric Kettle',
-                'hairDryer': 'Hair Dryer',
-                'vacuumCleaner': 'Vacuum Cleaner',
-                'electricOven': 'Electric Oven',
-                'phoneCharger': 'Phone Charger',
-                'desktopPc': 'Desktop PC',
-                'pcMonitor': 'PC Monitor'
-            };
-            
-            // Initialize with sample devices
-            const sampleDevices = [
-                { nameKey: 'ledTv', watt: '100', hours: '8', day: '30', count: '1', on: true, fixed: false },
-                { nameKey: 'refrigerator', watt: '175', hours: '24', day: '30', count: '1', on: true, fixed: true },
-                { nameKey: 'washingMachine', watt: '2000', hours: '2', day: '4', count: '1', on: true, fixed: false },
-                { nameKey: 'ledLighting', watt: '12', hours: '12', day: '30', count: '20', on: true, fixed: false },
-                { nameKey: 'freezer', watt: '150', hours: '24', day: '30', count: '1', on: true, fixed: true },
-                { nameKey: 'waterPump', watt: '500', hours: '1', day: '30', count: '1', on: true, fixed: false },
-                { nameKey: 'waterHeater', watt: '2500', hours: '1', day: '15', count: '1', on: false, fixed: false },
-                { nameKey: 'airCooler', watt: '250', hours: '18', day: '30', count: '1', on: true, fixed: false },
-                { nameKey: 'fan', watt: '75', hours: '18', day: '30', count: '1', on: true, fixed: false },
-                { nameKey: 'dishwasher', watt: '1800', hours: '2', day: '15', count: '1', on: true, fixed: false },
-                { nameKey: 'waterDispenser', watt: '175', hours: '2', day: '15', count: '1', on: true, fixed: false },
-                { nameKey: 'splitAc1Ton', watt: '1000', hours: '4', day: '30', count: '1', on: true, fixed: false },
-                { nameKey: 'splitAc1_5Ton', watt: '1500', hours: '4', day: '30', count: '1', on: false, fixed: false },
-                { nameKey: 'splitAc2Ton', watt: '2000', hours: '4', day: '30', count: '1', on: false, fixed: false },
-                { nameKey: 'towerAc', watt: '3000', hours: '4', day: '30', count: '1', on: false, fixed: false },
-                { nameKey: 'electricHeater', watt: '2000', hours: '6', day: '20', count: '1', on: false, fixed: false },
-                { nameKey: 'iron', watt: '1500', hours: '1', day: '8', count: '1', on: false, fixed: false },
-                { nameKey: 'microwave', watt: '1000', hours: '0.5', day: '15', count: '1', on: false, fixed: false },
-                { nameKey: 'electricKettle', watt: '1800', hours: '0.2', day: '30', count: '1', on: false, fixed: false },
-                { nameKey: 'hairDryer', watt: '1600', hours: '0.2', day: '10', count: '1', on: false, fixed: false },
-                { nameKey: 'vacuumCleaner', watt: '1400', hours: '0.5', day: '4', count: '1', on: false, fixed: false },
-                { nameKey: 'electricOven', watt: '2500', hours: '1', day: '10', count: '1', on: false, fixed: false },
-                { nameKey: 'phoneCharger', watt: '10', hours: '8', day: '30', count: '2', on: false, fixed: true },
-                { nameKey: 'desktopPc', watt: '150', hours: '6', day: '30', count: '1', on: true, fixed: false },
-                { nameKey: 'pcMonitor', watt: '40', hours: '6', day: '30', count: '1', on: false, fixed: false },
-            ];
-            
-            // Function to calculate device consumption
-            function calculateDeviceConsumption(device) {
-                if (!device.on) return { kWh: 0, cost: 0 };
-                
-                const kWh = (device.watt * device.hours * device.day * device.count) / 1000;
-                const category = manualCategoryDropdown.value;
-                const result = calculateBill(category, kWh, 'kWh');
-                
-                return {
-                    kWh: parseFloat(kWh.toFixed(2)),
-                    cost: result.bill
-                };
-            }
-            
-            // Function to create a device row
-            function createDeviceRow(device = {}) {
-                const row = document.createElement('tr');
-                
-                // Set default values if not provided
-                device.nameKey = device.nameKey || '';
-                device.watt = device.watt || 0;
-                device.hours = device.hours || 0;
-                device.day = device.day || 30;
-                device.count = device.count || 1;
-                device.on = device.on !== undefined ? device.on : true;
-                device.fixed = device.fixed !== undefined ? device.fixed : false;
-                
-                // Calculate consumption
-                const consumption = calculateDeviceConsumption(device);
-                
-                // Get proper device name from mapping
-                const displayName = deviceNameMap[device.nameKey] || device.nameKey;
-                
-                row.innerHTML = `
-                    <td><input type="text" class="device-name" value="${displayName}" data-namekey="${device.nameKey}" placeholder="Device name"></td>
-                    <td><input type="number" class="device-watt" value="${device.watt}" min="0"></td>
-                    <td><input type="number" class="device-hours" value="${device.hours}" min="0" max="24"></td>
-                    <td><input type="number" class="device-day" value="${device.day}" min="1" max="365"></td>
-                    <td><input type="number" class="device-count" value="${device.count}" min="1"></td>
-                    <td class="output-cell">${consumption.kWh}</td>
-                    <td class="output-cell">${consumption.cost} IQD</td>
-                    <td><input type="checkbox" class="device-on" ${device.on ? 'checked' : ''}></td>
-                    <td><input type="checkbox" class="device-fixed" ${device.fixed ? 'checked' : ''}></td>
-                `;
-                
-                // Add event listeners for inputs
-                const inputs = row.querySelectorAll('input');
-                inputs.forEach(input => {
-                    input.addEventListener('input', updateDeviceRow);
-                    input.addEventListener('change', updateDeviceRow);
-                });
-                
-                // Add click event to row for selection
-                row.addEventListener('click', (e) => {
-                    if (e.target.type !== 'checkbox' && e.target.type !== 'text' && e.target.type !== 'number') {
-                        row.classList.toggle('selected-row');
-                    }
-                });
-                
-                return row;
-            }
-            
-            // Function to update a device row
-            function updateDeviceRow() {
-                const row = this.closest('tr');
-                const nameInput = row.querySelector('.device-name');
-                const nameKey = nameInput.getAttribute('data-namekey') || nameInput.value;
-                const watt = parseFloat(row.querySelector('.device-watt').value) || 0;
-                const hours = parseFloat(row.querySelector('.device-hours').value) || 0;
-                const day = parseFloat(row.querySelector('.device-day').value) || 30;
-                const count = parseFloat(row.querySelector('.device-count').value) || 1;
-                const on = row.querySelector('.device-on').checked;
-                
-                const device = { nameKey, watt, hours, day, count, on };
-                const consumption = calculateDeviceConsumption(device);
-                
-                // Update output cells
-                row.querySelectorAll('.output-cell')[0].textContent = consumption.kWh;
-                row.querySelectorAll('.output-cell')[1].textContent = `${consumption.cost} IQD`;
-                
-                // Update totals
-                updateDeviceTotals();
-            }
-            
-            // Function to update device totals
-            function updateDeviceTotals() {
-                const rows = deviceTableBody.querySelectorAll('tr');
-                let totalKWh = 0;
-                let totalCost = 0;
-                
-                rows.forEach(row => {
-                    const kWhCell = row.querySelectorAll('.output-cell')[0];
-                    const costCell = row.querySelectorAll('.output-cell')[1];
-                    
-                    if (kWhCell && costCell) {
-                        totalKWh += parseFloat(kWhCell.textContent) || 0;
-                        totalCost += parseFloat(costCell.textContent) || 0;
-                    }
-                });
-                
-                // Update or create totals row
-                let totalsRow = deviceTableBody.querySelector('.totals-row');
-                
-                if (!totalsRow) {
-                    totalsRow = document.createElement('tr');
-                    totalsRow.className = 'totals-row';
-                    totalsRow.innerHTML = `
-                        <td colspan="5" style="text-align: right; font-weight: 700;">Total:</td>
-                        <td class="output-cell" style="font-weight: 700;">0</td>
-                        <td class="output-cell" style="font-weight: 700;">0 IQD</td>
-                        <td colspan="2"></td>
-                    `;
-                    deviceTableBody.appendChild(totalsRow);
-                }
-                
-                totalsRow.querySelectorAll('.output-cell')[0].textContent = totalKWh.toFixed(2);
-                totalsRow.querySelectorAll('.output-cell')[1].textContent = `${Math.round(totalCost)} IQD`;
-            }
-            
-            // Initialize device table with sample devices
+            // Device table
             sampleDevices.forEach(device => {
-                deviceTableBody.appendChild(createDeviceRow(device));
+                domElements.deviceTableBody.appendChild(createDeviceRow(device));
             });
             updateDeviceTotals();
             
-            // Add new row
-            addRowButton.addEventListener('click', () => {
-                deviceTableBody.appendChild(createDeviceRow());
+            domElements.addRowButton.addEventListener('click', () => {
+                domElements.deviceTableBody.appendChild(createDeviceRow());
                 updateDeviceTotals();
             });
             
-            // Delete selected rows
-            deleteRowButton.addEventListener('click', () => {
-                const selectedRows = deviceTableBody.querySelectorAll('.selected-row');
+            domElements.deleteRowButton.addEventListener('click', () => {
+                const selectedRows = domElements.deviceTableBody.querySelectorAll('.selected-row');
                 
                 if (selectedRows.length === 0) {
                     showMessage('Please select rows to delete', 'error');
@@ -1820,13 +1008,11 @@
                 updateDeviceTotals();
             });
             
-            // Save table to text file
-            saveTableButton.addEventListener('click', () => {
-                const rows = deviceTableBody.querySelectorAll('tr:not(.totals-row)');
+            domElements.saveTableButton.addEventListener('click', () => {
+                const rows = domElements.deviceTableBody.querySelectorAll('tr:not(.totals-row)');
                 let textContent = 'Device Consumption Data\n';
                 textContent += '========================\n\n';
                 
-                // Add headers
                 textContent += 'Device\t\tWatt\tHours\tDay\tCount\tkWh\tIQD\tOn\tFixed\n';
                 textContent += '-----------------------------------------------------------------\n';
                 
@@ -1842,14 +1028,12 @@
                     const on = row.querySelector('.device-on').checked ? 'Yes' : 'No';
                     const fixed = row.querySelector('.device-fixed').checked ? 'Yes' : 'No';
                     
-                    // Format device name to be at least 8 characters wide for alignment
                     const formattedName = name.padEnd(12, ' ');
                     
                     textContent += `${formattedName}\t${watt}\t${hours}\t${day}\t${count}\t${kWh}\t${cost}\t${on}\t${fixed}\n`;
                 });
                 
-                // Add totals
-                const totalsRow = deviceTableBody.querySelector('.totals-row');
+                const totalsRow = domElements.deviceTableBody.querySelector('.totals-row');
                 if (totalsRow) {
                     const totalKWh = totalsRow.querySelectorAll('.output-cell')[0].textContent || '0';
                     const totalCost = totalsRow.querySelectorAll('.output-cell')[1].textContent || '0 IQD';
@@ -1858,7 +1042,6 @@
                     textContent += `Total:\t\t\t\t\t\t${totalKWh}\t${totalCost}\t\t\n`;
                 }
                 
-                // Add timestamp
                 const now = new Date();
                 textContent += `\nGenerated on: ${now.toLocaleString()}\n`;
                 
@@ -1871,8 +1054,7 @@
                 URL.revokeObjectURL(url);
             });
             
-            // Load table from text file
-            loadFileInput.addEventListener('change', (e) => {
+            domElements.loadFileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
                 
@@ -1882,25 +1064,21 @@
                         const text = event.target.result;
                         const lines = text.split('\n');
                         
-                        // Skip header lines until we find the data line
                         let dataStartIndex = 0;
                         for (let i = 0; i < lines.length; i++) {
                             if (lines[i].includes('Device\t\tWatt')) {
-                                dataStartIndex = i + 2; // Skip header and separator line
+                                dataStartIndex = i + 2;
                                 break;
                             }
                         }
                         
-                        // Clear existing rows (except totals)
-                        const existingRows = deviceTableBody.querySelectorAll('tr:not(.totals-row)');
+                        const existingRows = domElements.deviceTableBody.querySelectorAll('tr:not(.totals-row)');
                         existingRows.forEach(row => row.remove());
                         
-                        // Add rows from text file
                         for (let i = dataStartIndex; i < lines.length; i++) {
                             const line = lines[i].trim();
                             if (!line || line.includes('Total:') || line.includes('Generated on:')) continue;
                             
-                            // Split by tabs
                             const parts = line.split('\t');
                             if (parts.length < 9) continue;
                             
@@ -1912,7 +1090,6 @@
                             const on = parts[7].trim() === 'Yes';
                             const fixed = parts[8].trim() === 'Yes';
                             
-                            // Find nameKey from deviceNameMap (reverse lookup)
                             let nameKey = name.toLowerCase().replace(/\s+/g, '');
                             for (const [key, value] of Object.entries(deviceNameMap)) {
                                 if (value === name) {
@@ -1931,7 +1108,7 @@
                                 fixed: fixed
                             };
                             
-                            deviceTableBody.appendChild(createDeviceRow(device));
+                            domElements.deviceTableBody.appendChild(createDeviceRow(device));
                         }
                         
                         updateDeviceTotals();
@@ -1942,23 +1119,20 @@
                 };
                 
                 reader.readAsText(file);
-                e.target.value = ''; // Reset file input
+                e.target.value = '';
             });
             
-            // Clear all rows
-            clearAllButton.addEventListener('click', () => {
+            domElements.clearAllButton.addEventListener('click', () => {
                 if (confirm('Are you sure you want to clear all device data?')) {
-                    const existingRows = deviceTableBody.querySelectorAll('tr:not(.totals-row)');
+                    const existingRows = domElements.deviceTableBody.querySelectorAll('tr:not(.totals-row)');
                     existingRows.forEach(row => row.remove());
                     updateDeviceTotals();
                 }
             });
             
-            // Generate device report
-            deviceReportButton.addEventListener('click', () => {
-                const rows = deviceTableBody.querySelectorAll('tr:not(.totals-row)');
-                let totalKWh = 0;
-                let totalCost = 0;
+            domElements.deviceReportButton.addEventListener('click', () => {
+                const rows = domElements.deviceTableBody.querySelectorAll('tr:not(.totals-row)');
+                let totalKWh = 0, totalCost = 0;
                 const devices = [];
                 
                 rows.forEach(row => {
@@ -1990,105 +1164,8 @@
                 generateDeviceReport('Device Consumption Report', devices, result);
             });
             
-            // --- REPORT GENERATION ---
-            function generateReport(title, category, inputType, inputValue, result) {
-                const reportModalTitle = document.getElementById('reportModalTitle');
-                const reportModalContent = document.getElementById('reportModalContent');
-                
-                reportModalTitle.textContent = title;
-                
-                // Get current date
-                const currentDate = new Date().toLocaleDateString();
-                
-                // Build report content
-                let content = `
-                    <div class="report-section-title">Calculation Details</div>
-                    <p><span class="report-item-label">Date:</span> <span class="report-item-value">${currentDate}</span></p>
-                    <p><span class="report-item-label">Category:</span> <span class="report-item-value">${category}</span></p>
-                    <p><span class="report-item-label">Input Type:</span> <span class="report-item-value">${inputType}</span></p>
-                    <p><span class="report-item-label">Input Value:</span> <span class="report-item-value">${inputValue}</span></p>
-                    
-                    <div class="report-section-title">Results</div>
-                    <p><span class="report-item-label">Bill Amount:</span> <span class="report-item-value">${result.bill}</span></p>
-                    <p><span class="report-item-label">Consumption:</span> <span class="report-item-value">${result.kWh}</span></p>
-                    <p><span class="report-item-label">Average Amperes:</span> <span class="report-item-value">${result.avgAmperes}</span></p>
-                    <p><span class="report-item-label">Average Rate:</span> <span class="report-item-value">${result.avgRate}</span></p>
-                    
-                    <div class="report-section-title">Tariff Breakdown</div>
-                `;
-                
-                // Add tariff breakdown
-                const rates = tariffData[category];
-                let remainingKWh = parseFloat(result.kWh);
-                let breakdownHTML = '<div class="report-table-container"><table class="report-table"><thead><tr><th>Tier (kWh)</th><th>Rate (IQD)</th><th>Consumption (kWh)</th><th>Cost (IQD)</th></tr></thead><tbody>';
-                
-                for (const tier of rates) {
-                    if (remainingKWh <= 0) break;
-                    
-                    const tierRange = Math.min(remainingKWh, tier.max - tier.min + 1);
-                    const tierCost = tierRange * tier.rate;
-                    
-                    breakdownHTML += `<tr><td>${tier.min}-${tier.max === Infinity ? '∞' : tier.max}</td><td>${tier.rate}</td><td>${tierRange.toFixed(2)}</td><td>${Math.round(tierCost)}</td></tr>`;
-                    
-                    remainingKWh -= tierRange;
-                }
-                
-                breakdownHTML += '</tbody></table></div>';
-                content += breakdownHTML;
-                
-                reportModalContent.innerHTML = content;
-                reportModal.style.display = 'flex';
-            }
-            
-            function generateDeviceReport(title, devices, result) {
-                const reportModalTitle = document.getElementById('reportModalTitle');
-                const reportModalContent = document.getElementById('reportModalContent');
-                
-                reportModalTitle.textContent = title;
-                
-                // Get current date
-                const currentDate = new Date().toLocaleDateString();
-                
-                // Build report content
-                let content = `
-                    <div class="report-section-title">Calculation Details</div>
-                    <p><span class="report-item-label">Date:</span> <span class="report-item-value">${currentDate}</span></p>
-                    <p><span class="report-item-label">Category:</span> <span class="report-item-value">${manualCategoryDropdown.value}</span></p>
-                    
-                    <div class="report-section-title">Results</div>
-                    <p><span class="report-item-label">Total Bill:</span> <span class="report-item-value">${result.bill}</span></p>
-                    <p><span class="report-item-label">Total Consumption:</span> <span class="report-item-value">${result.kWh}</span></p>
-                    <p><span class="report-item-label">Average Amperes:</span> <span class="report-item-value">${result.avgAmperes}</span></p>
-                    <p><span class="report-item-label">Average Rate:</span> <span class="report-item-value">${result.avgRate}</span></p>
-                    
-                    <div class="report-section-title">Device Breakdown</div>
-                `;
-                
-                // Add device breakdown table
-                let deviceHTML = '<div class="report-table-container"><table class="report-table"><thead><tr><th>Device</th><th>Watt</th><th>Hours/Day</th><th>Days</th><th>Count</th><th>kWh</th><th>Cost (IQD)</th></tr></thead><tbody>';
-                
-                devices.forEach(device => {
-                    deviceHTML += `<tr>
-                        <td>${device.name}</td>
-                        <td>${device.watt}</td>
-                        <td>${device.hours}</td>
-                        <td>${device.day}</td>
-                        <td>${device.count}</td>
-                        <td>${device.kWh.toFixed(2)}</td>
-                        <td>${Math.round(device.cost)}</td>
-                    </tr>`;
-                });
-                
-                deviceHTML += '</tbody></table></div>';
-                content += deviceHTML;
-                
-                reportModalContent.innerHTML = content;
-                reportModal.style.display = 'flex';
-            }
-            
-            // --- TARIFF CHARTS ---
+            // Tariff charts
             function createTariffCharts() {
-                // Household Tariff Chart
                 const householdCtx = document.getElementById('householdTariffChart').getContext('2d');
                 new Chart(householdCtx, {
                     type: 'bar',
@@ -2147,7 +1224,6 @@
                     plugins: [ChartDataLabels]
                 });
                 
-                // Other Categories Tariff Chart
                 const otherCategoriesCtx = document.getElementById('otherCategoriesTariffChart').getContext('2d');
                 new Chart(otherCategoriesCtx, {
                     type: 'bar',
@@ -2201,20 +1277,24 @@
                 });
             }
             
-            // Initialize tariff charts when modal is opened
             document.querySelector('[data-section="tariffDetailsModal"]').addEventListener('click', () => {
-                // Show charts after a small delay to ensure the modal is displayed
                 setTimeout(() => {
                     document.getElementById('householdTariffChartContainer').style.display = 'block';
                     document.getElementById('otherCategoriesTariffChartContainer').style.display = 'block';
                     
-                    // Create charts if they don't exist
                     if (!document.getElementById('householdTariffChart').chart) {
                         createTariffCharts();
                     }
                 }, 100);
             });
-        });
+        }
+
+        // Initialize the app when DOM is loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
     </script>
 </body>
 </html>
